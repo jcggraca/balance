@@ -12,7 +12,7 @@ import {
 import MailUs from '../MailUs'
 import NavbarLink from '../NavbarLink'
 import ThemeToggle from '../ThemeToggle'
-import classes from './Navbar.module.css'
+import classes from './NavBar.module.css'
 
 const linksData = [
   { icon: IconHome2, label: 'Dashboard', to: '/' },
