@@ -1,0 +1,19 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card {
+  background-color: var(--mantine-color-yellow-filled) !important;
+  color: var(--mantine-color-body) !important;
+  font-weight: 500;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 5px !important;
+  margin-bottom: 15px;
+}
+
+.tableActionButton {
+  width: 13rem;
+}

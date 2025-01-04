@@ -1,0 +1,6 @@
+.warning {
+  color: var(--mantine-color-red-filled);
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}

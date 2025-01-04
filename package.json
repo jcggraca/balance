@@ -1,0 +1,48 @@
+{
+  "name": "my-personal-finance",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mantine/charts": "^7.15.2",
+    "@mantine/core": "^7.15.2",
+    "@mantine/dates": "^7.15.2",
+    "@mantine/form": "^7.15.2",
+    "@mantine/hooks": "^7.15.2",
+    "@mantine/notifications": "^7.15.2",
+    "@supabase/supabase-js": "^2.47.10",
+    "@tabler/icons-react": "^3.26.0",
+    "dayjs": "^1.11.13",
+    "dexie": "^4.0.10",
+    "dexie-export-import": "^4.1.4",
+    "dexie-react-hooks": "^1.1.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.1.1",
+    "recharts": "^2.15.0",
+    "uuid": "^11.0.3",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^3.12.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
+    "jsdom": "^24.1.3",
+    "postcss": "^8.4.49",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.6",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
