@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "jsx": "react-jsx",
-    "lib": ["DOM", "DOM.Iterable", "ESNext", "webworker"],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "useDefineForClassFields": true,
     "baseUrl": "./",
     "module": "ESNext",
