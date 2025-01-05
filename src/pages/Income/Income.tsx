@@ -110,7 +110,7 @@ const Income: FC = () => {
   return (
     <>
       <div className={classes.header}>
-        <h1>Income</h1>
+        <p>Search Container WIP</p>
         <AddIncome />
       </div>
 

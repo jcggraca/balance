@@ -16,7 +16,7 @@ const Types: FC = () => {
   return (
     <>
       <div className={classes.header}>
-        <h1>Types</h1>
+        <p>Search Container WIP</p>
         <AddTypes />
       </div>
 

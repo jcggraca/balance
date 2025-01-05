@@ -1,7 +1,8 @@
 import type { FC } from 'react'
-import { Stack } from '@mantine/core'
+import { Stack, Tooltip, UnstyledButton } from '@mantine/core'
 import {
   IconBellDollar,
+  IconBrandGithub,
   IconBuildingBank,
   IconCalendarDollar,
   IconCreditCard,
@@ -48,6 +49,18 @@ const Navbar: FC<NavbarProps> = ({ toggle }) => {
       </div>
 
       <div>
+        <Tooltip label="Github" position="right" transitionProps={{ duration: 0 }}>
+          <UnstyledButton
+            component="a"
+            href="https://github.com/jcggraca/my-personal-finance"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={classes.button}
+            aria-label="View project source code on GitHub"
+          >
+            <IconBrandGithub />
+          </UnstyledButton>
+        </Tooltip>
         <MailUs />
         <ThemeToggle />
       </div>

@@ -132,7 +132,7 @@ const Expenses: FC = () => {
   return (
     <>
       <div className={classes.header}>
-        <h1>Expenses</h1>
+        <p>Search Container WIP</p>
         <AddExpense />
       </div>
 
