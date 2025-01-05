@@ -11,7 +11,7 @@
       "@/*": ["src/*"]
     },
     "resolveJsonModule": true,
-    "types": ["vite-plugin-pwa/client"],
+    "types": ["vite-plugin-pwa/client", "node"],
     "allowImportingTsExtensions": true,
     "allowJs": false,
     "strict": true,
