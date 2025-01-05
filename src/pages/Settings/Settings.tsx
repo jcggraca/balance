@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { decrypt, encrypt } from '@/utils/crypto'
-import { Button, FileInput, Paper, Select, SimpleGrid, Stack, Text, TextInput, Title } from '@mantine/core'
+import { Button, FileInput, Flex, Paper, Select, SimpleGrid, Stack, Text, TextInput, Title } from '@mantine/core'
 import { useField, useForm } from '@mantine/form'
 import Dexie from 'dexie'
 import { exportDB } from 'dexie-export-import'
@@ -64,9 +64,10 @@ function ImportUserDB() {
       <Text>Import DataBase</Text>
       <TextInput
         {...form.getInputProps('password')}
-        label="Password (only for encrypted files)"
+        label="Password"
         type="password"
-        placeholder="Enter password if file is encrypted"
+        placeholder="Enter password"
+        description="Only for encrypted files"
         mb="md"
       />
       <FileInput
@@ -163,7 +164,6 @@ const Settings: FC = () => {
               { value: '¥', label: 'Yen (¥)' },
               { value: 'R$', label: 'Real (R$)' },
             ]}
-            w={300}
           />
         </Stack>
       </Paper>
@@ -171,14 +171,17 @@ const Settings: FC = () => {
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
           <Title order={2} size="h3">Database Management</Title>
-          <SimpleGrid cols={2}>
-            <Paper withBorder p="md">
+          <Flex
+            gap="md"
+            direction={{ base: 'column', sm: 'row' }}
+          >
+            <Paper withBorder p="md" style={{ flex: 1 }}>
               <ImportUserDB />
             </Paper>
-            <Paper withBorder p="md">
+            <Paper withBorder p="md" style={{ flex: 1 }}>
               <ExportUserDB />
             </Paper>
-          </SimpleGrid>
+          </Flex>
         </Stack>
       </Paper>
     </Stack>
