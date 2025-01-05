@@ -60,7 +60,7 @@ const Accounts: FC = () => {
   return (
     <>
       <div className={classes.header}>
-        <h1>Accounts</h1>
+        <h1>Search Container WIP</h1>
         <AddAccount />
       </div>
 

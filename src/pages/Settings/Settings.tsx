@@ -61,20 +61,20 @@ function ImportUserDB() {
 
   return (
     <form onSubmit={form.onSubmit(importDB)}>
-      <Text>Import DataBase</Text>
+      <Text>Import Database</Text>
       <TextInput
         {...form.getInputProps('password')}
         label="Password"
         type="password"
         placeholder="Enter password"
-        description="Only for encrypted files"
+        description="Required for encrypted files."
         mb="md"
       />
       <FileInput
         {...form.getInputProps('file')}
         accept=".json,.encrypted"
         label="Choose file"
-        placeholder="Pick a file"
+        placeholder="Pick file"
         mb="md"
       />
       <Button
@@ -125,12 +125,13 @@ function ExportUserDB() {
 
   return (
     <form onSubmit={exportLocalDB}>
-      <Text>Export DataBase</Text>
+      <Text>Export Database</Text>
       <TextInput
         {...field.getInputProps()}
-        label="Password"
+        label="Password (Recommended)"
         type="password"
-        placeholder="Enter a password"
+        placeholder="Enter password"
+        description="Recommended for security. Your data will be encrypted."
         mb="md"
       />
       <Button
@@ -148,8 +149,6 @@ const Settings: FC = () => {
 
   return (
     <Stack>
-      <Title order={1}>Settings</Title>
-
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
           <Title order={2} size="h3">Currency</Title>
@@ -171,6 +170,7 @@ const Settings: FC = () => {
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
           <Title order={2} size="h3">Database Management</Title>
+          <Text>Import and export your database</Text>
           <Flex
             gap="md"
             direction={{ base: 'column', sm: 'row' }}

@@ -19,7 +19,7 @@ const Budget: FC = () => {
   return (
     <>
       <div className={classes.header}>
-        <h1>Budget</h1>
+        <h1>Search Container WIP</h1>
         <AddBudget />
       </div>
       {budget.length === 0

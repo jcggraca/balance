@@ -1,4 +1,5 @@
-import { Center, Stack } from '@mantine/core'
+import type { FC } from 'react'
+import { Stack } from '@mantine/core'
 import {
   IconBellDollar,
   IconBuildingBank,
@@ -25,33 +26,31 @@ const linksData = [
   { icon: IconSettings, label: 'Settings', to: '/settings' },
 ]
 
-function Navbar() {
+interface NavbarProps {
+  toggle?: () => void
+}
+
+const Navbar: FC<NavbarProps> = ({ toggle }) => {
   const links = linksData.map(link => (
     <NavbarLink
       {...link}
       key={link.label}
+      onClick={toggle}
     />
   ))
 
   return (
     <nav className={classes.navbar}>
-      <Center>
-        <IconCalendarDollar />
-      </Center>
-
       <div className={classes.navbarMain}>
         <Stack justify="center" gap={0}>
           {links}
         </Stack>
       </div>
 
-      <Stack justify="center" gap={0}>
+      <div>
         <MailUs />
-      </Stack>
-
-      <Stack justify="center" gap={0}>
         <ThemeToggle />
-      </Stack>
+      </div>
     </nav>
   )
 }

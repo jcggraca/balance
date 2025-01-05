@@ -8,14 +8,15 @@ interface NavbarLinkProps {
   label: string
   to: string
   icon: typeof IconHome2
+  onClick?: () => void
 }
 
-const NavbarLink: FC<NavbarLinkProps> = ({ label, to, icon: Icon }) => {
+const NavbarLink: FC<NavbarLinkProps> = ({ label, to, icon: Icon, onClick }) => {
   const location = useLocation()
 
   return (
     <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
-      <UnstyledButton className={classes.link} data-active={location.pathname === to || undefined} component={Link} to={to}>
+      <UnstyledButton onClick={onClick} className={classes.link} data-active={location.pathname === to || undefined} component={Link} to={to}>
         <Icon />
       </UnstyledButton>
     </Tooltip>
