@@ -16,14 +16,14 @@ import ThemeToggle from '../ThemeToggle'
 import classes from './NavBar.module.css'
 
 const linksData = [
-  { icon: IconHome2, label: 'Dashboard', to: '/' },
-  { icon: IconBuildingBank, label: 'Accounts', to: '/accounts' },
-  { icon: IconBellDollar, label: 'Income', to: '/income' },
-  { icon: IconMoneybag, label: 'Expenses', to: '/expenses' },
-  { icon: IconCalendarDollar, label: 'Budget', to: '/budget' },
-  { icon: IconCreditCard, label: 'Debts', to: '/debts' },
-  { icon: IconTags, label: 'Types', to: '/types' },
-  { icon: IconSettings, label: 'Settings', to: '/settings' },
+  { icon: IconHome2, label: 'Dashboard', to: '/', ariaLabel: 'Go to Dashboard' },
+  { icon: IconBuildingBank, label: 'Accounts', to: '/accounts', ariaLabel: 'View all Accounts' },
+  { icon: IconBellDollar, label: 'Income', to: '/income', ariaLabel: 'Manage Income' },
+  { icon: IconMoneybag, label: 'Expenses', to: '/expenses', ariaLabel: 'Track Expenses' },
+  { icon: IconCalendarDollar, label: 'Budget', to: '/budget', ariaLabel: 'View Budget' },
+  { icon: IconCreditCard, label: 'Debts', to: '/debts', ariaLabel: 'Manage Debts' },
+  { icon: IconTags, label: 'Types', to: '/types', ariaLabel: 'Configure Types' },
+  { icon: IconSettings, label: 'Settings', to: '/settings', ariaLabel: 'Adjust Settings' },
 ]
 
 interface NavbarProps {

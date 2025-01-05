@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://my-personal-finance.vercel.app/sitemap.xml

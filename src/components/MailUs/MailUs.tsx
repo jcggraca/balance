@@ -63,7 +63,11 @@ function MailUs() {
   return (
     <>
       <Tooltip label="Email us" position="right" transitionProps={{ duration: 0 }}>
-        <UnstyledButton onClick={open} className={classes.button}>
+        <UnstyledButton
+          onClick={open}
+          className={classes.button}
+          aria-label="Email us"
+        >
           <IconMail />
         </UnstyledButton>
       </Tooltip>
