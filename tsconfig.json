@@ -12,6 +12,7 @@
     },
     "resolveJsonModule": true,
     "types": ["vite-plugin-pwa/client"],
+    "allowImportingTsExtensions": true,
     "allowJs": false,
     "strict": true,
     "noEmit": true,
