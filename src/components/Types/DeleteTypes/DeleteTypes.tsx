@@ -1,16 +1,16 @@
 import type { FC } from 'react'
 import { db, type Types } from '@/db'
-import { Button, Group, Modal } from '@mantine/core'
+import { Button, Group, Modal, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { IconTrash } from '@tabler/icons-react'
-import classes from './DeleteTypes.module.css'
+import { useIntl } from 'react-intl'
 
 interface DeleteTypesProps {
   type: Types
-  icon?: boolean
+  onClose: () => void
 }
 
-const DeleteTypes: FC<DeleteTypesProps> = ({ type, icon = false }) => {
+const DeleteTypes: FC<DeleteTypesProps> = ({ type, onClose }) => {
+  const intl = useIntl()
   const [opened, { open, close }] = useDisclosure(false)
 
   const handleDelete = async () => {
@@ -19,32 +19,36 @@ const DeleteTypes: FC<DeleteTypesProps> = ({ type, icon = false }) => {
 
     await db.types.delete(type.id)
 
+    onClose()
     close()
   }
 
   return (
     <>
-      {icon
-        ? <Button variant="transparent" color="red" onClick={open}><IconTrash /></Button>
-        : <Button variant="light" color="red" onClick={open}>Delete</Button>}
+      <Button variant="light" color="red" onClick={open}>{intl.formatMessage({ id: 'delete' })}</Button>
 
-      <Modal centered opened={opened} onClose={close} title="Delete Type">
-        <p>
-          <strong>Attention:</strong>
+      <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'deleteType' })}>
+        <Text>
+          <strong>
+            {intl.formatMessage({ id: 'attention' })}
+            :
+          </strong>
           {' '}
-          Everything associated with this type will lose its target type.
-          <br />
-          Are you sure you want to delete
+          {intl.formatMessage({ id: 'everythingAssociatedWithThisTypeWillLoseItsTargetType' })}
+        </Text>
+
+        <Text>
+          {intl.formatMessage({ id: 'areYouSureYouWantToDelete' })}
           {' '}
           <strong>{type.name}</strong>
           ?
-        </p>
+        </Text>
 
-        <p className={classes.warning}>This action is irreversible!</p>
+        <Text c="red" mt="md" fw="bold">{intl.formatMessage({ id: 'thisActionIsIrreversible' })}</Text>
 
-        <Group>
-          <Button onClick={handleDelete}>Confirm</Button>
-          <Button onClick={close}>Cancel</Button>
+        <Group mt="xl">
+          <Button onClick={handleDelete}>{intl.formatMessage({ id: 'confirm' })}</Button>
+          <Button variant="outline" onClick={close}>{intl.formatMessage({ id: 'cancel' })}</Button>
         </Group>
       </Modal>
     </>

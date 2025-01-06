@@ -1,22 +1,21 @@
 import type { Account } from '@/db'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Group, Modal, NumberInput, TextInput } from '@mantine/core'
+import { Button, Group, Modal, NumberInput, Table, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { useDisclosure } from '@mantine/hooks'
-import { IconEye } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { type FC, useState } from 'react'
-import classes from './ViewAccount.module.css'
+import { type FC, useEffect, useState } from 'react'
+import { useIntl } from 'react-intl'
+import DeleteAccount from '../DeleteAccount'
 
 interface ViewAccountProps {
   account: Account
-  icon?: boolean
+  onClose: () => void
 }
 
-const ViewAccount: FC<ViewAccountProps> = ({ account, icon = false }) => {
+const ViewAccount: FC<ViewAccountProps> = ({ account, onClose }) => {
+  const intl = useIntl()
   const { currency } = useSettingsStore()
-  const [opened, { open, close }] = useDisclosure(false)
 
   const [editMode, setEditMode] = useState(false)
 
@@ -38,6 +37,13 @@ const ViewAccount: FC<ViewAccountProps> = ({ account, icon = false }) => {
     },
   })
 
+  useEffect(() => {
+    return () => {
+      form.reset()
+      setEditMode(false)
+    }
+  }, [])
+
   const handleSubmit = async (values: typeof form.values) => {
     const date = dayjs().valueOf()
 
@@ -48,85 +54,107 @@ const ViewAccount: FC<ViewAccountProps> = ({ account, icon = false }) => {
     }
 
     await db.account.put(data)
-    close()
-    setEditMode(false)
+    onClose()
   }
 
   return (
-    <>
-      {icon
-        ? <Button variant="transparent" onClick={open}><IconEye /></Button>
-        : <Button variant="light" onClick={open}>Details</Button>}
+    <Modal centered opened onClose={onClose} title={intl.formatMessage({ id: 'viewAccount' })}>
+      {editMode
+        ? (
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+              <TextInput
+                label={intl.formatMessage({ id: 'name' })}
+                placeholder={intl.formatMessage({ id: 'enterName' })}
+                required
+                mt="md"
+                {...form.getInputProps('name')}
+              />
 
-      <Modal centered opened={opened} onClose={close} title="View Account">
-        {editMode
-          ? (
-              <form className={classes.form} onSubmit={form.onSubmit(handleSubmit)}>
-                <TextInput
-                  label="Name"
-                  required
-                  {...form.getInputProps('name')}
-                />
+              <NumberInput
+                label={intl.formatMessage({ id: 'amount' })}
+                prefix={currency}
+                hideControls
+                decimalScale={2}
+                placeholder={intl.formatMessage({ id: 'enterAmount' })}
+                required
+                mt="md"
+                {...form.getInputProps('amount')}
+              />
 
-                <TextInput
-                  label="Description"
-                  {...form.getInputProps('description')}
-                />
+              <Textarea
+                label={intl.formatMessage({ id: 'description' })}
+                placeholder={intl.formatMessage({ id: 'enterDescription' })}
+                mt="md"
+                {...form.getInputProps('description')}
+              />
 
-                <NumberInput
-                  label="Amount"
-                  prefix={currency}
-                  hideControls
-                  decimalScale={2}
-                  required
-                  {...form.getInputProps('amount')}
-                />
+              <Group mt="xl">
+                <Button type="submit">{intl.formatMessage({ id: 'update' })}</Button>
+                <Button variant="outline" onClick={() => setEditMode(false)}>{intl.formatMessage({ id: 'cancel' })}</Button>
+              </Group>
+            </form>
+          )
+        : (
+            <>
+              <Table variant="vertical" layout="fixed" withTableBorder>
+                <Table.Tbody>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'name' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>{account.name}</Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'amount' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {currency}
+                      {account.amount}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'createdAt' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {dayjs(account.createdTimestamp).format('DD/MM/YYYY HH:mm:ss')}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'updatedAt' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {dayjs(account.updatedTimestamp).format('DD/MM/YYYY HH:mm:ss')}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'description' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      <div style={{ maxHeight: '100px', overflowY: 'auto' }}>
+                        {account.description || 'N/A'}
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                </Table.Tbody>
+              </Table>
 
-                <Group>
-                  <Button type="submit">Update</Button>
-                  <Button onClick={() => setEditMode(false)}>Cancel</Button>
-                </Group>
-              </form>
-            )
-          : (
-              <>
-                <ul>
-                  <li>
-                    <b>Name:</b>
-                    {' '}
-                    {account.name}
-                  </li>
-                  <li>
-                    <b>Description:</b>
-                    {' '}
-                    {account.description}
-                  </li>
-                  <li>
-                    <b>Amount:</b>
-                    {' '}
-                    {currency}
-                    {account.amount}
-                  </li>
-                  <li>
-                    <b>Created at:</b>
-                    {' '}
-                    {dayjs(account.createdTimestamp).format('DD/MM/YYYY HH:mm:ss')}
-                  </li>
-                  <li>
-                    <b>Updated at:</b>
-                    {' '}
-                    {dayjs(account.updatedTimestamp).format('DD/MM/YYYY HH:mm:ss')}
-                  </li>
-                </ul>
-
-                <Group>
-                  <Button onClick={() => setEditMode(true)}>Edit</Button>
-                  <Button onClick={close}>Close</Button>
-                </Group>
-              </>
-            )}
-      </Modal>
-    </>
+              <Group mt="xl">
+                <Button onClick={() => setEditMode(true)}>{intl.formatMessage({ id: 'edit' })}</Button>
+                <DeleteAccount account={account} onClose={close} />
+                <Button variant="outline" onClick={onClose}>{intl.formatMessage({ id: 'close' })}</Button>
+              </Group>
+            </>
+          )}
+    </Modal>
   )
 }
 

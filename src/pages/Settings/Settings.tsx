@@ -7,15 +7,18 @@ import { useField, useForm } from '@mantine/form'
 import Dexie from 'dexie'
 import { exportDB } from 'dexie-export-import'
 import { useState } from 'react'
+import { FormattedMessage, useIntl } from 'react-intl'
 
 function ImportUserDB() {
+  const intl = useIntl()
+
   const form = useForm({
     initialValues: {
       password: '',
       file: null as File | null,
     },
     validate: {
-      file: value => (!value ? 'File is required' : null),
+      file: value => (!value ? intl.formatMessage({ id: 'fileIsRequired' }) : null),
     },
   })
 
@@ -51,7 +54,7 @@ function ImportUserDB() {
     catch (error) {
       console.error('Import failed:', error)
       form.setErrors({
-        file: `Import failed. Please check your file and password if encrypted.`,
+        file: intl.formatMessage({ id: 'importFailed' }),
       })
     }
     finally {
@@ -61,20 +64,20 @@ function ImportUserDB() {
 
   return (
     <form onSubmit={form.onSubmit(importDB)}>
-      <Text>Import Database</Text>
+      <Text><FormattedMessage id="importFile" /></Text>
       <TextInput
         {...form.getInputProps('password')}
-        label="Password"
+        label={intl.formatMessage({ id: 'password' })}
         type="password"
-        placeholder="Enter password"
-        description="Required for encrypted files."
+        placeholder={intl.formatMessage({ id: 'enterPassword' })}
+        description={intl.formatMessage({ id: 'requiredForEncryptedFiles' })}
         mb="md"
       />
       <FileInput
         {...form.getInputProps('file')}
         accept=".json,.encrypted"
-        label="Choose file"
-        placeholder="Pick file"
+        label={intl.formatMessage({ id: 'chooseFile' })}
+        placeholder={intl.formatMessage({ id: 'pickFile' })}
         mb="md"
       />
       <Button
@@ -82,13 +85,15 @@ function ImportUserDB() {
         loading={isLoading}
         disabled={!form.isValid()}
       >
-        Import File
+        <FormattedMessage id="importFile" />
       </Button>
     </form>
   )
 }
 
 function ExportUserDB() {
+  const intl = useIntl()
+
   const field = useField({
     initialValue: '',
     validate: value => (value.trim().length < 2 ? 'Value is too short' : null),
@@ -125,35 +130,36 @@ function ExportUserDB() {
 
   return (
     <form onSubmit={exportLocalDB}>
-      <Text>Export Database</Text>
+      <Text><FormattedMessage id="exportDatabase" /></Text>
       <TextInput
         {...field.getInputProps()}
-        label="Password (Recommended)"
+        label={`${intl.formatMessage({ id: 'password' })} (${intl.formatMessage({ id: 'recommended' })})`}
         type="password"
-        placeholder="Enter password"
-        description="Recommended for security. Your data will be encrypted."
+        placeholder={intl.formatMessage({ id: 'enterPassword' })}
+        description={intl.formatMessage({ id: 'recommendedForSecurity' })}
         mb="md"
       />
       <Button
         type="submit"
         loading={isLoading}
       >
-        Export File
+        <FormattedMessage id="exportFile" />
       </Button>
     </form>
   )
 }
 
 const Settings: FC = () => {
-  const { currency, setCurrency } = useSettingsStore()
+  const { currency, setCurrency, language, setLanguage } = useSettingsStore()
+  const intl = useIntl()
 
   return (
     <Stack>
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
-          <Title order={2} size="h3">Currency</Title>
+          <Title order={2} size="h3"><FormattedMessage id="currency" /></Title>
           <Select
-            label="Select currency symbol"
+            label={<FormattedMessage id="selectCurrency" />}
             value={currency}
             onChange={value => setCurrency(value || '€')}
             data={[
@@ -169,8 +175,23 @@ const Settings: FC = () => {
 
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
-          <Title order={2} size="h3">Database Management</Title>
-          <Text>Import and export your database</Text>
+          <Title order={2} size="h3"><FormattedMessage id="language" /></Title>
+          <Select
+            label={<FormattedMessage id="selectLanguage" />}
+            value={language}
+            onChange={value => setLanguage(value || 'en')}
+            data={[
+              { value: 'en', label: intl.formatMessage({ id: 'english' }) },
+              { value: 'pt', label: intl.formatMessage({ id: 'portuguese' }) },
+            ]}
+          />
+        </Stack>
+      </Paper>
+
+      <Paper shadow="xs" p="md" withBorder>
+        <Stack>
+          <Title order={2} size="h3"><FormattedMessage id="databaseManagement" /></Title>
+          <Text><FormattedMessage id="importAndExportDatabase" /></Text>
           <Flex
             gap="md"
             direction={{ base: 'column', sm: 'row' }}

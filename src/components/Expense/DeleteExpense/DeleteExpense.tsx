@@ -1,17 +1,17 @@
 import type { FC } from 'react'
 import { db, type Expense } from '@/db'
-import { Button, Group, Modal } from '@mantine/core'
+import { Button, Group, Modal, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { IconTrash } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import classes from './DeleteExpense.module.css'
+import { useIntl } from 'react-intl'
 
 interface DeleteExpenseProps {
   expense: Expense
-  icon?: boolean
+  onClose: () => void
 }
 
-const DeleteExpense: FC<DeleteExpenseProps> = ({ expense, icon = false }) => {
+const DeleteExpense: FC<DeleteExpenseProps> = ({ expense, onClose }) => {
+  const intl = useIntl()
   const [opened, { open, close }] = useDisclosure(false)
 
   const handleDelete = async () => {
@@ -48,28 +48,27 @@ const DeleteExpense: FC<DeleteExpenseProps> = ({ expense, icon = false }) => {
       }
     }
 
+    onClose()
     close()
   }
 
   return (
     <>
-      {icon
-        ? <Button variant="transparent" color="red" onClick={open}><IconTrash /></Button>
-        : <Button variant="light" color="red" onClick={open}>Delete</Button>}
+      <Button variant="light" color="red" onClick={open}>{intl.formatMessage({ id: 'delete' })}</Button>
 
-      <Modal centered opened={opened} onClose={close} title="Delete Details">
-        <p>
-          Are you sure you want to delete
+      <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'deleteExpense' })}>
+        <Text>
+          {intl.formatMessage({ id: 'areYouSureYouWantToDelete' })}
           {' '}
           <strong>{expense.name}</strong>
           ?
-        </p>
+        </Text>
 
-        <p className={classes.warning}>This action is irreversible!</p>
+        <Text c="red" mt="md" fw="bold">{intl.formatMessage({ id: 'thisActionIsIrreversible' })}</Text>
 
-        <Group>
-          <Button onClick={handleDelete}>Confirm</Button>
-          <Button onClick={close}>Cancel</Button>
+        <Group mt="xl">
+          <Button onClick={handleDelete}>{intl.formatMessage({ id: 'confirm' })}</Button>
+          <Button variant="outline" onClick={close}>{intl.formatMessage({ id: 'cancel' })}</Button>
         </Group>
       </Modal>
     </>

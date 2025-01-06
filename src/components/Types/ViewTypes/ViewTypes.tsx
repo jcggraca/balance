@@ -1,21 +1,19 @@
 import type { Types } from '@/db'
 import { db } from '@/db'
-import { Button, Group, Modal, TextInput } from '@mantine/core'
+import { Button, Group, Modal, Table, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { useDisclosure } from '@mantine/hooks'
-import { IconEye } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { type FC, useState } from 'react'
-import classes from './ViewTypes.module.css'
+import { type FC, useEffect, useState } from 'react'
+import { useIntl } from 'react-intl'
+import DeleteTypes from '../DeleteTypes'
 
 interface ViewTypesProps {
   type: Types
-  icon?: boolean
+  onClose: () => void
 }
 
-const ViewTypes: FC<ViewTypesProps> = ({ type, icon = false }) => {
-  const [opened, { open, close }] = useDisclosure(false)
-
+const ViewTypes: FC<ViewTypesProps> = ({ type, onClose }) => {
+  const intl = useIntl()
   const [editMode, setEditMode] = useState(false)
 
   const form = useForm({
@@ -24,10 +22,17 @@ const ViewTypes: FC<ViewTypesProps> = ({ type, icon = false }) => {
       description: type.description,
     },
     validate: {
-      name: value => !value.trim() ? 'Name is required' : null,
-      description: value => !value.trim() ? 'Description is required' : null,
+      name: value => !value.trim() ? intl.formatMessage({ id: 'nameIsRequired' }) : null,
+      description: value => !value.trim() ? intl.formatMessage({ id: 'descriptionIsRequired' }) : null,
     },
   })
+
+  useEffect(() => {
+    return () => {
+      form.reset()
+      setEditMode(false)
+    }
+  }, [])
 
   const handleSubmit = async (values: typeof form.values) => {
     const date = dayjs().valueOf()
@@ -39,78 +44,93 @@ const ViewTypes: FC<ViewTypesProps> = ({ type, icon = false }) => {
     }
 
     await db.types.put(data)
-    setEditMode(false)
-    form.reset()
-    close()
+    onClose()
   }
 
   return (
-    <>
-      {icon
-        ? <Button variant="transparent" onClick={open}><IconEye /></Button>
-        : <Button variant="light" onClick={open}>Details</Button>}
+    <Modal centered opened onClose={onClose} title={intl.formatMessage({ id: 'viewType' })}>
+      {editMode
+        ? (
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+              <TextInput
+                label={intl.formatMessage({ id: 'name' })}
+                {...form.getInputProps('name')}
+                required
+                mt="md"
+              />
 
-      <Modal centered opened={opened} onClose={close} title="View Type">
-        {editMode
-          ? (
-              <form className={classes.form} onSubmit={form.onSubmit(handleSubmit)}>
-                <TextInput
-                  label="Name"
-                  {...form.getInputProps('name')}
-                  required
-                />
+              <Textarea
+                label={intl.formatMessage({ id: 'description' })}
+                {...form.getInputProps('description')}
+                required
+                mt="md"
+              />
 
-                <TextInput
-                  label="Description"
-                  {...form.getInputProps('description')}
-                  required
-                />
-
-                <Group>
-                  <Button type="submit">Update</Button>
-                  <Button onClick={() => {
+              <Group mt="xl">
+                <Button type="submit">{intl.formatMessage({ id: 'update' })}</Button>
+                <Button
+                  variant="subtle"
+                  onClick={() => {
                     setEditMode(false)
                     form.reset()
                   }}
-                  >
-                    Cancel
-                  </Button>
-                </Group>
-              </form>
-            )
-          : (
-              <>
-                <ul>
-                  <li>
-                    <b>Name:</b>
-                    {' '}
-                    {type.name}
-                  </li>
-                  <li>
-                    <b>Description:</b>
-                    {' '}
-                    {type.description}
-                  </li>
-                  <li>
-                    <b>Created at:</b>
-                    {' '}
-                    {type.createdTimestamp}
-                  </li>
-                  <li>
-                    <b>Updated at:</b>
-                    {' '}
-                    {type.updatedTimestamp}
-                  </li>
-                </ul>
+                >
+                  {intl.formatMessage({ id: 'cancel' })}
+                </Button>
+              </Group>
+            </form>
+          )
+        : (
+            <>
+              <Table variant="vertical" layout="fixed" withTableBorder>
+                <Table.Tbody>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'name' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>{type.name}</Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'createdAt' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {dayjs(type.createdTimestamp).format('DD/MM/YYYY HH:mm:ss')}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'updatedAt' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {dayjs(type.updatedTimestamp).format('DD/MM/YYYY HH:mm:ss')}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'description' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      <div style={{ maxHeight: '100px', overflowY: 'auto' }}>
+                        {type.description || 'N/A'}
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                </Table.Tbody>
+              </Table>
 
-                <Group>
-                  <Button onClick={() => setEditMode(true)}>Edit</Button>
-                  <Button onClick={close}>Close</Button>
-                </Group>
-              </>
-            )}
-      </Modal>
-    </>
+              <Group mt="xl">
+                <Button onClick={() => setEditMode(true)}>{intl.formatMessage({ id: 'edit' })}</Button>
+                <DeleteTypes type={type} onClose={onClose} />
+                <Button variant="outline" onClick={onClose}>{intl.formatMessage({ id: 'close' })}</Button>
+              </Group>
+            </>
+          )}
+    </Modal>
   )
 }
 

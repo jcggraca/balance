@@ -3,6 +3,7 @@ import Navbar from '@/components/NavBar/NavBar'
 import { AppShell, Burger, Group, Title } from '@mantine/core'
 import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import { IconCalendarDollar } from '@tabler/icons-react'
+import { FormattedMessage } from 'react-intl'
 import { Outlet, useLocation } from 'react-router-dom'
 
 const Layout: FC = () => {
@@ -13,8 +14,8 @@ const Layout: FC = () => {
   const getPageName = () => {
     const path = location.pathname
     if (path === '/')
-      return 'Dashboard'
-    return path.substring(1).charAt(0).toUpperCase() + path.slice(2)
+      return 'dashboard'
+    return path.substring(1).charAt(0) + path.slice(2)
   }
 
   return (
@@ -27,16 +28,16 @@ const Layout: FC = () => {
 
       <AppShell.Header>
         <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          {isMobile && <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />}
           <IconCalendarDollar size={30} />
           <Title order={1}>
-            {getPageName()}
+            <FormattedMessage id={getPageName()} />
           </Title>
         </Group>
       </AppShell.Header>
 
       <AppShell.Navbar>
-        <Navbar toggle={isMobile ? toggle : undefined} />
+        <Navbar toggle={toggle} isMobile={isMobile} />
       </AppShell.Navbar>
 
       <AppShell.Main><Outlet /></AppShell.Main>

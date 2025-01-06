@@ -3,15 +3,15 @@ import type { selectorState } from '@/utils/interfaces'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { EVALUATION } from '@/utils/values'
-import { Button, Group, Modal, NumberInput, Select, TextInput } from '@mantine/core'
+import { Button, Group, Modal, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import dayjs from 'dayjs'
 import { type FC, useEffect, useState } from 'react'
+import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
-import classes from './AddExpense.module.css'
 
 interface ExpenseForm {
   name: string
@@ -21,9 +21,11 @@ interface ExpenseForm {
   type: string
   budget?: string
   actionDate: Date | null
+  description: string
 }
 
 const AddExpense: FC = () => {
+  const intl = useIntl()
   const { currency } = useSettingsStore()
   const [opened, { open, close }] = useDisclosure(false)
 
@@ -75,20 +77,21 @@ const AddExpense: FC = () => {
       type: '',
       budget: '',
       actionDate: null,
+      description: '',
     },
     validate: {
-      name: value => !value.trim() ? 'Name is required' : null,
+      name: value => !value.trim() ? intl.formatMessage({ id: 'nameIsRequired' }) : null,
       amount: (value) => {
         if (!value)
-          return 'Amount is required'
+          return intl.formatMessage({ id: 'amountIsRequired' })
         if (value <= 0)
-          return 'Amount must be positive'
+          return intl.formatMessage({ id: 'amountMustBePositive' })
         return null
       },
-      account: value => !value ? 'Account is required' : null,
-      evaluation: value => !value ? 'Evaluation is required' : null,
-      type: value => !value ? 'Type is required' : null,
-      actionDate: value => !value ? 'Action date is required' : null,
+      account: value => !value ? intl.formatMessage({ id: 'accountIsRequired' }) : null,
+      evaluation: value => !value ? intl.formatMessage({ id: 'evaluationIsRequired' }) : null,
+      type: value => !value ? intl.formatMessage({ id: 'typeIsRequired' }) : null,
+      actionDate: value => !value ? intl.formatMessage({ id: 'actionDateIsRequired' }) : null,
     },
   })
 
@@ -102,7 +105,7 @@ const AddExpense: FC = () => {
       }
 
       if (account.amount < values.amount) {
-        throw new Error('Insufficient account balance')
+        throw new Error(intl.formatMessage({ id: 'insufficientAccountBalance' }))
       }
 
       const expense: Expense = {
@@ -111,6 +114,7 @@ const AddExpense: FC = () => {
         amount: values.amount,
         accountId: values.account,
         evaluation: values.evaluation,
+        description: values.description,
         type: values.type,
         budget: values.budget || '',
         actionTimestamp: dayjs(values.actionDate).valueOf(),
@@ -138,8 +142,8 @@ const AddExpense: FC = () => {
       }
 
       notifications.show({
-        title: 'Success',
-        message: 'Expense added successfully',
+        title: intl.formatMessage({ id: 'success' }),
+        message: intl.formatMessage({ id: 'expenseAddedSuccessfully' }),
         color: 'green',
       })
 
@@ -148,76 +152,100 @@ const AddExpense: FC = () => {
     }
     catch (error) {
       notifications.show({
-        title: 'Error',
-        message: error instanceof Error ? error.message : 'An error occurred',
+        title: intl.formatMessage({ id: 'error' }),
+        message: error instanceof Error ? error.message : intl.formatMessage({ id: 'anErrorOccurred' }),
         color: 'red',
       })
     }
   }
 
+  const evaluationData = EVALUATION.map((item) => {
+    return {
+      value: item.value,
+      label: intl.formatMessage({ id: item.label }),
+    }
+  })
+
   return (
     <>
-      <Button onClick={open}>Add Expense</Button>
+      <Button disabled={accountList?.length === 0 || typesList?.length === 0} onClick={open}>{intl.formatMessage({ id: 'addExpense' })}</Button>
 
-      <Modal opened={opened} onClose={close} title="Add Expense">
-        <form className={classes.form} onSubmit={form.onSubmit(handleSubmit)}>
+      <Modal opened={opened} onClose={close} title={intl.formatMessage({ id: 'addExpense' })}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput
-            label="Name"
+            label={intl.formatMessage({ id: 'name' })}
+            placeholder={intl.formatMessage({ id: 'enterName' })}
             required
+            mt="md"
             {...form.getInputProps('name')}
           />
 
           <NumberInput
-            label="Amount"
+            label={intl.formatMessage({ id: 'amount' })}
             prefix={currency}
             decimalScale={2}
             hideControls
+            placeholder={intl.formatMessage({ id: 'enterAmount' })}
             required
+            mt="md"
             {...form.getInputProps('amount')}
           />
 
           <Select
-            label="Account"
-            placeholder="Pick value"
+            label={intl.formatMessage({ id: 'account' })}
+            placeholder={intl.formatMessage({ id: 'selectAccount' })}
             data={accountList}
             required
+            mt="md"
             {...form.getInputProps('account')}
           />
 
           <DatePickerInput
-            label="Action date"
-            placeholder="Pick action date"
+            label={intl.formatMessage({ id: 'actionDate' })}
+            placeholder={intl.formatMessage({ id: 'selectActionDate' })}
             required
+            mt="md"
             {...form.getInputProps('actionDate')}
           />
 
           <Select
-            label="Type"
-            placeholder="Pick value"
+            label={intl.formatMessage({ id: 'type' })}
+            placeholder={intl.formatMessage({ id: 'selectType' })}
             data={typesList}
             searchable
             required
+            mt="md"
             {...form.getInputProps('type')}
           />
 
           <Select
-            label="Evaluation"
-            placeholder="Pick value"
-            data={EVALUATION}
+            label={intl.formatMessage({ id: 'evaluation' })}
+            placeholder={intl.formatMessage({ id: 'selectEvaluation' })}
+            data={evaluationData}
             required
+            mt="md"
             {...form.getInputProps('evaluation')}
           />
 
           <Select
-            label="Budget"
-            placeholder="Pick value"
+            label={intl.formatMessage({ id: 'budget' })}
+            placeholder={intl.formatMessage({ id: 'selectBudget' })}
+            disabled={budgetList?.length === 0}
             data={budgetList}
+            mt="md"
             {...form.getInputProps('budget')}
           />
 
-          <Group>
-            <Button type="submit">Add Expense</Button>
-            <Button onClick={close}>Cancel</Button>
+          <Textarea
+            label={intl.formatMessage({ id: 'description' })}
+            placeholder={intl.formatMessage({ id: 'enterDescription' })}
+            mt="md"
+            {...form.getInputProps('description')}
+          />
+
+          <Group mt="xl">
+            <Button type="submit">{intl.formatMessage({ id: 'addExpense' })}</Button>
+            <Button variant="outline" onClick={close}>{intl.formatMessage({ id: 'cancel' })}</Button>
           </Group>
         </form>
       </Modal>

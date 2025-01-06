@@ -1,29 +1,4 @@
-.navbar {
-  display: flex;
-  flex-direction: column;
-  padding: var(--mantine-spacing-md);
-  height: 100%;
-}
-
-.navbarMain {
-  flex: 1;
-} 
-
-.button {
-  width: 50px;
-  height: 50px;
-  border-radius: var(--mantine-radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
-
-  &:hover {
-    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-5));
-  }
-}
-
-.buttonMobile {
+.link {
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -46,7 +21,7 @@
   }
 }
 
-.buttonMobileIcon {
+.linkIcon {
   color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
   margin: 0 var(--mantine-spacing-sm);
   width: 25px;

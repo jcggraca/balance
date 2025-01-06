@@ -1,22 +1,21 @@
 import type { Debts } from '@/db'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Group, Modal, NumberInput, TextInput } from '@mantine/core'
+import { Button, Group, Modal, NumberInput, Table, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { useDisclosure } from '@mantine/hooks'
-import { IconEye } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { type FC, useState } from 'react'
-import classes from './ViewDebts.module.css'
+import { type FC, useEffect, useState } from 'react'
+import { useIntl } from 'react-intl'
+import DeleteDebts from '../DeleteDebts'
 
 interface ViewDebtsProps {
   debt: Debts
-  icon?: boolean
+  onClose: () => void
 }
 
-const ViewDebts: FC<ViewDebtsProps> = ({ debt, icon = false }) => {
+const ViewDebts: FC<ViewDebtsProps> = ({ debt, onClose }) => {
+  const intl = useIntl()
   const { currency } = useSettingsStore()
-  const [opened, { open, close }] = useDisclosure(false)
 
   const [editMode, setEditMode] = useState(false)
 
@@ -29,13 +28,20 @@ const ViewDebts: FC<ViewDebtsProps> = ({ debt, icon = false }) => {
     validate: {
       name: (value) => {
         if (!value)
-          return 'Name is required'
+          return intl.formatMessage({ id: 'nameIsRequired' })
         if (value.length < 3)
-          return 'Name must be at least 3 characters'
+          return intl.formatMessage({ id: 'nameMustBeAtLeast3Characters' })
         return null
       },
     },
   })
+
+  useEffect(() => {
+    return () => {
+      form.reset()
+      setEditMode(false)
+    }
+  }, [])
 
   const handleSubmit = async (values: typeof form.values) => {
     const date = dayjs().valueOf()
@@ -49,92 +55,115 @@ const ViewDebts: FC<ViewDebtsProps> = ({ debt, icon = false }) => {
     }
 
     await db.debts.put(data)
-    setEditMode(false)
-    form.reset()
-    close()
+    onClose()
   }
 
   return (
-    <>
-      {icon
-        ? <Button variant="transparent" onClick={open}><IconEye /></Button>
-        : <Button variant="light" onClick={open}>Details</Button>}
+    <Modal centered opened onClose={onClose} title={intl.formatMessage({ id: 'viewDebt' })}>
+      {editMode
+        ? (
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+              <TextInput
+                label={intl.formatMessage({ id: 'name' })}
+                placeholder={intl.formatMessage({ id: 'enterName' })}
+                {...form.getInputProps('name')}
+                required
+                mt="md"
+              />
 
-      <Modal centered opened={opened} onClose={close} title="View Budget">
-        {editMode
-          ? (
-              <form className={classes.form} onSubmit={form.onSubmit(handleSubmit)}>
-                <TextInput
-                  label="Name"
-                  {...form.getInputProps('name')}
-                  required
-                />
+              <NumberInput
+                label={intl.formatMessage({ id: 'amount' })}
+                prefix={currency}
+                hideControls
+                decimalScale={2}
+                placeholder={intl.formatMessage({ id: 'enterAmount' })}
+                required
+                {...form.getInputProps('amount')}
+                mt="md"
+              />
 
-                <TextInput
-                  label="Description"
-                  {...form.getInputProps('description')}
-                />
+              <Textarea
+                label={intl.formatMessage({ id: 'description' })}
+                placeholder={intl.formatMessage({ id: 'enterDescription' })}
+                {...form.getInputProps('description')}
+                mt="md"
+              />
 
-                <NumberInput
-                  label="Amount"
-                  prefix={currency}
-                  hideControls
-                  decimalScale={2}
-                  required
-                  {...form.getInputProps('amount')}
-                />
-
-                <Group>
-                  <Button type="submit">Update</Button>
-                  <Button onClick={() => {
+              <Group mt="xl">
+                <Button type="submit">{intl.formatMessage({ id: 'update' })}</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
                     setEditMode(false)
                     form.reset()
                   }}
-                  >
-                    Cancel
-                  </Button>
-                </Group>
-              </form>
-            )
-          : (
-              <>
-                <ul>
-                  <li>
-                    <b>Name:</b>
-                    {' '}
-                    {debt.name}
-                  </li>
-                  <li>
-                    <b>Description:</b>
-                    {' '}
-                    {debt.description}
-                  </li>
-                  <li>
-                    <b>Amount:</b>
-                    {' '}
-                    {currency}
-                    {debt.amount}
-                  </li>
-                  <li>
-                    <b>Created at:</b>
-                    {' '}
-                    {dayjs(debt.createdTimestamp).format('YYYY-MM-DD HH:mm:ss')}
-                  </li>
-                  <li>
-                    <b>Updated at:</b>
-                    {' '}
-                    {dayjs(debt.updatedTimestamp).format('YYYY-MM-DD HH:mm:ss')}
-                  </li>
-                </ul>
+                >
+                  {intl.formatMessage({ id: 'cancel' })}
+                </Button>
+              </Group>
+            </form>
+          )
+        : (
+            <>
+              <Table variant="vertical" layout="fixed" withTableBorder>
+                <Table.Tbody>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'name' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>{debt.name}</Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'amount' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {currency}
+                      {debt.amount}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'createdAt' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {dayjs(debt.createdTimestamp).format('DD/MM/YYYY HH:mm:ss')}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'updatedAt' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {dayjs(debt.updatedTimestamp).format('DD/MM/YYYY HH:mm:ss')}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'description' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      <div style={{ maxHeight: '100px', overflowY: 'auto' }}>
+                        {debt.description || 'N/A'}
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                </Table.Tbody>
+              </Table>
 
-                <Group>
-                  <Button onClick={() => setEditMode(true)}>Edit</Button>
-                  <Button onClick={close}>Close</Button>
-                </Group>
-              </>
-            )}
-      </Modal>
-    </>
+              <Group mt="xl">
+                <Button onClick={() => setEditMode(true)}>{intl.formatMessage({ id: 'edit' })}</Button>
+                <DeleteDebts debt={debt} onClose={onClose} />
+                <Button variant="outline" onClick={onClose}>{intl.formatMessage({ id: 'close' })}</Button>
+              </Group>
+            </>
+          )}
+    </Modal>
   )
 }
 

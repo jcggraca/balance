@@ -1,13 +1,19 @@
-import { supabase } from '@/API/client'
+import { supabase } from '@/api/client'
 import { Button, Checkbox, Group, Modal, Select, SimpleGrid, Textarea, TextInput, Title, Tooltip, UnstyledButton } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { IconMail } from '@tabler/icons-react'
 import { useState } from 'react'
+import { useIntl } from 'react-intl'
 import classes from './MailUs.module.css'
 
-function MailUs() {
+interface MailUsProps {
+  isMobile: boolean
+}
+
+function MailUs({ isMobile }: MailUsProps) {
+  const intl = useIntl()
   const [opened, { open, close }] = useDisclosure(false)
   const [loading, setLoading] = useState(false)
 
@@ -39,8 +45,8 @@ function MailUs() {
         throw error
 
       notifications.show({
-        title: 'Success',
-        message: 'Your message has been sent successfully!',
+        title: intl.formatMessage({ id: 'success' }),
+        message: intl.formatMessage({ id: 'messageSentSuccessfully' }),
         color: 'green',
       })
 
@@ -50,8 +56,8 @@ function MailUs() {
     catch (error) {
       console.error('Error sending message:', error)
       notifications.show({
-        title: 'Error',
-        message: 'Failed to send message. Please try again.',
+        title: intl.formatMessage({ id: 'error' }),
+        message: intl.formatMessage({ id: 'messageSentFailed' }),
         color: 'red',
       })
     }
@@ -62,15 +68,28 @@ function MailUs() {
 
   return (
     <>
-      <Tooltip label="Email us" position="right" transitionProps={{ duration: 0 }}>
-        <UnstyledButton
-          onClick={open}
-          className={classes.button}
-          aria-label="Email us"
-        >
-          <IconMail />
-        </UnstyledButton>
-      </Tooltip>
+      {isMobile
+        ? (
+            <UnstyledButton
+              onClick={open}
+              className={classes.buttonMobile}
+              aria-label={intl.formatMessage({ id: 'emailUs' })}
+            >
+              <IconMail className={classes.buttonMobileIcon} />
+              <span>{intl.formatMessage({ id: 'emailUs' })}</span>
+            </UnstyledButton>
+          )
+        : (
+            <Tooltip label={intl.formatMessage({ id: 'emailUs' })} position="right" transitionProps={{ duration: 0 }}>
+              <UnstyledButton
+                onClick={open}
+                className={classes.button}
+                aria-label={intl.formatMessage({ id: 'emailUs' })}
+              >
+                <IconMail />
+              </UnstyledButton>
+            </Tooltip>
+          )}
 
       <Modal centered opened={opened} onClose={close} title="">
         <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -80,21 +99,21 @@ function MailUs() {
             fw={900}
             ta="center"
           >
-            Get in touch
+            {intl.formatMessage({ id: 'getInTouch' })}
           </Title>
 
           <SimpleGrid cols={{ base: 1, sm: 2 }} mt="xl">
             <TextInput
-              label="Name"
-              placeholder="Your name"
+              label={intl.formatMessage({ id: 'name' })}
+              placeholder={intl.formatMessage({ id: 'yourName' })}
               name="name"
               variant="filled"
               required
               {...form.getInputProps('name')}
             />
             <TextInput
-              label="Email"
-              placeholder="Your email"
+              label={intl.formatMessage({ id: 'email' })}
+              placeholder={intl.formatMessage({ id: 'yourEmail' })}
               name="email"
               variant="filled"
               required
@@ -103,9 +122,9 @@ function MailUs() {
           </SimpleGrid>
 
           <Select
-            label="Type"
+            label={intl.formatMessage({ id: 'type' })}
             data={['Bug', 'Feature request', 'Other']}
-            placeholder="Select a topic"
+            placeholder={intl.formatMessage({ id: 'selectATopic' })}
             name="type"
             variant="filled"
             mt="md"
@@ -114,8 +133,8 @@ function MailUs() {
           />
 
           <TextInput
-            label="Subject"
-            placeholder="Subject"
+            label={intl.formatMessage({ id: 'subject' })}
+            placeholder={intl.formatMessage({ id: 'subject' })}
             mt="md"
             name="subject"
             variant="filled"
@@ -124,8 +143,8 @@ function MailUs() {
 
           <Textarea
             mt="md"
-            label="Message"
-            placeholder="Your message"
+            label={intl.formatMessage({ id: 'message' })}
+            placeholder={intl.formatMessage({ id: 'yourMessage' })}
             maxRows={10}
             minRows={5}
             autosize
@@ -138,16 +157,16 @@ function MailUs() {
             mt="md"
             label={(
               <>
-                I accept the
+                {intl.formatMessage({ id: 'iAcceptThe' })}
                 {' '}
                 <a href="/terms" target="_blank" rel="noopener noreferrer">
-                  terms of service
+                  {intl.formatMessage({ id: 'termsOfService' })}
                 </a>
                 {' '}
-                and
+                {intl.formatMessage({ id: 'and' })}
                 {' '}
                 <a href="/privacy" target="_blank" rel="noopener noreferrer">
-                  privacy policy
+                  {intl.formatMessage({ id: 'privacyPolicy' })}
                 </a>
               </>
             )}
@@ -157,7 +176,7 @@ function MailUs() {
 
           <Group justify="center" mt="xl">
             <Button type="submit" size="md" loading={loading}>
-              Send message
+              {intl.formatMessage({ id: 'sendMessage' })}
             </Button>
           </Group>
         </form>

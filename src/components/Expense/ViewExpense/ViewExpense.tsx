@@ -4,24 +4,22 @@ import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { EVALUATION } from '@/utils/values'
-import { Button, Group, Modal, NumberInput, Select, TextInput } from '@mantine/core'
+import { Button, Group, Modal, NumberInput, Select, Table, TextInput } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
-import { useDisclosure } from '@mantine/hooks'
-import { IconEye } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { type FC, useEffect, useMemo, useState } from 'react'
+import { useIntl } from 'react-intl'
 import DeleteExpense from '../DeleteExpense'
-import classes from './ViewExpense.module.css'
 
 interface ViewExpenseProps {
   expense: Expense
-  icon?: boolean
+  onClose: () => void
 }
 
-const ViewExpense: FC<ViewExpenseProps> = ({ expense, icon = false }) => {
+const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
+  const intl = useIntl()
   const { currency } = useSettingsStore()
-  const [opened, { open, close }] = useDisclosure(false)
 
   const [editMode, setEditMode] = useState(false)
   const [typesList, setTypesList] = useState<selectorState[]>()
@@ -36,21 +34,21 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, icon = false }) => {
       type: expense.type,
       evaluation: expense.evaluation,
       budget: expense.budget || '',
-      actionDate: dayjs(expense.actionTimestamp).valueOf(),
+      actionDate: expense.actionTimestamp ? new Date(expense.actionTimestamp) : null,
     },
     validate: {
-      name: value => !value ? 'Name is required' : null,
+      name: value => !value ? intl.formatMessage({ id: 'nameIsRequired' }) : null,
       amount: (value) => {
         if (!value)
-          return 'Amount is required'
+          return intl.formatMessage({ id: 'amountIsRequired' })
         if (value <= 0)
-          return 'Amount must be greater than 0'
+          return intl.formatMessage({ id: 'amountMustBeGreaterThan0' })
         return null
       },
-      accountId: value => !value ? 'Account is required' : null,
-      type: value => !value ? 'Type is required' : null,
-      evaluation: value => !value ? 'Evaluation is required' : null,
-      actionDate: value => !value ? 'Action date is required' : null,
+      accountId: value => !value ? intl.formatMessage({ id: 'accountIsRequired' }) : null,
+      type: value => !value ? intl.formatMessage({ id: 'typeIsRequired' }) : null,
+      evaluation: value => !value ? intl.formatMessage({ id: 'evaluationIsRequired' }) : null,
+      actionDate: value => !value ? intl.formatMessage({ id: 'actionDateIsRequired' }) : null,
     },
   })
 
@@ -141,7 +139,7 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, icon = false }) => {
         }
       }
 
-      close()
+      onClose()
     }
     catch (error) {
       console.error('Error updating expense:', error)
@@ -151,162 +149,226 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, icon = false }) => {
   const getEvaluationName = (value: string) => {
     const findEvaluation = EVALUATION.find(o => o.value === value)
     if (findEvaluation)
-      return <span style={{ color: findEvaluation.color }}>{findEvaluation.label}</span>
-    return <WarningNotFound>Evaluation</WarningNotFound>
+      return <span style={{ color: findEvaluation.color }}>{intl.formatMessage({ id: findEvaluation.label })}</span>
+    return <WarningNotFound>{intl.formatMessage({ id: 'evaluation' })}</WarningNotFound>
   }
 
   const getTypeName = (id: string) => {
     const findType = typesList?.find(o => o.value === id)
     if (findType)
       return findType.label
-    return <WarningNotFound>Type</WarningNotFound>
+    return <WarningNotFound>{intl.formatMessage({ id: 'type' })}</WarningNotFound>
   }
 
   const getBudgetName = (id: string) => {
+    if (!id)
+      return 'N/A'
     const findBudget = budgetList?.find(o => o.value === id)
     if (findBudget)
       return findBudget.label
-    return <WarningNotFound>Budget</WarningNotFound>
+    return <WarningNotFound>{intl.formatMessage({ id: 'budget' })}</WarningNotFound>
   }
 
   const getAccountName = (id: string) => {
     const findAccount = accountList?.find(o => o.value === id)
     if (findAccount)
       return findAccount.label
-    return <WarningNotFound>Account</WarningNotFound>
+    return <WarningNotFound>{intl.formatMessage({ id: 'account' })}</WarningNotFound>
   }
 
+  const evaluationData = EVALUATION.map((item) => {
+    return {
+      value: item.value,
+      label: intl.formatMessage({ id: item.label }),
+    }
+  })
+
   return (
-    <>
-      {icon
-        ? <Button variant="transparent" onClick={open}><IconEye /></Button>
-        : <Button variant="light" onClick={open}>Details</Button>}
+    <Modal centered opened onClose={onClose} title={intl.formatMessage({ id: 'expenseDetails' })}>
+      {editMode
+        ? (
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+              <TextInput
+                label={intl.formatMessage({ id: 'name' })}
+                placeholder={intl.formatMessage({ id: 'enterName' })}
+                mt="md"
+                required
+                {...form.getInputProps('name')}
+              />
 
-      <Modal opened={opened} onClose={close} title="Expense Details">
-        {editMode
-          ? (
-              <form className={classes.form} onSubmit={form.onSubmit(handleSubmit)}>
-                <TextInput
-                  label="Name"
-                  required
-                  {...form.getInputProps('name')}
-                />
+              <NumberInput
+                label={intl.formatMessage({ id: 'amount' })}
+                prefix={currency}
+                hideControls
+                decimalScale={2}
+                placeholder={intl.formatMessage({ id: 'enterAmount' })}
+                mt="md"
+                required
+                {...form.getInputProps('amount')}
+              />
 
-                <NumberInput
-                  label="Amount"
-                  prefix={currency}
-                  hideControls
-                  decimalScale={2}
-                  required
-                  {...form.getInputProps('amount')}
-                />
+              <Select
+                label={intl.formatMessage({ id: 'account' })}
+                placeholder={intl.formatMessage({ id: 'selectAccount' })}
+                data={accountList}
+                mt="md"
+                required
+                {...form.getInputProps('accountId')}
+              />
 
-                <Select
-                  label="Account"
-                  placeholder="Pick value"
-                  data={accountList}
-                  required
-                  {...form.getInputProps('accountId')}
-                />
+              <DatePickerInput
+                label={intl.formatMessage({ id: 'actionDate' })}
+                placeholder={intl.formatMessage({ id: 'selectActionDate' })}
+                mt="md"
+                required
+                {...form.getInputProps('actionDate')}
+              />
 
-                <DatePickerInput
-                  label="Action date"
-                  placeholder="Pick action date"
-                  required
-                  {...form.getInputProps('actionDate')}
-                />
+              <Select
+                label={intl.formatMessage({ id: 'type' })}
+                placeholder={intl.formatMessage({ id: 'selectType' })}
+                data={typesList}
+                searchable
+                mt="md"
+                required
+                {...form.getInputProps('type')}
+              />
 
-                <Select
-                  label="Type"
-                  placeholder="Pick value"
-                  data={typesList}
-                  searchable
-                  required
-                  {...form.getInputProps('type')}
-                />
+              <Select
+                label={intl.formatMessage({ id: 'evaluation' })}
+                placeholder={intl.formatMessage({ id: 'selectEvaluation' })}
+                data={evaluationData}
+                mt="md"
+                required
+                {...form.getInputProps('evaluation')}
+              />
 
-                <Select
-                  label="Evaluation"
-                  placeholder="Pick value"
-                  data={EVALUATION}
-                  required
-                  {...form.getInputProps('evaluation')}
-                />
+              <Select
+                label={intl.formatMessage({ id: 'budget' })}
+                placeholder={intl.formatMessage({ id: 'selectBudget' })}
+                data={budgetList}
+                disabled={budgetList?.length === 0}
+                mt="md"
+                {...form.getInputProps('budget')}
+              />
 
-                <Select
-                  label="Budget"
-                  placeholder="Pick value"
-                  data={budgetList}
-                  {...form.getInputProps('budget')}
-                />
-
-                <Group>
-                  <Button type="submit">Update</Button>
-                  <Button
-                    disabled={(expense && accountList && !accountList.find(o => o.value === expense.accountId))}
-                    onClick={() => setEditMode(false)}
-                  >
-                    Cancel
-                  </Button>
-                </Group>
-              </form>
-            )
-          : (
-              <>
-                <ul>
-                  <li>
-                    <b>Name:</b>
-                    {' '}
-                    {expense.name}
-                  </li>
-                  <li>
-                    <b>Amount:</b>
-                    {' '}
-                    {currency}
-                    {expense.amount}
-                  </li>
-                  <li>
-                    <b>Account:</b>
-                    {' '}
-                    {getAccountName(expense.accountId)}
-                  </li>
-                  <li>
-                    <b>Type:</b>
-                    {' '}
-                    {getTypeName(expense.type)}
-                  </li>
-                  <li>
-                    <b>Evaluation:</b>
-                    {' '}
-                    {getEvaluationName(expense.evaluation)}
-                  </li>
-                  {expense.budget && (
-                    <li>
-                      <b>Budget:</b>
-                      {' '}
+              <Group mt="xl">
+                <Button type="submit">{intl.formatMessage({ id: 'update' })}</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setEditMode(false)}
+                >
+                  {intl.formatMessage({ id: 'cancel' })}
+                </Button>
+              </Group>
+            </form>
+          )
+        : (
+            <>
+              <Table variant="vertical" layout="fixed" withTableBorder>
+                <Table.Tbody>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'name' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>{expense.name}</Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'amount' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {currency}
+                      {expense.amount}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'account' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {getAccountName(expense.accountId)}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'type' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {getTypeName(expense.type)}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'evaluation' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {getEvaluationName(expense.evaluation)}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'budget' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
                       {getBudgetName(expense.budget)}
-                    </li>
-                  )}
-                  <li>
-                    <b>Created at:</b>
-                    {' '}
-                    {dayjs(expense.createdTimestamp).format('DD/MM/YYYY HH:mm:ss')}
-                  </li>
-                  <li>
-                    <b>Updated at:</b>
-                    {' '}
-                    {dayjs(expense.updatedTimestamp).format('DD/MM/YYYY HH:mm:ss')}
-                  </li>
-                </ul>
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'actionDate' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {dayjs(expense.actionTimestamp).format('DD/MM/YYYY')}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'createdAt' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {dayjs(expense.createdTimestamp).format('DD/MM/YYYY HH:mm:ss')}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'updatedAt' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      {dayjs(expense.updatedTimestamp).format('DD/MM/YYYY HH:mm:ss')}
+                    </Table.Td>
+                  </Table.Tr>
+                  <Table.Tr>
+                    <Table.Th w={100}>
+                      {intl.formatMessage({ id: 'description' })}
+                      :
+                    </Table.Th>
+                    <Table.Td>
+                      <div style={{ maxHeight: '100px', overflowY: 'auto' }}>
+                        {expense.description || 'N/A'}
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                </Table.Tbody>
+              </Table>
 
-                <Group>
-                  <Button onClick={() => setEditMode(true)}>Edit</Button>
-                  <DeleteExpense expense={expense} />
-                </Group>
-              </>
-            )}
-      </Modal>
-    </>
+              <Group mt="xl">
+                <Button onClick={() => setEditMode(true)}>{intl.formatMessage({ id: 'edit' })}</Button>
+                <DeleteExpense expense={expense} onClose={onClose} />
+                <Button variant="outline" onClick={onClose}>{intl.formatMessage({ id: 'close' })}</Button>
+              </Group>
+            </>
+          )}
+    </Modal>
   )
 }
 

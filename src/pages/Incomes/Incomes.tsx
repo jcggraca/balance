@@ -1,10 +1,9 @@
-import type { Account, Expense, Types } from '@/db'
-import AddExpense from '@/components/Expense/AddExpense'
-import ViewExpense from '@/components/Expense/ViewExpense'
+import type { Account, Income } from '@/db'
+import AddIncome from '@/components/Income/AddIncome'
+import ViewIncome from '@/components/Income/ViewIncome'
 import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { EVALUATION } from '@/utils/values'
 import { Button, Card, Group, Loader, Table, Text, TextInput } from '@mantine/core'
 import { DateInput } from '@mantine/dates'
 import { IconAlertTriangle } from '@tabler/icons-react'
@@ -12,41 +11,40 @@ import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
-import classes from './Expenses.module.css'
+import classes from './Incomes.module.css'
 
-const Expenses: FC = () => {
+const Incomes: FC = () => {
   const intl = useIntl()
   const { currency } = useSettingsStore()
 
-  const [types, setTypes] = useState<Types[]>()
   const [accounts, setAccounts] = useState<Account[]>()
   const [accountNotFound, setAccountNotFound] = useState(0)
-  const [expense, setExpense] = useState<Expense | undefined>()
+  const [income, setIncome] = useState<Income | undefined>()
   const [searchQuery, setSearchQuery] = useState('')
   const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
     start: null,
     end: null,
   })
 
-  const expenses = useLiveQuery(async () => {
-    let query = db.expenses.orderBy('actionTimestamp')
+  const incomes = useLiveQuery(async () => {
+    let query = db.income.orderBy('actionTimestamp')
 
     if (searchQuery) {
-      query = query.filter(expense =>
-        expense.name.toLowerCase().includes(searchQuery.toLowerCase())
-        || (expense.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()),
+      query = query.filter(income =>
+        income.name.toLowerCase().includes(searchQuery.toLowerCase())
+        || (income.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()),
       )
     }
 
     if (dateRange.start) {
-      query = query.filter(expense =>
-        expense.actionTimestamp >= dateRange.start!.getTime(),
+      query = query.filter(income =>
+        income.actionTimestamp >= dateRange.start!.getTime(),
       )
     }
 
     if (dateRange.end) {
-      query = query.filter(expense =>
-        expense.actionTimestamp <= dateRange.end!.getTime(),
+      query = query.filter(income =>
+        income.actionTimestamp <= dateRange.end!.getTime(),
       )
     }
 
@@ -55,9 +53,6 @@ const Expenses: FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedTypes = await db.types.toArray()
-      setTypes(fetchedTypes)
-
       const fetchedAccounts = await db.account.toArray()
       setAccounts(fetchedAccounts)
     }
@@ -65,38 +60,23 @@ const Expenses: FC = () => {
     fetchData()
 
     return () => {
-      setTypes(undefined)
       setAccounts(undefined)
       setAccountNotFound(0)
     }
   }, [])
 
   useMemo(() => {
-    if (expenses) {
-      const length = expenses.filter(o => !accounts?.find(a => a.id === o.accountId)).length
+    if (incomes) {
+      const length = incomes.filter(o => !accounts?.find(a => a.id === o.accountId)).length
       setAccountNotFound(length)
     }
-  }, [expenses, accounts])
-
-  const getTypeName = (id: string) => {
-    const findType = types?.find(o => o.id === id)
-    if (findType)
-      return findType.name
-    return <WarningNotFound>{intl.formatMessage({ id: 'type' })}</WarningNotFound>
-  }
-
-  const getEvaluationName = (value: string) => {
-    const findEvaluation = EVALUATION.find(o => o.value === value)
-    if (findEvaluation)
-      return <span style={{ color: findEvaluation.color }}>{intl.formatMessage({ id: findEvaluation.label })}</span>
-    return <WarningNotFound>{intl.formatMessage({ id: 'evaluation' })}</WarningNotFound>
-  }
+  }, [incomes, accounts])
 
   const getAccountName = (accountId: string) => {
     const account = accounts?.find(o => o.id === accountId)
     if (account)
       return account.name
-    return <WarningNotFound>{intl.formatMessage({ id: 'account' })}</WarningNotFound>
+    return <WarningNotFound>Account</WarningNotFound>
   }
 
   const handleClearFilters = () => {
@@ -129,7 +109,7 @@ const Expenses: FC = () => {
           <Button onClick={handleClearFilters}>{intl.formatMessage({ id: 'clearFilters' })}</Button>
         </Group>
 
-        <AddExpense />
+        <AddIncome />
       </div>
 
       {accountNotFound > 0 && accounts
@@ -139,39 +119,37 @@ const Expenses: FC = () => {
           {' '}
           {accountNotFound}
           {' '}
-          {accountNotFound === 1 ? intl.formatMessage({ id: 'expenseDoesnt' }) : intl.formatMessage({ id: 'expensesDont' })}
+          {accountNotFound === 1 ? intl.formatMessage({ id: 'incomeDoesnt' }) : intl.formatMessage({ id: 'incomesDont' })}
           {' '}
           {intl.formatMessage({ id: 'haveAnAccountAssociatedToIt' })}
         </Card>
       )}
 
-      {expense && <ViewExpense expense={expense} onClose={() => setExpense(undefined)} />}
+      {income && <ViewIncome income={income} onClose={() => setIncome(undefined)} />}
 
-      {!expenses && <Loader color="blue" />}
-      {expenses && expenses?.length === 0 && <Text mt="xl">{intl.formatMessage({ id: 'noExpensesFound' })}</Text>}
-      {expenses && expenses?.length > 0 && (
+      {!incomes && <Loader color="blue" />}
+      {incomes && incomes?.length === 0 && <Text mt="xl">{intl.formatMessage({ id: 'noIncomesFound' })}</Text>}
+      {incomes && incomes?.length > 0 && (
         <Table stickyHeader highlightOnHover>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>{intl.formatMessage({ id: 'name' })}</Table.Th>
               <Table.Th>{intl.formatMessage({ id: 'amount' })}</Table.Th>
               <Table.Th>{intl.formatMessage({ id: 'account' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'type' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'evaluation' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'date' })}</Table.Th>
+              <Table.Th>{intl.formatMessage({ id: 'description' })}</Table.Th>
+              <Table.Th>{intl.formatMessage({ id: 'actionDate' })}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {expenses.map(element => (
-              <Table.Tr className={classes.table} onClick={() => setExpense(element)} key={element.name}>
+            {incomes.map(element => (
+              <Table.Tr className={classes.table} onClick={() => setIncome(element)} key={element.name}>
                 <Table.Td>{element.name}</Table.Td>
                 <Table.Td>
                   {currency}
                   {element.amount}
                 </Table.Td>
                 <Table.Td>{getAccountName(element.accountId)}</Table.Td>
-                <Table.Td>{getTypeName(element.type)}</Table.Td>
-                <Table.Td>{getEvaluationName(element.evaluation)}</Table.Td>
+                <Table.Td className={classes.tableDescription}>{element.description || 'N/A'}</Table.Td>
                 <Table.Td>{dayjs(element.actionTimestamp).format('DD/MM/YYYY')}</Table.Td>
               </Table.Tr>
             ))}
@@ -182,4 +160,4 @@ const Expenses: FC = () => {
   )
 }
 
-export default Expenses
+export default Incomes

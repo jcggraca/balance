@@ -1,7 +1,7 @@
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
 }
 
 .card {
@@ -14,7 +14,15 @@
   margin-bottom: 15px;
 }
 
-.tableActionButton {
-  width: 13rem;
+.table {
+  cursor: pointer;
 }
+
+.tableDescription {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 

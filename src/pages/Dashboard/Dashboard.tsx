@@ -1,6 +1,5 @@
 import type { Expense } from '@/db'
 import type { ReactNode } from 'react'
-import ViewExpense from '@/components/Expense/ViewExpense'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { PieChart } from '@mantine/charts'
@@ -9,14 +8,17 @@ import { notifications } from '@mantine/notifications'
 import { IconAlertTriangle } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
+import { useIntl } from 'react-intl'
 
 function RenderErrorOrChildren({ error, children }: { error: string | null, children: ReactNode }) {
+  const intl = useIntl()
+
   if (error) {
     return (
       <Alert
         variant="light"
         color="red"
-        title="Error message"
+        title={intl.formatMessage({ id: 'errorMessage' })}
         icon={<IconAlertTriangle />}
       >
         {error}
@@ -27,6 +29,7 @@ function RenderErrorOrChildren({ error, children }: { error: string | null, chil
 }
 
 function Dashboard() {
+  const intl = useIntl()
   const { currency } = useSettingsStore()
 
   const [expenses, setExpenses] = useState<Expense[]>([])
@@ -64,7 +67,7 @@ function Dashboard() {
         setErrorExpenses(null)
       }
       catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load expenses. Please try again later.'
+        const errorMessage = error instanceof Error ? error.message : intl.formatMessage({ id: 'failedToLoadExpenses' })
         console.error('Error fetching expenses:', error)
         setErrorExpenses(errorMessage)
         notifications.show({
@@ -94,7 +97,7 @@ function Dashboard() {
         setErrorIncomes(null)
       }
       catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load income totals. Please try again later.'
+        const errorMessage = error instanceof Error ? error.message : intl.formatMessage({ id: 'failedToLoadIncomes' })
         console.error('Error fetching income totals:', error)
         setErrorIncomes(errorMessage)
         notifications.show({
@@ -110,24 +113,23 @@ function Dashboard() {
   }, [])
 
   const pieChartData = [
-    { name: 'Income', value: totals.income, color: '#51cf66' },
-    { name: 'Expenses', value: totals.expense, color: '#ff6b6b' },
+    { name: 'incomes', value: totals.income, color: '#51cf66' },
+    { name: 'expenses', value: totals.expense, color: '#ff6b6b' },
   ]
 
   return (
     <Grid mb="md">
       <Grid.Col span={{ base: 12, sm: 6 }}>
         <Card withBorder padding="lg" radius="md">
-          <Text size="lg" fw={500} c="red">Last 10 Expenses</Text>
+          <Text size="lg" fw={500} c="red">{intl.formatMessage({ id: 'last10Expenses' })}</Text>
 
           <RenderErrorOrChildren error={errorExpenses}>
             <Table>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>Name</Table.Th>
-                  <Table.Th>Amount</Table.Th>
-                  <Table.Th>Date</Table.Th>
-                  <Table.Th style={{ width: '6rem' }}></Table.Th>
+                  <Table.Th>{intl.formatMessage({ id: 'name' })}</Table.Th>
+                  <Table.Th>{intl.formatMessage({ id: 'amount' })}</Table.Th>
+                  <Table.Th>{intl.formatMessage({ id: 'date' })}</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -140,8 +142,7 @@ function Dashboard() {
                         {expense.amount}
                       </Text>
                     </Table.Td>
-                    <Table.Td>{dayjs(expense.updatedTimestamp).fromNow()}</Table.Td>
-                    <Table.Td><ViewExpense expense={expense} /></Table.Td>
+                    <Table.Td>{dayjs(expense.actionTimestamp).fromNow()}</Table.Td>
                   </Table.Tr>
                 ))}
               </Table.Tbody>
@@ -153,7 +154,11 @@ function Dashboard() {
       <Grid.Col span={{ base: 12, sm: 6 }}>
         <Card withBorder padding="lg" radius="md" mb="md">
           <Text size="lg" fw={500} c="green">
-            Total Income (Current month)
+            {intl.formatMessage({ id: 'totalIncomes' })}
+            {' '}
+            (
+            {intl.formatMessage({ id: 'currentMonth' })}
+            )
           </Text>
           <Text size="xl" fw={700}>
             <RenderErrorOrChildren error={errorIncomes}>
@@ -165,7 +170,11 @@ function Dashboard() {
 
         <Card withBorder padding="lg" radius="md" mb="md">
           <Text size="lg" fw={500} c="red">
-            Total Expenses (Current month)
+            {intl.formatMessage({ id: 'totalExpenses' })}
+            {' '}
+            (
+            {intl.formatMessage({ id: 'currentMonth' })}
+            )
           </Text>
           <Text size="xl" fw={700}>
             <RenderErrorOrChildren error={errorExpenses}>
@@ -176,7 +185,7 @@ function Dashboard() {
         </Card>
 
         <Card withBorder padding="lg" radius="md" mb="md">
-          <Text size="lg" fw={500} mb="md">Monthly Overview</Text>
+          <Text size="lg" fw={500} mb="md">{intl.formatMessage({ id: 'monthlyOverview' })}</Text>
           <Group align="center">
             <PieChart
               data={pieChartData}
@@ -187,7 +196,7 @@ function Dashboard() {
                 <Group key={item.name} gap="xs">
                   <Box w={16} h={16} style={{ backgroundColor: item.color, borderRadius: 4 }} />
                   <Text size="sm">
-                    {item.name}
+                    {intl.formatMessage({ id: item.name })}
                     :
                     {' '}
                     {currency}

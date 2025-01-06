@@ -1,5 +1,6 @@
 import type { FC } from 'react'
 import { IconAlertTriangle } from '@tabler/icons-react'
+import { useIntl } from 'react-intl'
 import classes from './WarningNotFound.module.css'
 
 interface WarningNotFoundProps {
@@ -7,13 +8,15 @@ interface WarningNotFoundProps {
 }
 
 const WarningNotFound: FC<WarningNotFoundProps> = ({ children }) => {
+  const intl = useIntl()
+
   return (
     <span className={classes.warning}>
       <IconAlertTriangle />
       {' '}
       {children}
       {' '}
-      not found!
+      {intl.formatMessage({ id: 'notFound' })}
     </span>
   )
 }

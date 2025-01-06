@@ -1,13 +1,14 @@
 import type { FC } from 'react'
 import { db, type Types } from '@/db'
-import { Button, Group, Modal, TextInput } from '@mantine/core'
+import { Button, Group, Modal, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import dayjs from 'dayjs'
+import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
-import classes from './AddTypes.module.css'
 
 const AddTypes: FC = () => {
+  const intl = useIntl()
   const [opened, { open, close }] = useDisclosure(false)
 
   const form = useForm({
@@ -16,8 +17,8 @@ const AddTypes: FC = () => {
       description: '',
     },
     validate: {
-      name: value => !value.trim() ? 'Name is required' : null,
-      description: value => !value.trim() ? 'Description is required' : null,
+      name: value => !value.trim() ? intl.formatMessage({ id: 'nameIsRequired' }) : null,
+      description: value => !value.trim() ? intl.formatMessage({ id: 'descriptionIsRequired' }) : null,
     },
   })
 
@@ -39,23 +40,27 @@ const AddTypes: FC = () => {
 
   return (
     <>
-      <Button onClick={open}>Add type</Button>
+      <Button onClick={open}>{intl.formatMessage({ id: 'addType' })}</Button>
 
-      <Modal centered opened={opened} onClose={close} title="Add Type">
-        <form className={classes.form} onSubmit={form.onSubmit(handleSubmit)}>
+      <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'addType' })}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput
-            label="Name"
+            label={intl.formatMessage({ id: 'name' })}
+            required
+            mt="md"
             {...form.getInputProps('name')}
           />
 
-          <TextInput
-            label="Description"
+          <Textarea
+            label={intl.formatMessage({ id: 'description' })}
+            required
+            mt="md"
             {...form.getInputProps('description')}
           />
 
-          <Group>
-            <Button type="submit">Add Type</Button>
-            <Button onClick={close} type="button">Cancel</Button>
+          <Group mt="xl">
+            <Button type="submit">{intl.formatMessage({ id: 'addType' })}</Button>
+            <Button onClick={close} type="button">{intl.formatMessage({ id: 'cancel' })}</Button>
           </Group>
         </form>
       </Modal>

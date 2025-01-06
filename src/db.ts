@@ -17,6 +17,7 @@ interface Expense {
   evaluation: 'necessary' | 'not-necessary' | 'wasteful'
   type: string
   budget: string
+  description: string
   actionTimestamp: number
   createdTimestamp: number
   updatedTimestamp: number
@@ -70,7 +71,7 @@ const db = new Dexie('MyPersonalFinance') as Dexie & {
 
 db.version(4).stores({
   account: '++id, name, amount, description, createdTimestamp, updatedTimestamp',
-  expenses: '++id, name, accountId, amount, type, actionTimestamp, createdTimestamp, updatedTimestamp',
+  expenses: '++id, name, description, accountId, amount, type, actionTimestamp, createdTimestamp, updatedTimestamp',
   types: '++id, name, description, createdTimestamp, updatedTimestamp',
   budget: '++id, name, amount, description, createdTimestamp, updatedTimestamp',
   income: '++id, name, amount, accountId, description, actionTimestamp, createdTimestamp, updatedTimestamp',

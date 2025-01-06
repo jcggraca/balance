@@ -2,16 +2,17 @@ import type { Income } from '@/db'
 import type { selectorState } from '@/utils/interfaces'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Group, Modal, NumberInput, Select, TextInput } from '@mantine/core'
+import { Button, Group, Modal, NumberInput, Select, Textarea, TextInput, Tooltip } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import dayjs from 'dayjs'
 import { type FC, useEffect, useState } from 'react'
+import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
-import classes from './AddIncome.module.css'
 
 const AddIncome: FC = () => {
+  const intl = useIntl()
   const { currency } = useSettingsStore()
   const [opened, { open, close }] = useDisclosure(false)
 
@@ -26,10 +27,10 @@ const AddIncome: FC = () => {
       actionDate: null as Date | null,
     },
     validate: {
-      name: value => !value ? 'Name is required' : null,
-      amount: value => !value ? 'Amount is required' : null,
-      account: value => !value ? 'Account is required' : null,
-      actionDate: value => !value ? 'Date is required' : null,
+      name: value => !value ? intl.formatMessage({ id: 'nameIsRequired' }) : null,
+      amount: value => !value ? intl.formatMessage({ id: 'amountIsRequired' }) : null,
+      account: value => !value ? intl.formatMessage({ id: 'accountIsRequired' }) : null,
+      actionDate: value => !value ? intl.formatMessage({ id: 'dateIsRequired' }) : null,
     },
   })
 
@@ -89,48 +90,58 @@ const AddIncome: FC = () => {
 
   return (
     <>
-      <Button onClick={open}>Add Income</Button>
+      {accountList.length === 0
+        ? <Tooltip label={intl.formatMessage({ id: 'youMustHaveAtLeastOneAccountToAddAnIncome' })}><Button disabled onClick={open}>{intl.formatMessage({ id: 'addIncome' })}</Button></Tooltip>
+        : <Button onClick={open}>{intl.formatMessage({ id: 'addIncome' })}</Button>}
 
-      <Modal opened={opened} onClose={close} title="Add Income">
-        <form className={classes.form} onSubmit={form.onSubmit(handleSubmit)}>
+      <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'addIncome' })}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput
-            label="Name"
+            label={intl.formatMessage({ id: 'name' })}
+            placeholder={intl.formatMessage({ id: 'enterName' })}
             required
+            mt="md"
             {...form.getInputProps('name')}
           />
 
           <NumberInput
-            label="Amount"
+            label={intl.formatMessage({ id: 'amount' })}
             prefix={currency}
             hideControls
             decimalScale={2}
             required
+            mt="md"
+            placeholder={intl.formatMessage({ id: 'enterAmount' })}
             {...form.getInputProps('amount')}
           />
 
-          <TextInput
-            label="Description"
-            {...form.getInputProps('description')}
-          />
-
           <Select
-            label="Account"
-            placeholder="Pick value"
+            label={intl.formatMessage({ id: 'account' })}
+            placeholder={intl.formatMessage({ id: 'selectAccount' })}
             data={accountList}
             required
+            mt="md"
             {...form.getInputProps('account')}
           />
 
           <DatePickerInput
-            label="Action date"
-            placeholder="Pick action date"
+            label={intl.formatMessage({ id: 'actionDate' })}
+            placeholder={intl.formatMessage({ id: 'selectActionDate' })}
             required
+            mt="md"
             {...form.getInputProps('actionDate')}
           />
 
-          <Group>
-            <Button type="submit">Add Income</Button>
-            <Button onClick={close}>Cancel</Button>
+          <Textarea
+            label={intl.formatMessage({ id: 'description' })}
+            mt="md"
+            placeholder={intl.formatMessage({ id: 'enterDescription' })}
+            {...form.getInputProps('description')}
+          />
+
+          <Group mt="xl">
+            <Button type="submit">{intl.formatMessage({ id: 'addIncome' })}</Button>
+            <Button variant="outline" onClick={close}>{intl.formatMessage({ id: 'cancel' })}</Button>
           </Group>
         </form>
       </Modal>

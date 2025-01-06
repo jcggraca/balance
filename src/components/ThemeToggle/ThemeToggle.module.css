@@ -11,3 +11,33 @@
     background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-5));
   }
 }
+
+.buttonMobile {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  height: 50px;
+  font-size: var(--mantine-font-size-xl);
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  font-weight: 700;
+
+  &[data-active] {
+    & {
+      background-color: var(--mantine-color-blue-light);
+      color: var(--mantine-color-blue-light-color);
+
+      & .linkIcon {
+        color: var(--mantine-color-blue-light-color);
+      }
+    }
+  }
+}
+
+.buttonMobileIcon {
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
+  margin: 0 var(--mantine-spacing-sm);
+  width: 25px;
+  height: 25px;
+}

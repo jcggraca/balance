@@ -2,14 +2,15 @@ import type { Budget } from '@/db'
 import type { FC } from 'react'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Group, Modal, NumberInput, TextInput } from '@mantine/core'
+import { Button, Group, Modal, NumberInput, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import dayjs from 'dayjs'
+import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
-import classes from './AddBudget.module.css'
 
 const AddBudget: FC = () => {
+  const intl = useIntl()
   const { currency } = useSettingsStore()
   const [opened, { open, close }] = useDisclosure(false)
 
@@ -20,14 +21,14 @@ const AddBudget: FC = () => {
       amount: '',
     },
     validate: {
-      name: value => (!value ? 'Name is required' : null),
+      name: value => (!value ? intl.formatMessage({ id: 'nameIsRequired' }) : null),
       amount: (value) => {
         if (!value)
-          return 'Amount is required'
+          return intl.formatMessage({ id: 'amountIsRequired' })
         if (Number.isNaN(Number(value)))
-          return 'Amount must be a number'
+          return intl.formatMessage({ id: 'amountMustBeANumber' })
         if (Number(value) <= 0)
-          return 'Amount must be greater than 0'
+          return intl.formatMessage({ id: 'amountMustBeGreaterThan0' })
         return null
       },
     },
@@ -53,33 +54,39 @@ const AddBudget: FC = () => {
 
   return (
     <>
-      <Button onClick={open}>Add Budget</Button>
+      <Button onClick={open}>{intl.formatMessage({ id: 'addBudget' })}</Button>
 
-      <Modal opened={opened} onClose={close} title="Add Budget">
-        <form className={classes.form} onSubmit={form.onSubmit(handleSubmit)}>
+      <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'addBudget' })}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput
-            label="Name"
+            label={intl.formatMessage({ id: 'name' })}
+            placeholder={intl.formatMessage({ id: 'enterName' })}
             required
+            mt="md"
             {...form.getInputProps('name')}
           />
 
-          <TextInput
-            label="Description"
-            {...form.getInputProps('description')}
-          />
-
           <NumberInput
-            label="Amount"
+            label={intl.formatMessage({ id: 'amount' })}
             prefix={currency}
             hideControls
             decimalScale={2}
+            placeholder={intl.formatMessage({ id: 'enterAmount' })}
             required
+            mt="md"
             {...form.getInputProps('amount')}
           />
 
-          <Group>
-            <Button type="submit">Add Budget</Button>
-            <Button onClick={close} type="button">Cancel</Button>
+          <Textarea
+            label={intl.formatMessage({ id: 'description' })}
+            placeholder={intl.formatMessage({ id: 'enterDescription' })}
+            {...form.getInputProps('description')}
+            mt="md"
+          />
+
+          <Group mt="xl">
+            <Button type="submit">{intl.formatMessage({ id: 'addBudget' })}</Button>
+            <Button variant="outline" onClick={close} type="button">{intl.formatMessage({ id: 'cancel' })}</Button>
           </Group>
         </form>
       </Modal>

@@ -1,16 +1,16 @@
 import type { FC } from 'react'
 import { type Account, db } from '@/db'
-import { Button, Group, Modal } from '@mantine/core'
+import { Button, Group, Modal, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { IconTrash } from '@tabler/icons-react'
-import classes from './DeleteAccount.module.css'
+import { useIntl } from 'react-intl'
 
 interface DeleteAccountProps {
   account: Account
-  icon?: boolean
+  onClose: () => void
 }
 
-const DeleteAccount: FC<DeleteAccountProps> = ({ account, icon = false }) => {
+const DeleteAccount: FC<DeleteAccountProps> = ({ account, onClose }) => {
+  const intl = useIntl()
   const [opened, { open, close }] = useDisclosure(false)
 
   const handleDelete = async () => {
@@ -19,30 +19,39 @@ const DeleteAccount: FC<DeleteAccountProps> = ({ account, icon = false }) => {
 
     await db.account.delete(account.id)
 
+    onClose()
     close()
   }
 
   return (
     <>
-      <Button variant="transparent" color="red" onClick={open}>{icon ? <IconTrash /> : 'Delete'}</Button>
+      <Button variant="light" color="red" onClick={open}>{intl.formatMessage({ id: 'delete' })}</Button>
 
-      <Modal centered opened={opened} onClose={close} title="Delete Account">
-        <p>
-          <strong>Attention:</strong>
+      <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'deleteAccount' })}>
+        <Text>
+          <strong>
+            {intl.formatMessage({ id: 'attention' })}
+            :
+          </strong>
           {' '}
-          Everything associate expenses will lost the target account
-          <br />
-          Are you sure you want to delete
+          {intl.formatMessage({ id: 'everythingAssociateToThisAccountWillLoseTheTargetAccount' })}
+        </Text>
+
+        <Text>
+          {intl.formatMessage({ id: 'areYouSureYouWantToDelete' })}
           {' '}
           <strong>{account.name}</strong>
           ?
-        </p>
+        </Text>
 
-        <p className={classes.warning}>This action is irreversible!</p>
+        <Text c="red" mt="md" fw="bold">
+          {intl.formatMessage({ id: 'thisActionIsIrreversible' })}
+          !
+        </Text>
 
-        <Group>
-          <Button onClick={handleDelete}>Confirm</Button>
-          <Button onClick={close}>Cancel</Button>
+        <Group mt="xl">
+          <Button onClick={handleDelete}>{intl.formatMessage({ id: 'confirm' })}</Button>
+          <Button variant="outline" onClick={close}>{intl.formatMessage({ id: 'cancel' })}</Button>
         </Group>
       </Modal>
     </>

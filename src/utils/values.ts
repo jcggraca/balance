@@ -1,17 +1,17 @@
 export const EVALUATION = [
   {
     value: 'necessary',
-    label: 'Necessary',
+    label: 'necessary',
     color: 'green',
   },
   {
     value: 'not-necessary',
-    label: 'Not necessary',
+    label: 'notNecessary',
     color: 'yellow',
   },
   {
     value: 'wasteful',
-    label: 'Wasteful',
+    label: 'wasteful',
     color: 'red',
   },
 ]
