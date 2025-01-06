@@ -1,4 +1,4 @@
-import { supabase } from '@/api/client'
+import { supabase } from '@/API/client'
 import { Button, Checkbox, Group, Modal, Select, SimpleGrid, Textarea, TextInput, Title, Tooltip, UnstyledButton } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
