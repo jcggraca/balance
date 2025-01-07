@@ -13,15 +13,14 @@
     "generate-pwa-assets": "pwa-assets-generator"
   },
   "dependencies": {
-    "@mantine/charts": "^7.15.2",
-    "@mantine/core": "^7.15.2",
-    "@mantine/dates": "^7.15.2",
-    "@mantine/form": "^7.15.2",
-    "@mantine/hooks": "^7.15.2",
-    "@mantine/notifications": "^7.15.2",
+    "@mantine/charts": "^7.15.3",
+    "@mantine/core": "^7.15.3",
+    "@mantine/dates": "^7.15.3",
+    "@mantine/form": "^7.15.3",
+    "@mantine/hooks": "^7.15.3",
+    "@mantine/notifications": "^7.15.3",
     "@supabase/supabase-js": "^2.47.10",
-    "@tabler/icons-react": "^3.26.0",
-    "@vercel/speed-insights": "^1.1.0",
+    "@tabler/icons-react": "^3.27.1",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.10",
     "dexie-export-import": "^4.1.4",
@@ -31,7 +30,7 @@
     "react-intl": "^7.1.0",
     "react-router-dom": "^7.1.1",
     "recharts": "^2.15.0",
-    "uuid": "^11.0.3",
+    "uuid": "^11.0.4",
     "workbox-core": "^7.3.0",
     "zustand": "^5.0.2"
   },
@@ -49,7 +48,7 @@
     "postcss-preset-mantine": "^1.17.0",
     "postcss-simple-vars": "^7.0.1",
     "typescript": "^5.7.2",
-    "vite": "^6.0.6",
+    "vite": "^6.0.7",
     "vite-plugin-pwa": "^0.21.1",
     "vite-tsconfig-paths": "^5.1.4"
   }

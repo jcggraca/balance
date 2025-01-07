@@ -8,7 +8,7 @@ import manifest from './manifest.json'
 export default defineConfig({
   plugins: [react(), tsconfigPaths(), VitePWA({
     manifest,
-    includeAssets: ['favicon.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+    includeAssets: ['favicon.svg', 'favicon-192.svg', 'favicon-512.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.svg'],
     // switch to "true" to enable sw on development
     devOptions: {
       enabled: true,
