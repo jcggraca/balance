@@ -85,7 +85,7 @@ const AddDebts: FC = () => {
           />
 
           <Group mt="xl">
-            <Button type="submit">{intl.formatMessage({ id: 'submit' })}</Button>
+            <Button type="submit">{intl.formatMessage({ id: 'addDebt' })}</Button>
             <Button variant="outline" onClick={close} type="button">{intl.formatMessage({ id: 'cancel' })}</Button>
           </Group>
         </form>

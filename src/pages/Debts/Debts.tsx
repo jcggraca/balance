@@ -1,10 +1,10 @@
 import type { Debts as DebtsType } from '@/db'
 import AddDebts from '@/components/Debts/AddDebts'
 import ViewDebts from '@/components/Debts/ViewDebts'
+import GenericTable from '@/components/GenericTable'
+import SearchFilters from '@/components/SearchFilters'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Group, Loader, Table, Text, TextInput } from '@mantine/core'
-import { DateInput } from '@mantine/dates'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useState } from 'react'
 import { useIntl } from 'react-intl'
@@ -51,61 +51,50 @@ const Debts: FC = () => {
     setDateRange({ start: null, end: null })
   }
 
+  const columns = [
+    {
+      key: 'name',
+      header: intl.formatMessage({ id: 'name' }),
+      render: (item: DebtsType) => item.name,
+    },
+    {
+      key: 'amount',
+      header: intl.formatMessage({ id: 'amount' }),
+      render: (item: DebtsType) => `${currency}${item.amount}`,
+    },
+    {
+      key: 'description',
+      header: intl.formatMessage({ id: 'description' }),
+      render: (item: DebtsType) => (
+        <span className={classes.tableDescription}>
+          {item.description || 'N/A'}
+        </span>
+      ),
+    },
+  ]
+
   return (
     <>
       <div className={classes.header}>
-        <Group>
-          <TextInput
-            placeholder={intl.formatMessage({ id: 'searchByNameAndDescription' })}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.currentTarget.value)}
-            w={250}
-          />
-          <DateInput
-            valueFormat="DD/MM/YYYY"
-            placeholder={intl.formatMessage({ id: 'startDate' })}
-            value={dateRange.start}
-            onChange={date => setDateRange(prev => ({ ...prev, start: date }))}
-          />
-          <DateInput
-            valueFormat="DD/MM/YYYY"
-            placeholder={intl.formatMessage({ id: 'endDate' })}
-            value={dateRange.end}
-            onChange={date => setDateRange(prev => ({ ...prev, end: date }))}
-          />
-          <Button onClick={handleClearFilters}>{intl.formatMessage({ id: 'clearFilters' })}</Button>
-        </Group>
-
+        <SearchFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          onClearFilters={handleClearFilters}
+        />
         <AddDebts />
       </div>
 
       {debt && <ViewDebts debt={debt} onClose={() => setDebt(undefined)} />}
 
-      {!debts && <Loader color="blue" />}
-      {debts && debts?.length === 0 && <Text mt="xl">{intl.formatMessage({ id: 'noDebtsFound' })}</Text>}
-      {debts && debts?.length > 0 && (
-        <Table stickyHeader highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>{intl.formatMessage({ id: 'name' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'amount' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'description' })}</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {debts.map(element => (
-              <Table.Tr className={classes.table} onClick={() => setDebt(element)} key={element.name}>
-                <Table.Td>{element.name}</Table.Td>
-                <Table.Td>
-                  {currency}
-                  {element.amount}
-                </Table.Td>
-                <Table.Td className={classes.tableDescription}>{element.description || 'N/A'}</Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      )}
+      <GenericTable
+        data={debts}
+        columns={columns}
+        onRowClick={setDebt}
+        isLoading={!debts}
+        emptyMessage={intl.formatMessage({ id: 'noDebtsFound' })}
+      />
     </>
   )
 }

@@ -1,12 +1,13 @@
 import type { Account, Expense, Types } from '@/db'
 import AddExpense from '@/components/Expense/AddExpense'
 import ViewExpense from '@/components/Expense/ViewExpense'
+import GenericTable from '@/components/GenericTable'
+import SearchFilters from '@/components/SearchFilters'
 import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { EVALUATION } from '@/utils/values'
-import { Button, Card, Group, Loader, Table, Text, TextInput } from '@mantine/core'
-import { DateInput } from '@mantine/dates'
+import { Card } from '@mantine/core'
 import { IconAlertTriangle } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -104,36 +105,53 @@ const Expenses: FC = () => {
     setDateRange({ start: null, end: null })
   }
 
+  const columns = [
+    {
+      key: 'name',
+      header: intl.formatMessage({ id: 'name' }),
+      render: (item: Expense) => item.name,
+    },
+    {
+      key: 'amount',
+      header: intl.formatMessage({ id: 'amount' }),
+      render: (item: Expense) => `${currency}${item.amount}`,
+    },
+    {
+      key: 'account',
+      header: intl.formatMessage({ id: 'account' }),
+      render: (item: Expense) => getAccountName(item.accountId),
+    },
+    {
+      key: 'type',
+      header: intl.formatMessage({ id: 'type' }),
+      render: (item: Expense) => getTypeName(item.type),
+    },
+    {
+      key: 'evaluation',
+      header: intl.formatMessage({ id: 'evaluation' }),
+      render: (item: Expense) => getEvaluationName(item.evaluation),
+    },
+    {
+      key: 'date',
+      header: intl.formatMessage({ id: 'date' }),
+      render: (item: Expense) => dayjs(item.actionTimestamp).format('DD/MM/YYYY'),
+    },
+  ]
+
   return (
     <>
       <div className={classes.header}>
-        <Group>
-          <TextInput
-            placeholder={intl.formatMessage({ id: 'searchByNameAndDescription' })}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.currentTarget.value)}
-            w={250}
-          />
-          <DateInput
-            valueFormat="DD/MM/YYYY"
-            placeholder={intl.formatMessage({ id: 'startDate' })}
-            value={dateRange.start}
-            onChange={date => setDateRange(prev => ({ ...prev, start: date }))}
-          />
-          <DateInput
-            valueFormat="DD/MM/YYYY"
-            placeholder={intl.formatMessage({ id: 'endDate' })}
-            value={dateRange.end}
-            onChange={date => setDateRange(prev => ({ ...prev, end: date }))}
-          />
-          <Button onClick={handleClearFilters}>{intl.formatMessage({ id: 'clearFilters' })}</Button>
-        </Group>
-
+        <SearchFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          onClearFilters={handleClearFilters}
+        />
         <AddExpense />
       </div>
 
-      {accountNotFound > 0 && accounts
-      && (
+      {accountNotFound > 0 && accounts && (
         <Card className={classes.card} withBorder radius="md" shadow="sm">
           <IconAlertTriangle />
           {' '}
@@ -147,37 +165,13 @@ const Expenses: FC = () => {
 
       {expense && <ViewExpense expense={expense} onClose={() => setExpense(undefined)} />}
 
-      {!expenses && <Loader color="blue" />}
-      {expenses && expenses?.length === 0 && <Text mt="xl">{intl.formatMessage({ id: 'noExpensesFound' })}</Text>}
-      {expenses && expenses?.length > 0 && (
-        <Table stickyHeader highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>{intl.formatMessage({ id: 'name' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'amount' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'account' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'type' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'evaluation' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'date' })}</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {expenses.map(element => (
-              <Table.Tr className={classes.table} onClick={() => setExpense(element)} key={element.name}>
-                <Table.Td>{element.name}</Table.Td>
-                <Table.Td>
-                  {currency}
-                  {element.amount}
-                </Table.Td>
-                <Table.Td>{getAccountName(element.accountId)}</Table.Td>
-                <Table.Td>{getTypeName(element.type)}</Table.Td>
-                <Table.Td>{getEvaluationName(element.evaluation)}</Table.Td>
-                <Table.Td>{dayjs(element.actionTimestamp).format('DD/MM/YYYY')}</Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      )}
+      <GenericTable
+        data={expenses}
+        columns={columns}
+        onRowClick={setExpense}
+        isLoading={!expenses}
+        emptyMessage={intl.formatMessage({ id: 'noExpensesFound' })}
+      />
     </>
   )
 }

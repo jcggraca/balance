@@ -1,11 +1,12 @@
 import type { Account, Income } from '@/db'
+import GenericTable from '@/components/GenericTable'
 import AddIncome from '@/components/Income/AddIncome'
 import ViewIncome from '@/components/Income/ViewIncome'
+import SearchFilters from '@/components/SearchFilters'
 import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Card, Group, Loader, Table, Text, TextInput } from '@mantine/core'
-import { DateInput } from '@mantine/dates'
+import { Card } from '@mantine/core'
 import { IconAlertTriangle } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -76,7 +77,7 @@ const Incomes: FC = () => {
     const account = accounts?.find(o => o.id === accountId)
     if (account)
       return account.name
-    return <WarningNotFound>Account</WarningNotFound>
+    return <WarningNotFound>{intl.formatMessage({ id: 'account' })}</WarningNotFound>
   }
 
   const handleClearFilters = () => {
@@ -84,36 +85,52 @@ const Incomes: FC = () => {
     setDateRange({ start: null, end: null })
   }
 
+  const columns = [
+    {
+      key: 'name',
+      header: intl.formatMessage({ id: 'name' }),
+      render: (item: Income) => item.name,
+    },
+    {
+      key: 'amount',
+      header: intl.formatMessage({ id: 'amount' }),
+      render: (item: Income) => `${currency}${item.amount}`,
+    },
+    {
+      key: 'account',
+      header: intl.formatMessage({ id: 'account' }),
+      render: (item: Income) => getAccountName(item.accountId),
+    },
+    {
+      key: 'description',
+      header: intl.formatMessage({ id: 'description' }),
+      render: (item: Income) => (
+        <span className={classes.tableDescription}>
+          {item.description || 'N/A'}
+        </span>
+      ),
+    },
+    {
+      key: 'actionDate',
+      header: intl.formatMessage({ id: 'actionDate' }),
+      render: (item: Income) => dayjs(item.actionTimestamp).format('DD/MM/YYYY'),
+    },
+  ]
+
   return (
     <>
       <div className={classes.header}>
-        <Group>
-          <TextInput
-            placeholder={intl.formatMessage({ id: 'searchByNameAndDescription' })}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.currentTarget.value)}
-            w={250}
-          />
-          <DateInput
-            valueFormat="DD/MM/YYYY"
-            placeholder={intl.formatMessage({ id: 'startDate' })}
-            value={dateRange.start}
-            onChange={date => setDateRange(prev => ({ ...prev, start: date }))}
-          />
-          <DateInput
-            valueFormat="DD/MM/YYYY"
-            placeholder={intl.formatMessage({ id: 'endDate' })}
-            value={dateRange.end}
-            onChange={date => setDateRange(prev => ({ ...prev, end: date }))}
-          />
-          <Button onClick={handleClearFilters}>{intl.formatMessage({ id: 'clearFilters' })}</Button>
-        </Group>
-
+        <SearchFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          onClearFilters={handleClearFilters}
+        />
         <AddIncome />
       </div>
 
-      {accountNotFound > 0 && accounts
-      && (
+      {accountNotFound > 0 && accounts && (
         <Card className={classes.card} withBorder radius="md" shadow="sm">
           <IconAlertTriangle />
           {' '}
@@ -127,35 +144,13 @@ const Incomes: FC = () => {
 
       {income && <ViewIncome income={income} onClose={() => setIncome(undefined)} />}
 
-      {!incomes && <Loader color="blue" />}
-      {incomes && incomes?.length === 0 && <Text mt="xl">{intl.formatMessage({ id: 'noIncomesFound' })}</Text>}
-      {incomes && incomes?.length > 0 && (
-        <Table stickyHeader highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>{intl.formatMessage({ id: 'name' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'amount' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'account' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'description' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'actionDate' })}</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {incomes.map(element => (
-              <Table.Tr className={classes.table} onClick={() => setIncome(element)} key={element.name}>
-                <Table.Td>{element.name}</Table.Td>
-                <Table.Td>
-                  {currency}
-                  {element.amount}
-                </Table.Td>
-                <Table.Td>{getAccountName(element.accountId)}</Table.Td>
-                <Table.Td className={classes.tableDescription}>{element.description || 'N/A'}</Table.Td>
-                <Table.Td>{dayjs(element.actionTimestamp).format('DD/MM/YYYY')}</Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      )}
+      <GenericTable
+        data={incomes}
+        columns={columns}
+        onRowClick={setIncome}
+        isLoading={!incomes}
+        emptyMessage={intl.formatMessage({ id: 'noIncomesFound' })}
+      />
     </>
   )
 }

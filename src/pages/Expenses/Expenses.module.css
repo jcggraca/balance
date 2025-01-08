@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .card {
@@ -13,16 +14,3 @@
   gap: 5px !important;
   margin-bottom: 15px;
 }
-
-.table {
-  cursor: pointer;
-}
-
-.tableDescription {
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-

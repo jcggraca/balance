@@ -1,10 +1,10 @@
 import type { Budget as BudgetType } from '@/db'
 import AddBudget from '@/components/Budget/AddBudget'
 import ViewBudget from '@/components/Budget/ViewBudget'
+import GenericTable from '@/components/GenericTable'
+import SearchFilters from '@/components/SearchFilters'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Group, Loader, Table, Text, TextInput } from '@mantine/core'
-import { DateInput } from '@mantine/dates'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useState } from 'react'
@@ -52,63 +52,55 @@ const Budget: FC = () => {
     setDateRange({ start: null, end: null })
   }
 
+  const columns = [
+    {
+      key: 'name',
+      header: intl.formatMessage({ id: 'name' }),
+      render: (item: BudgetType) => item.name,
+    },
+    {
+      key: 'amount',
+      header: intl.formatMessage({ id: 'amount' }),
+      render: (item: BudgetType) => `${currency}${item.amount}`,
+    },
+    {
+      key: 'description',
+      header: intl.formatMessage({ id: 'description' }),
+      render: (item: BudgetType) => (
+        <span className={classes.tableDescription}>
+          {item.description || 'N/A'}
+        </span>
+      ),
+    },
+    {
+      key: 'updated',
+      header: intl.formatMessage({ id: 'updated' }),
+      render: (item: BudgetType) => dayjs(item.updatedTimestamp).format('DD/MM/YYYY HH:mm'),
+    },
+  ]
+
   return (
     <>
       <div className={classes.header}>
-        <Group>
-          <TextInput
-            placeholder={intl.formatMessage({ id: 'searchByNameAndDescription' })}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.currentTarget.value)}
-            w={250}
-          />
-          <DateInput
-            valueFormat="DD/MM/YYYY"
-            placeholder={intl.formatMessage({ id: 'startDate' })}
-            value={dateRange.start}
-            onChange={date => setDateRange(prev => ({ ...prev, start: date }))}
-          />
-          <DateInput
-            valueFormat="DD/MM/YYYY"
-            placeholder={intl.formatMessage({ id: 'endDate' })}
-            value={dateRange.end}
-            onChange={date => setDateRange(prev => ({ ...prev, end: date }))}
-          />
-          <Button onClick={handleClearFilters}>{intl.formatMessage({ id: 'clearFilters' })}</Button>
-        </Group>
-
+        <SearchFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          onClearFilters={handleClearFilters}
+        />
         <AddBudget />
       </div>
 
       {budgetDetails && <ViewBudget budget={budgetDetails} onClose={() => setBudgetDetails(undefined)} />}
 
-      {!budgets && <Loader color="blue" />}
-      {budgets && budgets?.length === 0 && <Text mt="xl">{intl.formatMessage({ id: 'noBudgetsFound' })}</Text>}
-      {budgets && budgets?.length > 0 && (
-        <Table stickyHeader highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>{intl.formatMessage({ id: 'name' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'amount' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'description' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'updated' })}</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {budgets.map(element => (
-              <Table.Tr className={classes.table} onClick={() => setBudgetDetails(element)} key={element.name}>
-                <Table.Td>{element.name}</Table.Td>
-                <Table.Td>
-                  {currency}
-                  {element.amount}
-                </Table.Td>
-                <Table.Td className={classes.tableDescription}>{element.description || 'N/A'}</Table.Td>
-                <Table.Td>{dayjs(element.updatedTimestamp).format('YYYY-MM-DD HH:mm')}</Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      )}
+      <GenericTable
+        data={budgets}
+        columns={columns}
+        onRowClick={setBudgetDetails}
+        isLoading={!budgets}
+        emptyMessage={intl.formatMessage({ id: 'noBudgetsFound' })}
+      />
     </>
   )
 }

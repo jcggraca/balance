@@ -1,7 +1,6 @@
 import type { FC } from 'react'
+import DeleteModal from '@/components/DeleteModal/DeleteModal'
 import { db, type Expense } from '@/db'
-import { Button, Group, Modal, Text } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 
@@ -12,7 +11,6 @@ interface DeleteExpenseProps {
 
 const DeleteExpense: FC<DeleteExpenseProps> = ({ expense, onClose }) => {
   const intl = useIntl()
-  const [opened, { open, close }] = useDisclosure(false)
 
   const handleDelete = async () => {
     if (!expense)
@@ -30,7 +28,6 @@ const DeleteExpense: FC<DeleteExpenseProps> = ({ expense, onClose }) => {
       else {
         account.amount += expense.amount
         account.updatedTimestamp = date
-
         await db.account.put(account)
       }
     }
@@ -43,35 +40,19 @@ const DeleteExpense: FC<DeleteExpenseProps> = ({ expense, onClose }) => {
       else {
         budgetAccount.amount += expense.amount
         budgetAccount.updatedTimestamp = date
-
         await db.budget.put(budgetAccount)
       }
     }
 
     onClose()
-    close()
   }
 
   return (
-    <>
-      <Button variant="light" color="red" onClick={open}>{intl.formatMessage({ id: 'delete' })}</Button>
-
-      <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'deleteExpense' })}>
-        <Text>
-          {intl.formatMessage({ id: 'areYouSureYouWantToDelete' })}
-          {' '}
-          <strong>{expense.name}</strong>
-          ?
-        </Text>
-
-        <Text c="red" mt="md" fw="bold">{intl.formatMessage({ id: 'thisActionIsIrreversible' })}</Text>
-
-        <Group mt="xl">
-          <Button onClick={handleDelete}>{intl.formatMessage({ id: 'confirm' })}</Button>
-          <Button variant="outline" onClick={close}>{intl.formatMessage({ id: 'cancel' })}</Button>
-        </Group>
-      </Modal>
-    </>
+    <DeleteModal
+      title={intl.formatMessage({ id: 'deleteExpense' })}
+      itemName={expense.name}
+      onDelete={handleDelete}
+    />
   )
 }
 

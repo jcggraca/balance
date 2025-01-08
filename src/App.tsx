@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import localeData from 'dayjs/plugin/localeData'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import WelcomeModal from './components/WelcomeModal'
@@ -17,6 +18,7 @@ import TypesPage from './pages/Types'
 import { useSettingsStore } from './stores/useSettingsStore'
 
 dayjs.extend(relativeTime)
+dayjs.extend(localeData)
 
 function App() {
   const { newUser } = useSettingsStore()

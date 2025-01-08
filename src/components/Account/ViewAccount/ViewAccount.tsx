@@ -149,7 +149,7 @@ const ViewAccount: FC<ViewAccountProps> = ({ account, onClose }) => {
 
               <Group mt="xl">
                 <Button onClick={() => setEditMode(true)}>{intl.formatMessage({ id: 'edit' })}</Button>
-                <DeleteAccount account={account} onClose={close} />
+                <DeleteAccount account={account} onClose={onClose} />
                 <Button variant="outline" onClick={onClose}>{intl.formatMessage({ id: 'close' })}</Button>
               </Group>
             </>

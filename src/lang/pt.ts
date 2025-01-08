@@ -48,7 +48,6 @@ export const messages = {
   failedToLoadExpenses: 'Falha ao carregar despesas. Por favor, tente novamente mais tarde.',
   failedToLoadIncomes: 'Falha ao carregar receitas. Por favor, tente novamente mais tarde.',
   last10Expenses: 'Últimas 10 despesas',
-  currentMonth: 'Mês atual',
   monthlyOverview: 'Resumo mensal',
   giveAStar: 'Deixe uma estrela',
   messageSentSuccessfully: 'Sua mensagem foi enviada com sucesso!',
@@ -155,4 +154,10 @@ export const messages = {
   deleteType: 'Remover tipo',
   everythingAssociatedWithThisTypeWillLoseItsTargetType: 'Tudo associado a este tipo perderá o tipo alvo',
   addType: 'Adicionar tipo',
+  addDebt: 'Adicionar dívida',
+  expenseAddedSuccessfully: 'Despesa adicionada com sucesso',
+  incomeAddedSuccessfully: 'Receita adicionada com sucesso',
+  budgetAddedSuccessfully: 'Orçamento adicionado com sucesso',
+  debtAddedSuccessfully: 'Dívida adicionada com sucesso',
+  typeAddedSuccessfully: 'Tipo adicionado com sucesso',
 }

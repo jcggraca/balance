@@ -132,7 +132,7 @@ const ViewBudget: FC<ViewBudgetProps> = ({ budget, onClose }) => {
                       :
                     </Table.Th>
                     <Table.Td>
-                      {dayjs(budget.createdTimestamp).format('YYYY-MM-DD HH:mm:ss')}
+                      {dayjs(budget.createdTimestamp).format('DD/MM/YYYY HH:mm:ss')}
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>
@@ -141,7 +141,7 @@ const ViewBudget: FC<ViewBudgetProps> = ({ budget, onClose }) => {
                       :
                     </Table.Th>
                     <Table.Td>
-                      {dayjs(budget.updatedTimestamp).format('YYYY-MM-DD HH:mm:ss')}
+                      {dayjs(budget.updatedTimestamp).format('DD/MM/YYYY HH:mm:ss')}
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>

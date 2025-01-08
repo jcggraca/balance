@@ -2,8 +2,8 @@
   "name": "Balance",
   "short_name": "Balance",
   "description": "Balance your money and time",
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "theme_color": "#242424",
+  "background_color": "#242424",
   "display": "standalone",
   "start_url": "/index.html",
   "scope": "/",
@@ -11,7 +11,8 @@
     {
       "src": "favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any monochrome"
     },
     {
       "src": "favicon-96x96.png",

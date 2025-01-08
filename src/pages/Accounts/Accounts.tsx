@@ -1,10 +1,10 @@
 import type { Account } from '@/db'
 import AddAccount from '@/components/Account/AddAccount'
 import ViewAccount from '@/components/Account/ViewAccount'
+import GenericTable from '@/components/GenericTable'
+import SearchFilters from '@/components/SearchFilters'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Group, Loader, Table, Text, TextInput } from '@mantine/core'
-import { DateInput } from '@mantine/dates'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useState } from 'react'
@@ -52,63 +52,55 @@ const Accounts: FC = () => {
     setDateRange({ start: null, end: null })
   }
 
+  const columns = [
+    {
+      key: 'name',
+      header: intl.formatMessage({ id: 'name' }),
+      render: (item: Account) => item.name,
+    },
+    {
+      key: 'amount',
+      header: intl.formatMessage({ id: 'amount' }),
+      render: (item: Account) => `${currency}${item.amount}`,
+    },
+    {
+      key: 'description',
+      header: intl.formatMessage({ id: 'description' }),
+      render: (item: Account) => (
+        <span className={classes.tableDescription}>
+          {item.description || 'N/A'}
+        </span>
+      ),
+    },
+    {
+      key: 'date',
+      header: intl.formatMessage({ id: 'date' }),
+      render: (item: Account) => dayjs(item.updatedTimestamp).fromNow(),
+    },
+  ]
+
   return (
     <>
       <div className={classes.header}>
-        <Group>
-          <TextInput
-            placeholder={intl.formatMessage({ id: 'searchByNameAndDescription' })}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.currentTarget.value)}
-            w={250}
-          />
-          <DateInput
-            valueFormat="DD/MM/YYYY"
-            placeholder={intl.formatMessage({ id: 'startDate' })}
-            value={dateRange.start}
-            onChange={date => setDateRange(prev => ({ ...prev, start: date }))}
-          />
-          <DateInput
-            valueFormat="DD/MM/YYYY"
-            placeholder={intl.formatMessage({ id: 'endDate' })}
-            value={dateRange.end}
-            onChange={date => setDateRange(prev => ({ ...prev, end: date }))}
-          />
-          <Button onClick={handleClearFilters}>{intl.formatMessage({ id: 'clearFilters' })}</Button>
-        </Group>
-
+        <SearchFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          onClearFilters={handleClearFilters}
+        />
         <AddAccount />
       </div>
 
       {account && <ViewAccount account={account} onClose={() => setAccount(undefined)} />}
 
-      {!accounts && <Loader color="blue" />}
-      {accounts && accounts?.length === 0 && <Text mt="xl">{intl.formatMessage({ id: 'noAccountsFound' })}</Text>}
-      {accounts && accounts?.length > 0 && (
-        <Table stickyHeader highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>{intl.formatMessage({ id: 'name' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'amount' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'description' })}</Table.Th>
-              <Table.Th>{intl.formatMessage({ id: 'date' })}</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {accounts?.map(element => (
-              <Table.Tr className={classes.table} onClick={() => setAccount(element)} key={element.name}>
-                <Table.Td>{element.name}</Table.Td>
-                <Table.Td>
-                  {currency}
-                  {element.amount}
-                </Table.Td>
-                <Table.Td className={classes.tableDescription}>{element.description || 'N/A'}</Table.Td>
-                <Table.Td>{dayjs(element.updatedTimestamp).fromNow()}</Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      )}
+      <GenericTable
+        data={accounts}
+        columns={columns}
+        onRowClick={setAccount}
+        isLoading={!accounts}
+        emptyMessage={intl.formatMessage({ id: 'noAccountsFound' })}
+      />
     </>
   )
 }

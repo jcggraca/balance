@@ -48,7 +48,6 @@ export const messages = {
   failedToLoadExpenses: 'Failed to load expenses. Please try again later.',
   failedToLoadIncomes: 'Failed to load incomes. Please try again later.',
   last10Expenses: 'Last 10 Expenses',
-  currentMonth: 'Current month',
   monthlyOverview: 'Monthly Overview',
   giveAStar: 'Give a Star',
   messageSentSuccessfully: 'Your message has been sent successfully!',
@@ -155,4 +154,10 @@ export const messages = {
   deleteType: 'Delete Type',
   everythingAssociatedWithThisTypeWillLoseItsTargetType: 'Everything associated with this type will lose its target type',
   addType: 'Add Type',
+  addDebt: 'Add Debt',
+  expenseAddedSuccessfully: 'Expense added successfully',
+  incomeAddedSuccessfully: 'Income added successfully',
+  budgetAddedSuccessfully: 'Budget added successfully',
+  debtAddedSuccessfully: 'Debt added successfully',
+  typeAddedSuccessfully: 'Type added successfully',
 }
