@@ -1,20 +1,22 @@
-import type { Debts as DebtsType } from '@/db'
-import AddDebts from '@/components/Debts/AddDebts'
-import ViewDebts from '@/components/Debts/ViewDebts'
+import type { Debt } from '@/db'
+import AddDebt from '@/components/Debt/AddDebt'
+import ViewDebt from '@/components/Debt/ViewDebt'
+import GenericMobileList from '@/components/GenericMobileList'
 import GenericTable from '@/components/GenericTable'
 import SearchFilters from '@/components/SearchFilters'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
+import { useMediaQuery } from '@mantine/hooks'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useState } from 'react'
 import { useIntl } from 'react-intl'
-import classes from './Debts.module.css'
 
 const Debts: FC = () => {
   const intl = useIntl()
   const { currency } = useSettingsStore()
+  const isMobile = useMediaQuery('(max-width: 48em)')
 
-  const [debt, setDebt] = useState<DebtsType | undefined>(undefined)
+  const [debt, setDebt] = useState<Debt | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState('')
   const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
     start: null,
@@ -55,18 +57,18 @@ const Debts: FC = () => {
     {
       key: 'name',
       header: intl.formatMessage({ id: 'name' }),
-      render: (item: DebtsType) => item.name,
+      render: (item: Debt) => item.name,
     },
     {
       key: 'amount',
       header: intl.formatMessage({ id: 'amount' }),
-      render: (item: DebtsType) => `${currency}${item.amount}`,
+      render: (item: Debt) => `${currency}${item.amount}`,
     },
     {
       key: 'description',
       header: intl.formatMessage({ id: 'description' }),
-      render: (item: DebtsType) => (
-        <span className={classes.tableDescription}>
+      render: (item: Debt) => (
+        <span className="tableDescription">
           {item.description || 'N/A'}
         </span>
       ),
@@ -75,7 +77,7 @@ const Debts: FC = () => {
 
   return (
     <>
-      <div className={classes.header}>
+      <div className="responsiveHeader">
         <SearchFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -83,18 +85,29 @@ const Debts: FC = () => {
           onDateRangeChange={setDateRange}
           onClearFilters={handleClearFilters}
         />
-        <AddDebts />
+        <AddDebt />
       </div>
 
-      {debt && <ViewDebts debt={debt} onClose={() => setDebt(undefined)} />}
+      {debt && <ViewDebt debt={debt} onClose={() => setDebt(undefined)} />}
 
-      <GenericTable
-        data={debts}
-        columns={columns}
-        onRowClick={setDebt}
-        isLoading={!debts}
-        emptyMessage={intl.formatMessage({ id: 'noDebtsFound' })}
-      />
+      {isMobile
+        ? (
+            <GenericMobileList
+              data={debts}
+              onClick={item => setDebt(item as Debt)}
+              isLoading={!debts}
+              emptyMessage={intl.formatMessage({ id: 'noDebtFound' })}
+            />
+          )
+        : (
+            <GenericTable
+              data={debts}
+              columns={columns}
+              onClick={setDebt}
+              isLoading={!debts}
+              emptyMessage={intl.formatMessage({ id: 'noDebtFound' })}
+            />
+          )}
     </>
   )
 }

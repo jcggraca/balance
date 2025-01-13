@@ -3,7 +3,8 @@ import { type Account, db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { Button, Group, Modal, NumberInput, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { useDisclosure } from '@mantine/hooks'
+import { useDisclosure, useMediaQuery } from '@mantine/hooks'
+import { IconPlus } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
@@ -11,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid'
 const AddAccount: FC = () => {
   const intl = useIntl()
   const { currency } = useSettingsStore()
+  const isMobile = useMediaQuery('(max-width: 48em)')
   const [opened, { open, close }] = useDisclosure(false)
 
   const form = useForm({
@@ -48,9 +50,18 @@ const AddAccount: FC = () => {
     close()
   }
 
+  const RenderAddButton = () => {
+    if (isMobile) {
+      return <Button className="mobileAddButton" onClick={open}><IconPlus /></Button>
+    }
+    else {
+      return <Button onClick={open}>{intl.formatMessage({ id: 'addAccount' })}</Button>
+    }
+  }
+
   return (
     <>
-      <Button onClick={open}>{intl.formatMessage({ id: 'addAccount' })}</Button>
+      <RenderAddButton />
 
       <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'addAccount' })}>
         <form onSubmit={form.onSubmit(handleSubmit)}>

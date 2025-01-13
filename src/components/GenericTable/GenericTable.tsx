@@ -1,4 +1,4 @@
-import { Loader, Table, Text } from '@mantine/core'
+import { Box, Loader, Table, Text } from '@mantine/core'
 import classes from './GenericTable.module.css'
 
 interface Column<T> {
@@ -10,7 +10,7 @@ interface Column<T> {
 interface GenericTableProps<T> {
   data: T[] | undefined
   columns: Column<T>[]
-  onRowClick?: (item: T) => void
+  onClick?: (item: T) => void
   isLoading?: boolean
   emptyMessage: string
 }
@@ -18,7 +18,7 @@ interface GenericTableProps<T> {
 function GenericTable<T,>({
   data,
   columns,
-  onRowClick,
+  onClick,
   isLoading,
   emptyMessage,
 }: GenericTableProps<T>) {
@@ -29,30 +29,36 @@ function GenericTable<T,>({
     return <Text mt="xl">{emptyMessage}</Text>
 
   return (
-    <Table stickyHeader highlightOnHover>
-      <Table.Thead>
-        <Table.Tr>
-          {columns.map(column => (
-            <Table.Th key={column.key}>{column.header}</Table.Th>
-          ))}
-        </Table.Tr>
-      </Table.Thead>
-      <Table.Tbody>
-        {data.map((item, index) => (
-          <Table.Tr
-            key={index}
-            className={classes.table}
-            onClick={() => onRowClick?.(item)}
-          >
+    <Box style={{ overflowX: 'auto', width: '100%' }}>
+      <Table stickyHeader highlightOnHover>
+        <Table.Thead>
+          <Table.Tr>
             {columns.map(column => (
-              <Table.Td className={column.key === 'description' ? classes.tableDescription : ''} key={column.key}>
-                {column.render(item)}
-              </Table.Td>
+              <Table.Th key={column.key} data-key={column.key}>{column.header}</Table.Th>
             ))}
           </Table.Tr>
-        ))}
-      </Table.Tbody>
-    </Table>
+        </Table.Thead>
+        <Table.Tbody>
+          {data.map((item, index) => (
+            <Table.Tr
+              key={index}
+              className={classes.table}
+              onClick={() => onClick?.(item)}
+            >
+              {columns.map(column => (
+                <Table.Td
+                  key={column.key}
+                  data-key={column.key}
+                  className={column.key === 'description' ? classes.description : ''}
+                >
+                  {column.render(item)}
+                </Table.Td>
+              ))}
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+    </Box>
   )
 }
 

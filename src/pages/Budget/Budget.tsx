@@ -1,19 +1,21 @@
 import type { Budget as BudgetType } from '@/db'
 import AddBudget from '@/components/Budget/AddBudget'
 import ViewBudget from '@/components/Budget/ViewBudget'
+import GenericMobileList from '@/components/GenericMobileList'
 import GenericTable from '@/components/GenericTable'
 import SearchFilters from '@/components/SearchFilters'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
+import { useMediaQuery } from '@mantine/hooks'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useState } from 'react'
 import { useIntl } from 'react-intl'
-import classes from './Budget.module.css'
 
 const Budget: FC = () => {
   const intl = useIntl()
   const { currency } = useSettingsStore()
+  const isMobile = useMediaQuery('(max-width: 48em)')
 
   const [budgetDetails, setBudgetDetails] = useState<BudgetType | undefined>()
   const [searchQuery, setSearchQuery] = useState('')
@@ -67,7 +69,7 @@ const Budget: FC = () => {
       key: 'description',
       header: intl.formatMessage({ id: 'description' }),
       render: (item: BudgetType) => (
-        <span className={classes.tableDescription}>
+        <span className="tableDescription">
           {item.description || 'N/A'}
         </span>
       ),
@@ -81,7 +83,7 @@ const Budget: FC = () => {
 
   return (
     <>
-      <div className={classes.header}>
+      <div className="responsiveHeader">
         <SearchFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -94,13 +96,24 @@ const Budget: FC = () => {
 
       {budgetDetails && <ViewBudget budget={budgetDetails} onClose={() => setBudgetDetails(undefined)} />}
 
-      <GenericTable
-        data={budgets}
-        columns={columns}
-        onRowClick={setBudgetDetails}
-        isLoading={!budgets}
-        emptyMessage={intl.formatMessage({ id: 'noBudgetsFound' })}
-      />
+      {isMobile
+        ? (
+            <GenericMobileList
+              data={budgets}
+              onClick={item => setBudgetDetails(item as BudgetType)}
+              isLoading={!budgets}
+              emptyMessage={intl.formatMessage({ id: 'noBudgetFound' })}
+            />
+          )
+        : (
+            <GenericTable
+              data={budgets}
+              columns={columns}
+              onClick={setBudgetDetails}
+              isLoading={!budgets}
+              emptyMessage={intl.formatMessage({ id: 'noBudgetFound' })}
+            />
+          )}
     </>
   )
 }

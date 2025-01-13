@@ -34,10 +34,11 @@ function Dashboard() {
 
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [errorExpenses, setErrorExpenses] = useState<string | null>(null)
-  const [errorIncomes, setErrorIncomes] = useState<string | null>(null)
+  const [errorIncome, setErrorIncome] = useState<string | null>(null)
   const [totals, setTotals] = useState({ income: 0, expense: 0 })
   const [lengthMonths, setLengthMonths] = useState(1)
   const [selectedMonth, setSelectedMonth] = useState(dayjs().format('YYYY-MM'))
+  const [expensesByCategories, setExpensesByCategories] = useState<{ name: string, value: number, color: string }[]>([])
 
   const monthOptions = Array.from({ length: lengthMonths }, (_, i) => {
     const date = dayjs().subtract((lengthMonths - 1) - i, 'month')
@@ -55,7 +56,7 @@ function Dashboard() {
     const fetchExpenses = async () => {
       try {
         const allExpensesData = await db.expenses.toArray()
-        const allIncomesData = await db.income.toArray()
+        const allIncomeData = await db.income.toArray()
         const startOfMonth = dayjs(selectedMonth).startOf('month').valueOf()
         const endOfMonth = dayjs(selectedMonth).endOf('month').valueOf()
 
@@ -67,20 +68,36 @@ function Dashboard() {
         const selectedMonthExpenses = allExpensesData
           .filter(exp => exp.actionTimestamp >= startOfMonth && exp.actionTimestamp <= endOfMonth)
 
-        const selectedMonthIncomes = allIncomesData
+        const selectedMonthIncome = allIncomeData
           .filter(inc => inc.actionTimestamp >= startOfMonth && inc.actionTimestamp <= endOfMonth)
+
+        // Calculate expenses by category
+        const categoryMap = new Map<string, number>()
+        selectedMonthExpenses.forEach((expense) => {
+          const current = categoryMap.get(expense.category) || 0
+          categoryMap.set(expense.category, current + expense.amount)
+        })
+
+        const categories = await db.categories.toArray()
+        const expenseCategory = Array.from(categoryMap.entries()).map(([name, value]) => ({
+          name: categories.find(category => category.id === name)?.name || name,
+          value,
+          color: categories.find(category => category.id === name)?.color || '#ff6b6b',
+        })).sort((a, b) => b.value - a.value)
+
+        setExpensesByCategories(expenseCategory)
 
         setExpenses(latestExpenses)
         setTotals({
           expense: selectedMonthExpenses.reduce((acc, curr) => acc + curr.amount, 0),
-          income: selectedMonthIncomes.reduce((acc, curr) => acc + curr.amount, 0),
+          income: selectedMonthIncome.reduce((acc, curr) => acc + curr.amount, 0),
         })
 
         const oldestExpense = allExpensesData.length > 0
           ? allExpensesData.sort((a, b) => a.actionTimestamp - b.actionTimestamp)[0]
           : { actionTimestamp: Date.now() }
-        const oldestIncome = allIncomesData.length > 0
-          ? allIncomesData.sort((a, b) => a.actionTimestamp - b.actionTimestamp)[0]
+        const oldestIncome = allIncomeData.length > 0
+          ? allIncomeData.sort((a, b) => a.actionTimestamp - b.actionTimestamp)[0]
           : { actionTimestamp: Date.now() }
 
         const oldestMonth = dayjs(Math.min(oldestExpense.actionTimestamp, oldestIncome.actionTimestamp)).format('YYYY-MM')
@@ -88,13 +105,13 @@ function Dashboard() {
         setLengthMonths(Math.max(difference + 1, 1))
 
         setErrorExpenses(null)
-        setErrorIncomes(null)
+        setErrorIncome(null)
       }
       catch (error) {
-        const errorMessage = error instanceof Error ? error.message : intl.formatMessage({ id: 'failedToLoadExpenses' })
+        const errorMessage = error instanceof Error ? error.message : intl.formatMessage({ id: 'errorMessage' })
         console.error('Error fetching data:', error)
         setErrorExpenses(errorMessage)
-        setErrorIncomes(errorMessage)
+        setErrorIncome(errorMessage)
         notifications.show({
           title: 'Error',
           message: errorMessage,
@@ -104,10 +121,10 @@ function Dashboard() {
     }
 
     fetchExpenses()
-  }, [selectedMonth, intl])
+  }, [selectedMonth])
 
   const pieChartData = [
-    { name: 'incomes', value: totals.income, color: '#51cf66' },
+    { name: 'income', value: totals.income, color: '#51cf66' },
     { name: 'expenses', value: totals.expense, color: '#ff6b6b' },
   ]
 
@@ -153,46 +170,67 @@ function Dashboard() {
           <IconChevronRight size={16} />
         </ActionIcon>
       </Group>
+
       <Grid mb="md">
         <Grid.Col span={{ base: 12, sm: 6 }}>
-          <Card withBorder padding="lg" radius="md">
-            <Text size="lg" fw={500} c="red">{intl.formatMessage({ id: 'last10Expenses' })}</Text>
-
-            <RenderErrorOrChildren error={errorExpenses}>
-              <Table>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>{intl.formatMessage({ id: 'name' })}</Table.Th>
-                    <Table.Th>{intl.formatMessage({ id: 'amount' })}</Table.Th>
-                    <Table.Th>{intl.formatMessage({ id: 'date' })}</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {expenses.map(expense => (
-                    <Table.Tr key={expense.id}>
-                      <Table.Td>{expense.name}</Table.Td>
-                      <Table.Td>
-                        <Text size="sm" fw={500} c="red">
-                          {currency}
-                          {expense.amount}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>{dayjs(expense.actionTimestamp).fromNow()}</Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </RenderErrorOrChildren>
+          <Card withBorder padding="lg" radius="md" mb="md">
+            <Text size="lg" fw={500} mb="md">{intl.formatMessage({ id: 'monthlyOverview' })}</Text>
+            <Group align="center">
+              <PieChart
+                data={pieChartData}
+                size={300}
+              />
+              <Stack>
+                {pieChartData.map(item => (
+                  <Group key={item.name} gap="xs">
+                    <Box w={16} h={16} style={{ backgroundColor: item.color, borderRadius: 4 }} />
+                    <Text size="sm">
+                      {intl.formatMessage({ id: item?.name || 'error' })}
+                      :
+                      {' '}
+                      {currency}
+                      {item.value}
+                    </Text>
+                  </Group>
+                ))}
+              </Stack>
+            </Group>
           </Card>
+
+          {expensesByCategories.length > 0 && (
+            <Card withBorder padding="lg" radius="md" mb="md">
+              <Text size="lg" fw={500} mb="md">{intl.formatMessage({ id: 'expensesByCategories' })}</Text>
+              <Group align="center">
+                <PieChart
+                  data={expensesByCategories}
+                  size={300}
+                />
+                <Stack>
+                  {expensesByCategories.map(item => (
+                    <Group key={item.name} gap="xs">
+                      <Box w={16} h={16} style={{ backgroundColor: item.color, borderRadius: 4 }} />
+                      <Text size="sm">
+                        {intl.formatMessage({ id: item?.name || 'error' })}
+                        :
+                        {' '}
+                        {currency}
+                        {item.value}
+                      </Text>
+                    </Group>
+                  ))}
+                </Stack>
+              </Group>
+            </Card>
+          )}
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, sm: 6 }}>
           <Card withBorder padding="lg" radius="md" mb="md">
             <Text size="lg" fw={500} c="green">
-              {intl.formatMessage({ id: 'totalIncomes' })}
+              {intl.formatMessage({ id: 'totalIncome' })}
             </Text>
             <Text size="xl" fw={700}>
-              <RenderErrorOrChildren error={errorIncomes}>
+              <RenderErrorOrChildren error={errorIncome}>
                 {currency}
                 {totals.income}
               </RenderErrorOrChildren>
@@ -211,29 +249,37 @@ function Dashboard() {
             </Text>
           </Card>
 
-          <Card withBorder padding="lg" radius="md" mb="md">
-            <Text size="lg" fw={500} mb="md">{intl.formatMessage({ id: 'monthlyOverview' })}</Text>
-            <Group align="center">
-              <PieChart
-                data={pieChartData}
-                size={300}
-              />
-              <Stack>
-                {pieChartData.map(item => (
-                  <Group key={item.name} gap="xs">
-                    <Box w={16} h={16} style={{ backgroundColor: item.color, borderRadius: 4 }} />
-                    <Text size="sm">
-                      {intl.formatMessage({ id: item.name })}
-                      :
-                      {' '}
-                      {currency}
-                      {item.value}
-                    </Text>
-                  </Group>
-                ))}
-              </Stack>
-            </Group>
-          </Card>
+          {expenses.length > 0 && (
+            <Card withBorder padding="lg" radius="md">
+              <Text size="lg" fw={500} c="red">{intl.formatMessage({ id: 'last10Expenses' })}</Text>
+
+              <RenderErrorOrChildren error={errorExpenses}>
+                <Table>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>{intl.formatMessage({ id: 'name' })}</Table.Th>
+                      <Table.Th>{intl.formatMessage({ id: 'amount' })}</Table.Th>
+                      <Table.Th>{intl.formatMessage({ id: 'date' })}</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {expenses.map(expense => (
+                      <Table.Tr key={expense.id}>
+                        <Table.Td>{expense.name}</Table.Td>
+                        <Table.Td>
+                          <Text size="sm" fw={500} c="red">
+                            {currency}
+                            {expense.amount}
+                          </Text>
+                        </Table.Td>
+                        <Table.Td>{dayjs(expense.actionTimestamp).fromNow()}</Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </RenderErrorOrChildren>
+            </Card>
+          )}
         </Grid.Col>
       </Grid>
     </>

@@ -9,25 +9,42 @@ interface NavbarLinkProps {
   label: string
   to: string
   icon: typeof IconHome2
-  ariaLabel: string
+  onClick: () => void
+  isMobile?: boolean
 }
 
-const NavbarLink: FC<NavbarLinkProps> = ({ label, to, icon: Icon, ariaLabel }) => {
+const NavbarLink: FC<NavbarLinkProps> = ({ isMobile, onClick, label, to, icon: Icon }) => {
   const location = useLocation()
   const intl = useIntl()
 
   return (
-    <Tooltip label={intl.formatMessage({ id: label })} position="right" transitionProps={{ duration: 0 }}>
-      <UnstyledButton
-        className={classes.link}
-        data-active={location.pathname === to || undefined}
-        component={Link}
-        to={to}
-        aria-label={intl.formatMessage({ id: ariaLabel })}
-      >
-        <Icon />
-      </UnstyledButton>
-    </Tooltip>
+    isMobile
+      ? (
+          <UnstyledButton
+            onClick={onClick}
+            className={classes.linkMobile}
+            data-active={location.pathname === to || undefined}
+            component={Link}
+            to={to}
+            aria-label={intl.formatMessage({ id: label })}
+          >
+            <Icon className={classes.linkIcon} />
+            <span>{intl.formatMessage({ id: label })}</span>
+          </UnstyledButton>
+        )
+      : (
+          <Tooltip label={intl.formatMessage({ id: label })} position="right" transitionProps={{ duration: 0 }}>
+            <UnstyledButton
+              className={classes.link}
+              data-active={location.pathname === to || undefined}
+              component={Link}
+              to={to}
+              aria-label={intl.formatMessage({ id: label })}
+            >
+              <Icon />
+            </UnstyledButton>
+          </Tooltip>
+        )
   )
 }
 

@@ -1,0 +1,22 @@
+.container {
+  margin-bottom: 2rem;
+}
+
+.card {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100%;
+}
+
+.cardError {
+  border: 1px var(--mantine-color-red-5) solid !important;
+}
+
+.name {
+  overflow: 'hidden';
+  text-overflow: 'ellipsis';
+  white-space: 'nowrap';
+  max-width: '150px';
+}

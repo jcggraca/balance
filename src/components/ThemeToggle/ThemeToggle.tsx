@@ -18,11 +18,11 @@ const ThemeToggle: FC<ThemeToggleProps> = ({ isMobile }) => {
       <UnstyledButton
         className={classes.buttonMobile}
         onClick={() => setColorScheme(colorScheme === 'dark' ? 'light' : 'dark')}
-        aria-label={`${intl.formatMessage({ id: 'switchThemeTo' })} ${nextScheme} ${intl.formatMessage({ id: 'mode' })}`}
+        aria-label={`${intl.formatMessage({ id: 'switchTheme' })} ${nextScheme} ${intl.formatMessage({ id: 'mode' })}`}
       >
         {colorScheme === 'dark' ? <IconMoon className={classes.buttonMobileIcon} /> : <IconSun className={classes.buttonMobileIcon} />}
         <span>
-          {intl.formatMessage({ id: 'switchThemeTo' })}
+          {intl.formatMessage({ id: 'switchTheme' })}
           {' '}
           {nextScheme}
           {' '}
@@ -33,11 +33,15 @@ const ThemeToggle: FC<ThemeToggleProps> = ({ isMobile }) => {
   }
 
   return (
-    <Tooltip label={`${intl.formatMessage({ id: 'switchThemeTo' })} ${nextScheme} ${intl.formatMessage({ id: 'mode' })}`} position="right" transitionProps={{ duration: 0 }}>
+    <Tooltip
+      label={`${intl.formatMessage({ id: 'switchTheme' })} ${nextScheme} ${intl.formatMessage({ id: 'mode' })}`}
+      position="right"
+      transitionProps={{ duration: 0 }}
+    >
       <UnstyledButton
         className={classes.button}
         onClick={() => setColorScheme(colorScheme === 'dark' ? 'light' : 'dark')}
-        aria-label={`${intl.formatMessage({ id: 'switchThemeTo' })} ${nextScheme} ${intl.formatMessage({ id: 'mode' })}`}
+        aria-label={`${intl.formatMessage({ id: 'switchTheme' })} ${nextScheme} ${intl.formatMessage({ id: 'mode' })}`}
       >
         {colorScheme === 'dark' ? <IconMoon /> : <IconSun />}
       </UnstyledButton>

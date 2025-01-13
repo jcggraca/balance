@@ -24,9 +24,7 @@ const DeleteAccount: FC<DeleteAccountProps> = ({ account, onClose }) => {
       title={intl.formatMessage({ id: 'deleteAccount' })}
       itemName={account.name}
       onDelete={handleDelete}
-      warningMessage={intl.formatMessage({
-        id: 'everythingAssociateToThisAccountWillLoseTheTargetAccount',
-      })}
+      warningMessage={intl.formatMessage({ id: 'associatedAccountWarning' })}
     />
   )
 }

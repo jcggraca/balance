@@ -7,7 +7,7 @@ import { useField, useForm } from '@mantine/form'
 import Dexie from 'dexie'
 import { exportDB } from 'dexie-export-import'
 import { useState } from 'react'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 
 function ImportUserDB() {
   const intl = useIntl()
@@ -64,7 +64,7 @@ function ImportUserDB() {
 
   return (
     <form onSubmit={form.onSubmit(importDB)}>
-      <Text><FormattedMessage id="importFile" /></Text>
+      <Text>{intl.formatMessage({ id: 'importFile' })}</Text>
       <TextInput
         {...form.getInputProps('password')}
         label={intl.formatMessage({ id: 'password' })}
@@ -85,7 +85,7 @@ function ImportUserDB() {
         loading={isLoading}
         disabled={!form.isValid()}
       >
-        <FormattedMessage id="importFile" />
+        {intl.formatMessage({ id: 'importFile' })}
       </Button>
     </form>
   )
@@ -130,7 +130,7 @@ function ExportUserDB() {
 
   return (
     <form onSubmit={exportLocalDB}>
-      <Text><FormattedMessage id="exportDatabase" /></Text>
+      <Text>{intl.formatMessage({ id: 'exportDatabase' })}</Text>
       <TextInput
         {...field.getInputProps()}
         label={`${intl.formatMessage({ id: 'password' })} (${intl.formatMessage({ id: 'recommended' })})`}
@@ -143,7 +143,7 @@ function ExportUserDB() {
         type="submit"
         loading={isLoading}
       >
-        <FormattedMessage id="exportFile" />
+        {intl.formatMessage({ id: 'exportFile' })}
       </Button>
     </form>
   )
@@ -153,13 +153,62 @@ const Settings: FC = () => {
   const { currency, setCurrency, language, setLanguage } = useSettingsStore()
   const intl = useIntl()
 
+  const handleDelete = async () => {
+    try {
+      await db.delete()
+      localStorage.clear()
+    }
+    catch (error) {
+      console.error('Failed to delete user data:', error)
+    }
+  }
+
+  const handleExportCSV = async () => {
+    try {
+      const tables = db.tables
+      let csvContent = ''
+
+      for (const table of tables) {
+        csvContent += `Table: ${table.name}\n`
+        const records = await table.toArray()
+
+        if (records.length > 0) {
+          const keys = Object.keys(records[0])
+          csvContent += `${keys.join(',')}\n`
+
+          records.forEach((record) => {
+            const values = keys.map(key => JSON.stringify(record[key] ?? ''))
+            csvContent += `${values.join(',')}\n`
+          })
+        }
+        else {
+          csvContent += 'No data\n'
+        }
+
+        csvContent += '\n'
+      }
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const downloadLink = document.createElement('a')
+      downloadLink.href = url
+      downloadLink.download = 'database_export.csv'
+      document.body.appendChild(downloadLink)
+      downloadLink.click()
+      document.body.removeChild(downloadLink)
+    }
+    catch (error) {
+      console.error('Failed to export CSV:', error)
+    }
+  }
+
   return (
     <Stack>
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
-          <Title order={2} size="h3"><FormattedMessage id="currency" /></Title>
+          <Title order={2} size="h3">{intl.formatMessage({ id: 'currency' })}</Title>
           <Select
-            label={<FormattedMessage id="selectCurrency" />}
+            label={intl.formatMessage({ id: 'selectCurrency' })}
             value={currency}
             onChange={value => setCurrency(value || '€')}
             data={[
@@ -175,9 +224,9 @@ const Settings: FC = () => {
 
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
-          <Title order={2} size="h3"><FormattedMessage id="language" /></Title>
+          <Title order={2} size="h3">{intl.formatMessage({ id: 'language' })}</Title>
           <Select
-            label={<FormattedMessage id="selectLanguage" />}
+            label={intl.formatMessage({ id: 'selectLanguage' })}
             value={language}
             onChange={value => setLanguage(value || 'en')}
             data={[
@@ -190,8 +239,8 @@ const Settings: FC = () => {
 
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
-          <Title order={2} size="h3"><FormattedMessage id="databaseManagement" /></Title>
-          <Text><FormattedMessage id="importAndExportDatabase" /></Text>
+          <Title order={3}>{intl.formatMessage({ id: 'databaseManagement' })}</Title>
+          <Text></Text>
           <Flex
             gap="md"
             direction={{ base: 'column', sm: 'row' }}
@@ -201,6 +250,23 @@ const Settings: FC = () => {
             </Paper>
             <Paper withBorder p="md" style={{ flex: 1 }}>
               <ExportUserDB />
+            </Paper>
+            <Paper withBorder p="md" style={{ flex: 1 }}>
+              <Title order={3}>{intl.formatMessage({ id: 'exportCSV' })}</Title>
+              <Button
+                onClick={handleExportCSV}
+              >
+                {intl.formatMessage({ id: 'export' })}
+              </Button>
+            </Paper>
+            <Paper withBorder p="md" style={{ flex: 1 }}>
+              <Title order={3}>{intl.formatMessage({ id: 'deleteUserData' })}</Title>
+              <Button
+                color="red"
+                onClick={handleDelete}
+              >
+                {intl.formatMessage({ id: 'delete' })}
+              </Button>
             </Paper>
           </Flex>
         </Stack>

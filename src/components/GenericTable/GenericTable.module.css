@@ -2,9 +2,26 @@
   cursor: pointer;
 }
 
-.tableDescription {
+.description {
   max-width: 200px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .description {
+    max-width: 120px;
+  }
+  
+  :global(.mantine-Table-td),
+  :global(.mantine-Table-th) {
+    min-width: 100px;
+    padding: 8px;
+  }
+
+  :global(.mantine-Table-td[data-key="amount"]),
+  :global(.mantine-Table-th[data-key="amount"]) {
+    min-width: 70px;
+  }
 }

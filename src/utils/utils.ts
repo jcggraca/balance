@@ -1,9 +1,9 @@
 import { db } from '@/db'
 
-export async function getTypeName(id: string) {
-  const types = await db.types.get({ id: +id })
-  if (!types) {
-    return console.error(`Type with ID ${id} not found.`)
+export async function getAccount(id: string) {
+  const account = await db.account.get({ id })
+  if (!account) {
+    return false
   }
-  return types.name
+  return account
 }

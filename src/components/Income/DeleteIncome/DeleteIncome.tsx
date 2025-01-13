@@ -40,9 +40,7 @@ const DeleteIncome: FC<DeleteIncomeProps> = ({ income, onClose }) => {
       title={intl.formatMessage({ id: 'deleteIncome' })}
       itemName={income.name}
       onDelete={handleDelete}
-      warningMessage={intl.formatMessage({
-        id: 'deletingThisIncomeWillRemoveTheCorrespondingAccountSValue',
-      })}
+      warningMessage={intl.formatMessage({ id: 'associatedIncomeWarning' })}
     />
   )
 }

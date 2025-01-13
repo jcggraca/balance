@@ -15,7 +15,7 @@ interface Expense {
   amount: number
   accountId: string
   evaluation: 'necessary' | 'not-necessary' | 'wasteful'
-  type: string
+  category: string
   budget: string
   description: string
   actionTimestamp: number
@@ -34,10 +34,12 @@ interface Income {
   updatedTimestamp: number
 }
 
-interface Types {
+interface Category {
   id: string
   name: string
   description: string
+  icon: string
+  color: string
   createdTimestamp: number
   updatedTimestamp: number
 }
@@ -51,7 +53,7 @@ interface Budget {
   updatedTimestamp: number
 }
 
-interface Debts {
+interface Debt {
   id: string
   name: string
   amount: number
@@ -63,20 +65,20 @@ interface Debts {
 const db = new Dexie('MyPersonalFinance') as Dexie & {
   account: EntityTable<Account, 'id'>
   expenses: EntityTable<Expense, 'id'>
-  types: EntityTable<Types, 'id'>
+  categories: EntityTable<Category, 'id'>
   budget: EntityTable<Budget, 'id'>
   income: EntityTable<Income, 'id'>
-  debts: EntityTable<Debts, 'id'>
+  debts: EntityTable<Debt, 'id'>
 }
 
-db.version(4).stores({
+db.version(5).stores({
   account: '++id, name, amount, description, createdTimestamp, updatedTimestamp',
-  expenses: '++id, name, description, accountId, amount, type, actionTimestamp, createdTimestamp, updatedTimestamp',
-  types: '++id, name, description, createdTimestamp, updatedTimestamp',
+  expenses: '++id, name, description, accountId, amount, category, actionTimestamp, createdTimestamp, updatedTimestamp',
+  categories: '++id, name, description, createdTimestamp, updatedTimestamp',
   budget: '++id, name, amount, description, createdTimestamp, updatedTimestamp',
   income: '++id, name, amount, accountId, description, actionTimestamp, createdTimestamp, updatedTimestamp',
   debts: '++id, name, amount, description, createdTimestamp, updatedTimestamp',
 })
 
 export { db }
-export type { Account, Budget, Debts, Expense, Income, Types }
+export type { Account, Budget, Category, Debt, Expense, Income }

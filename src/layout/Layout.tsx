@@ -3,13 +3,37 @@ import Navbar from '@/components/NavBar/NavBar'
 import { AppShell, Burger, Group, Title } from '@mantine/core'
 import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import { IconCalendarDollar } from '@tabler/icons-react'
-import { FormattedMessage } from 'react-intl'
+import { useEffect } from 'react'
+import { useIntl } from 'react-intl'
 import { Outlet, useLocation } from 'react-router-dom'
 
 const Layout: FC = () => {
+  const intl = useIntl()
   const [opened, { toggle }] = useDisclosure()
   const location = useLocation()
   const isMobile = useMediaQuery('(max-width: 48em)')
+
+  useEffect(() => {
+    if (opened && isMobile) {
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+      document.body.style.height = '100%'
+    }
+    else {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+      document.body.style.height = ''
+    }
+
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+      document.body.style.height = ''
+    }
+  }, [opened, isMobile])
 
   const getPageName = () => {
     const path = location.pathname
@@ -31,7 +55,7 @@ const Layout: FC = () => {
           {isMobile && <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />}
           <IconCalendarDollar size={30} />
           <Title order={1}>
-            <FormattedMessage id={getPageName()} />
+            {intl.formatMessage({ id: getPageName() })}
           </Title>
         </Group>
       </AppShell.Header>

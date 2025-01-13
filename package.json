@@ -19,7 +19,6 @@
     "@mantine/form": "^7.15.3",
     "@mantine/hooks": "^7.15.3",
     "@mantine/notifications": "^7.15.3",
-    "@supabase/supabase-js": "^2.47.10",
     "@tabler/icons-react": "^3.27.1",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.10",

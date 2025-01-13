@@ -22,7 +22,7 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
   const { currency } = useSettingsStore()
 
   const [editMode, setEditMode] = useState(false)
-  const [typesList, setTypesList] = useState<selectorState[]>()
+  const [categoriesList, setCategoriesList] = useState<selectorState[]>()
   const [accountList, setAccountList] = useState<selectorState[]>()
   const [budgetList, setBudgetList] = useState<selectorState[]>()
 
@@ -31,7 +31,7 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
       name: expense.name,
       amount: expense.amount,
       accountId: expense.accountId,
-      type: expense.type,
+      category: expense.category,
       evaluation: expense.evaluation,
       budget: expense.budget || '',
       actionDate: expense.actionTimestamp ? new Date(expense.actionTimestamp) : null,
@@ -46,7 +46,7 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
         return null
       },
       accountId: value => !value ? intl.formatMessage({ id: 'accountIsRequired' }) : null,
-      type: value => !value ? intl.formatMessage({ id: 'typeIsRequired' }) : null,
+      category: value => !value ? intl.formatMessage({ id: 'categoryIsRequired' }) : null,
       evaluation: value => !value ? intl.formatMessage({ id: 'evaluationIsRequired' }) : null,
       actionDate: value => !value ? intl.formatMessage({ id: 'actionDateIsRequired' }) : null,
     },
@@ -55,8 +55,8 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedTypes = await db.types.toArray()
-        setTypesList(fetchedTypes.map((item) => {
+        const fetchedCategories = await db.categories.toArray()
+        setCategoriesList(fetchedCategories.map((item) => {
           return {
             value: item.id?.toString() || '',
             label: item.name,
@@ -110,7 +110,7 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
         amount,
         accountId: values.accountId,
         evaluation: values.evaluation,
-        type: values.type,
+        category: values.category,
         budget: values.budget,
         actionTimestamp: dayjs(values.actionDate).valueOf(),
         updatedTimestamp: date,
@@ -153,11 +153,11 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
     return <WarningNotFound>{intl.formatMessage({ id: 'evaluation' })}</WarningNotFound>
   }
 
-  const getTypeName = (id: string) => {
-    const findType = typesList?.find(o => o.value === id)
-    if (findType)
-      return findType.label
-    return <WarningNotFound>{intl.formatMessage({ id: 'type' })}</WarningNotFound>
+  const getCategoryName = (id: string) => {
+    const findCategory = categoriesList?.find(o => o.value === id)
+    if (findCategory)
+      return findCategory.label
+    return <WarningNotFound>{intl.formatMessage({ id: 'category' })}</WarningNotFound>
   }
 
   const getBudgetName = (id: string) => {
@@ -225,13 +225,13 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
               />
 
               <Select
-                label={intl.formatMessage({ id: 'type' })}
-                placeholder={intl.formatMessage({ id: 'selectType' })}
-                data={typesList}
+                label={intl.formatMessage({ id: 'category' })}
+                placeholder={intl.formatMessage({ id: 'selectCategory' })}
+                data={categoriesList}
                 searchable
                 mt="md"
                 required
-                {...form.getInputProps('type')}
+                {...form.getInputProps('category')}
               />
 
               <Select
@@ -295,11 +295,11 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
                   </Table.Tr>
                   <Table.Tr>
                     <Table.Th w={100}>
-                      {intl.formatMessage({ id: 'type' })}
+                      {intl.formatMessage({ id: 'category' })}
                       :
                     </Table.Th>
                     <Table.Td>
-                      {getTypeName(expense.type)}
+                      {getCategoryName(expense.category)}
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>

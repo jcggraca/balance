@@ -1,19 +1,21 @@
 import type { Account } from '@/db'
 import AddAccount from '@/components/Account/AddAccount'
 import ViewAccount from '@/components/Account/ViewAccount'
+import GenericMobileList from '@/components/GenericMobileList'
 import GenericTable from '@/components/GenericTable'
 import SearchFilters from '@/components/SearchFilters'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
+import { useMediaQuery } from '@mantine/hooks'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useState } from 'react'
 import { useIntl } from 'react-intl'
-import classes from './Accounts.module.css'
 
 const Accounts: FC = () => {
   const intl = useIntl()
   const { currency } = useSettingsStore()
+  const isMobile = useMediaQuery('(max-width: 48em)')
 
   const [account, setAccount] = useState<Account | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState('')
@@ -67,7 +69,7 @@ const Accounts: FC = () => {
       key: 'description',
       header: intl.formatMessage({ id: 'description' }),
       render: (item: Account) => (
-        <span className={classes.tableDescription}>
+        <span className="tableDescription">
           {item.description || 'N/A'}
         </span>
       ),
@@ -81,7 +83,7 @@ const Accounts: FC = () => {
 
   return (
     <>
-      <div className={classes.header}>
+      <div className="responsiveHeader">
         <SearchFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -94,13 +96,24 @@ const Accounts: FC = () => {
 
       {account && <ViewAccount account={account} onClose={() => setAccount(undefined)} />}
 
-      <GenericTable
-        data={accounts}
-        columns={columns}
-        onRowClick={setAccount}
-        isLoading={!accounts}
-        emptyMessage={intl.formatMessage({ id: 'noAccountsFound' })}
-      />
+      {isMobile
+        ? (
+            <GenericMobileList
+              data={accounts}
+              onClick={item => setAccount(item as Account)}
+              isLoading={!accounts}
+              emptyMessage={intl.formatMessage({ id: 'noAccountFound' })}
+            />
+          )
+        : (
+            <GenericTable
+              data={accounts}
+              columns={columns}
+              onClick={setAccount}
+              isLoading={!accounts}
+              emptyMessage={intl.formatMessage({ id: 'noAccountFound' })}
+            />
+          )}
     </>
   )
 }

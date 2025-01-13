@@ -1,0 +1,49 @@
+.responsiveHeader {
+  display: flex;
+  margin-bottom: 1rem;
+  justify-content: space-between;
+}
+
+.responsiveHeader>* {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .responsiveHeader {
+    display: grid;
+    grid-template-columns: 1fr auto;
+  }
+
+  .responsiveHeader>* {
+    width: auto;
+  }
+}
+
+.tableDescription {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card {
+  background-color: var(--mantine-color-yellow-filled) !important;
+  color: var(--mantine-color-body) !important;
+  font-weight: 500;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 5px !important;
+  margin-bottom: 15px;
+}
+
+.mobileAddButton {
+  position: fixed !important;
+  border-radius: var(--mantine-radius-xl) !important;
+  height: 50px !important;
+  width: 50px !important;
+  bottom: 0;
+  right: 0;
+  margin: 1rem;
+  padding: 0px !important;
+  z-index: 100;
+}

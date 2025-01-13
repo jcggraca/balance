@@ -43,14 +43,14 @@ const DeleteModal: FC<DeleteModalProps> = ({
         )}
 
         <Text>
-          {intl.formatMessage({ id: 'areYouSureYouWantToDelete' })}
+          {intl.formatMessage({ id: 'confirmDelete' })}
           {' '}
           <strong>{itemName}</strong>
           ?
         </Text>
 
         <Text c="red" mt="md" fw="bold">
-          {intl.formatMessage({ id: 'thisActionIsIrreversible' })}
+          {intl.formatMessage({ id: 'isIrreversible' })}
           !
         </Text>
 

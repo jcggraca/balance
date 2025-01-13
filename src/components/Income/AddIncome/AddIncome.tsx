@@ -6,12 +6,13 @@ import { Button, Group, Modal, NumberInput, Select, Textarea, TextInput, Tooltip
 import { DatePickerInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
+import { IconPlus } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { type FC, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 
-const AddIncome: FC = () => {
+const AddIncome: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
   const intl = useIntl()
   const { currency } = useSettingsStore()
   const [opened, { open, close }] = useDisclosure(false)
@@ -88,11 +89,32 @@ const AddIncome: FC = () => {
     }
   }
 
+  const RenderAddButton = () => {
+    if (isMobile) {
+      if (accountList.length === 0) {
+        return (
+          <Tooltip opened label={intl.formatMessage({ id: 'oneAccountAddExpense' })}>
+            <Button disabled className="mobileAddButton"><IconPlus /></Button>
+          </Tooltip>
+        )
+      }
+      return <Button className="mobileAddButton" onClick={open}><IconPlus /></Button>
+    }
+    else {
+      if (accountList.length === 0) {
+        return (
+          <Tooltip label={intl.formatMessage({ id: 'oneAccountAddExpense' })}>
+            <Button disabled>{intl.formatMessage({ id: 'addIncome' })}</Button>
+          </Tooltip>
+        )
+      }
+      return <Button onClick={open}>{intl.formatMessage({ id: 'addIncome' })}</Button>
+    }
+  }
+
   return (
     <>
-      {accountList.length === 0
-        ? <Tooltip label={intl.formatMessage({ id: 'youMustHaveAtLeastOneAccountToAddAnIncome' })}><Button disabled onClick={open}>{intl.formatMessage({ id: 'addIncome' })}</Button></Tooltip>
-        : <Button onClick={open}>{intl.formatMessage({ id: 'addIncome' })}</Button>}
+      <RenderAddButton />
 
       <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'addIncome' })}>
         <form onSubmit={form.onSubmit(handleSubmit)}>

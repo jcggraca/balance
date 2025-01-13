@@ -1,6 +1,7 @@
-import type { Account, Expense, Types } from '@/db'
+import type { Account, Category, Expense } from '@/db'
 import AddExpense from '@/components/Expense/AddExpense'
 import ViewExpense from '@/components/Expense/ViewExpense'
+import TransactionMobileList from '@/components/GenericMobileList/TransactionMobileList'
 import GenericTable from '@/components/GenericTable'
 import SearchFilters from '@/components/SearchFilters'
 import WarningNotFound from '@/components/WarningNotFound'
@@ -8,21 +9,22 @@ import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { EVALUATION } from '@/utils/values'
 import { Card } from '@mantine/core'
+import { useMediaQuery } from '@mantine/hooks'
 import { IconAlertTriangle } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
-import classes from './Expenses.module.css'
 
 const Expenses: FC = () => {
   const intl = useIntl()
   const { currency } = useSettingsStore()
+  const isMobile = useMediaQuery('(max-width: 48em)')
 
-  const [types, setTypes] = useState<Types[]>()
+  const [categories, setCategories] = useState<Category[]>()
   const [accounts, setAccounts] = useState<Account[]>()
   const [accountNotFound, setAccountNotFound] = useState(0)
-  const [expense, setExpense] = useState<Expense | undefined>()
+  const [expense, setExpense] = useState<Expense | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState('')
   const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
     start: null,
@@ -51,13 +53,13 @@ const Expenses: FC = () => {
       )
     }
 
-    return await query.toArray()
+    return await query.reverse().toArray()
   }, [searchQuery, dateRange])
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedTypes = await db.types.toArray()
-      setTypes(fetchedTypes)
+      const fetchedCategories = await db.categories.toArray()
+      setCategories(fetchedCategories)
 
       const fetchedAccounts = await db.account.toArray()
       setAccounts(fetchedAccounts)
@@ -66,9 +68,12 @@ const Expenses: FC = () => {
     fetchData()
 
     return () => {
-      setTypes(undefined)
+      setCategories(undefined)
       setAccounts(undefined)
       setAccountNotFound(0)
+      setExpense(undefined)
+      setSearchQuery('')
+      setDateRange({ start: null, end: null })
     }
   }, [])
 
@@ -79,10 +84,10 @@ const Expenses: FC = () => {
     }
   }, [expenses, accounts])
 
-  const getTypeName = (id: string) => {
-    const findType = types?.find(o => o.id === id)
-    if (findType)
-      return findType.name
+  const getCategoryName = (id: string) => {
+    const findCategory = categories?.find(o => o.id === id)
+    if (findCategory)
+      return findCategory.name
     return <WarningNotFound>{intl.formatMessage({ id: 'type' })}</WarningNotFound>
   }
 
@@ -122,9 +127,9 @@ const Expenses: FC = () => {
       render: (item: Expense) => getAccountName(item.accountId),
     },
     {
-      key: 'type',
-      header: intl.formatMessage({ id: 'type' }),
-      render: (item: Expense) => getTypeName(item.type),
+      key: 'category',
+      header: intl.formatMessage({ id: 'category' }),
+      render: (item: Expense) => getCategoryName(item.category),
     },
     {
       key: 'evaluation',
@@ -138,9 +143,14 @@ const Expenses: FC = () => {
     },
   ]
 
+  const getAccount = (accountId: string) => {
+    const account = accounts?.find(o => o.id === accountId)
+    return !!account
+  }
+
   return (
     <>
-      <div className={classes.header}>
+      <div className="responsiveHeader">
         <SearchFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -148,30 +158,44 @@ const Expenses: FC = () => {
           onDateRangeChange={setDateRange}
           onClearFilters={handleClearFilters}
         />
-        <AddExpense />
+        <AddExpense isMobile={isMobile} />
       </div>
 
-      {accountNotFound > 0 && accounts && (
-        <Card className={classes.card} withBorder radius="md" shadow="sm">
+      {expense && <ViewExpense expense={expense} onClose={() => setExpense(undefined)} />}
+
+      {accountNotFound > 0 && accounts && !isMobile && (
+        <Card className="card" withBorder radius="md" shadow="sm">
           <IconAlertTriangle />
           {' '}
           {accountNotFound}
           {' '}
-          {accountNotFound === 1 ? intl.formatMessage({ id: 'expenseDoesnt' }) : intl.formatMessage({ id: 'expensesDont' })}
+          {accountNotFound === 1 ? intl.formatMessage({ id: 'expenseOne' }) : intl.formatMessage({ id: 'expensesMulti' })}
           {' '}
-          {intl.formatMessage({ id: 'haveAnAccountAssociatedToIt' })}
+          {intl.formatMessage({ id: 'requireAccountAssociated' })}
         </Card>
       )}
 
-      {expense && <ViewExpense expense={expense} onClose={() => setExpense(undefined)} />}
-
-      <GenericTable
-        data={expenses}
-        columns={columns}
-        onRowClick={setExpense}
-        isLoading={!expenses}
-        emptyMessage={intl.formatMessage({ id: 'noExpensesFound' })}
-      />
+      {isMobile
+        ? (
+            <TransactionMobileList
+              data={expenses}
+              onClick={item => setExpense(item as Expense)}
+              isLoading={!expenses}
+              emptyMessage={intl.formatMessage({ id: 'noExpenseFound' })}
+              getAccount={getAccount}
+              categories={categories}
+              errorMessage="Account or type not found"
+            />
+          )
+        : (
+            <GenericTable
+              data={expenses}
+              columns={columns}
+              onClick={setExpense}
+              isLoading={!expenses}
+              emptyMessage={intl.formatMessage({ id: 'noExpenseFound' })}
+            />
+          )}
     </>
   )
 }

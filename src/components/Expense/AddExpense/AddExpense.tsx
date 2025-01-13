@@ -3,11 +3,12 @@ import type { selectorState } from '@/utils/interfaces'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { EVALUATION } from '@/utils/values'
-import { Button, Group, Modal, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
+import { Button, Group, Modal, NumberInput, Select, Textarea, TextInput, Tooltip } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { IconPlus } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { type FC, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
@@ -18,26 +19,26 @@ interface ExpenseForm {
   amount: number
   account: string
   evaluation: 'necessary' | 'not-necessary' | 'wasteful'
-  type: string
+  category: string
   budget?: string
   actionDate: Date | null
   description: string
 }
 
-const AddExpense: FC = () => {
+const AddExpense: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
   const intl = useIntl()
   const { currency } = useSettingsStore()
   const [opened, { open, close }] = useDisclosure(false)
 
-  const [typesList, setTypesList] = useState<selectorState[]>()
-  const [accountList, setAccountList] = useState<selectorState[]>()
-  const [budgetList, setBudgetList] = useState<selectorState[]>()
+  const [categoriesList, setCategoriesList] = useState<selectorState[]>([])
+  const [accountList, setAccountList] = useState<selectorState[]>([])
+  const [budgetList, setBudgetList] = useState<selectorState[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedTypes = await db.types.toArray()
-        setTypesList(fetchedTypes.map((item) => {
+        const fetchedCategories = await db.categories.toArray()
+        setCategoriesList(fetchedCategories.map((item) => {
           return {
             value: item.id?.toString() || '',
             label: item.name,
@@ -74,7 +75,7 @@ const AddExpense: FC = () => {
       amount: 0,
       account: '',
       evaluation: 'necessary',
-      type: '',
+      category: '',
       budget: '',
       actionDate: null,
       description: '',
@@ -90,7 +91,7 @@ const AddExpense: FC = () => {
       },
       account: value => !value ? intl.formatMessage({ id: 'accountIsRequired' }) : null,
       evaluation: value => !value ? intl.formatMessage({ id: 'evaluationIsRequired' }) : null,
-      type: value => !value ? intl.formatMessage({ id: 'typeIsRequired' }) : null,
+      category: value => !value ? intl.formatMessage({ id: 'categoryIsRequired' }) : null,
       actionDate: value => !value ? intl.formatMessage({ id: 'actionDateIsRequired' }) : null,
     },
   })
@@ -115,7 +116,7 @@ const AddExpense: FC = () => {
         accountId: values.account,
         evaluation: values.evaluation,
         description: values.description,
-        type: values.type,
+        category: values.category,
         budget: values.budget || '',
         actionTimestamp: dayjs(values.actionDate).valueOf(),
         createdTimestamp: date,
@@ -166,9 +167,37 @@ const AddExpense: FC = () => {
     }
   })
 
+  const RenderAddButton = () => {
+    if (isMobile) {
+      if (accountList.length === 0 || categoriesList.length === 0) {
+        return (
+          <Tooltip
+            opened
+            label={intl.formatMessage({
+              id: accountList.length === 0 ? 'oneAccountAddExpense' : 'oneCategoryAddExpense',
+            })}
+          >
+            <Button disabled className="mobileAddButton"><IconPlus /></Button>
+          </Tooltip>
+        )
+      }
+      return <Button className="mobileAddButton" onClick={open}><IconPlus /></Button>
+    }
+    else {
+      if (accountList.length === 0 || categoriesList.length === 0) {
+        return (
+          <Tooltip label={intl.formatMessage({ id: 'oneAccountAddExpense' })}>
+            <Button disabled>{intl.formatMessage({ id: 'addExpense' })}</Button>
+          </Tooltip>
+        )
+      }
+      return <Button onClick={open}>{intl.formatMessage({ id: 'addExpense' })}</Button>
+    }
+  }
+
   return (
     <>
-      <Button disabled={accountList?.length === 0 || typesList?.length === 0} onClick={open}>{intl.formatMessage({ id: 'addExpense' })}</Button>
+      <RenderAddButton />
 
       <Modal opened={opened} onClose={close} title={intl.formatMessage({ id: 'addExpense' })}>
         <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -209,13 +238,13 @@ const AddExpense: FC = () => {
           />
 
           <Select
-            label={intl.formatMessage({ id: 'type' })}
-            placeholder={intl.formatMessage({ id: 'selectType' })}
-            data={typesList}
+            label={intl.formatMessage({ id: 'category' })}
+            placeholder={intl.formatMessage({ id: 'selectCategory' })}
+            data={categoriesList}
             searchable
             required
             mt="md"
-            {...form.getInputProps('type')}
+            {...form.getInputProps('category')}
           />
 
           <Select
@@ -230,7 +259,7 @@ const AddExpense: FC = () => {
           <Select
             label={intl.formatMessage({ id: 'budget' })}
             placeholder={intl.formatMessage({ id: 'selectBudget' })}
-            disabled={budgetList?.length === 0}
+            disabled={budgetList.length === 0}
             data={budgetList}
             mt="md"
             {...form.getInputProps('budget')}

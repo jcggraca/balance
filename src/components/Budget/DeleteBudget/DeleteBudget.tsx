@@ -25,7 +25,7 @@ const DeleteBudget: FC<DeleteBudgetProps> = ({ budget, onClose }) => {
       itemName={budget.name}
       onDelete={handleDelete}
       warningMessage={intl.formatMessage({
-        id: 'everythingAssociatedWithThisBudgetWillLoseItsTargetBudget',
+        id: 'associatedBudgetWarning',
       })}
     />
   )
