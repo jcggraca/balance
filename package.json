@@ -19,7 +19,7 @@
     "@mantine/form": "^7.15.3",
     "@mantine/hooks": "^7.15.3",
     "@mantine/notifications": "^7.15.3",
-    "@tabler/icons-react": "^3.27.1",
+    "@tabler/icons-react": "^3.28.1",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.10",
     "dexie-export-import": "^4.1.4",
@@ -29,11 +29,11 @@
     "react-intl": "^7.1.0",
     "react-router-dom": "^7.1.1",
     "recharts": "^2.15.0",
-    "uuid": "^11.0.4",
-    "zustand": "^5.0.2"
+    "uuid": "^11.0.5",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.12.2",
+    "@antfu/eslint-config": "^3.13.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vite-pwa/assets-generator": "^0.2.6",
