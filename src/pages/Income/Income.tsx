@@ -150,7 +150,7 @@ const Income: FC = () => {
           {' '}
           {accountNotFound === 1 ? intl.formatMessage({ id: 'incomeNoOne' }) : intl.formatMessage({ id: 'incomeNoMulti' })}
           {' '}
-          {intl.formatMessage({ id: 'haveAnAccountAssociatedToIt' })}
+          {intl.formatMessage({ id: 'requireAccountAssociated' })}
         </Card>
       )}
 

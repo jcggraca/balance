@@ -210,7 +210,7 @@ function Dashboard() {
                     <Group key={item.name} gap="xs">
                       <Box w={16} h={16} style={{ backgroundColor: item.color, borderRadius: 4 }} />
                       <Text size="sm">
-                        {intl.formatMessage({ id: item?.name || 'error' })}
+                        {item?.name || 'error'}
                         :
                         {' '}
                         {currency}

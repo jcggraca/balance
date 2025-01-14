@@ -7,6 +7,7 @@ import manifest from './manifest.json'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), tsconfigPaths(), VitePWA({
+    registerType: 'autoUpdate',
     manifest,
     includeAssets: ['favicon.svg', 'favicon-192.svg', 'favicon-512.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.svg'],
     // switch to "true" to enable sw on development

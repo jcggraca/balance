@@ -25,7 +25,7 @@ function App() {
 
   return (
     <>
-      {!newUser && <WelcomeModal />}
+      {newUser && <WelcomeModal />}
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>

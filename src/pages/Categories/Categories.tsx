@@ -55,6 +55,7 @@ const Categories: FC = () => {
           onSearchChange={setSearchQuery}
           onClearFilters={handleClearFilters}
           showDateFilter={false}
+          noFilters
         />
         <AddCategory />
       </div>

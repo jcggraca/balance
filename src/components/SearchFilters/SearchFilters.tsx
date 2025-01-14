@@ -14,6 +14,7 @@ interface SearchFiltersProps {
   }
   onDateRangeChange?: (range: { start: Date | null, end: Date | null }) => void
   onClearFilters: () => void
+  noFilters?: boolean
   showDateFilter?: boolean
 }
 
@@ -23,6 +24,7 @@ const SearchFilters: FC<SearchFiltersProps> = ({
   dateRange,
   onDateRangeChange,
   onClearFilters,
+  noFilters = false,
   showDateFilter = true,
 }) => {
   const intl = useIntl()
@@ -66,11 +68,13 @@ const SearchFilters: FC<SearchFiltersProps> = ({
                   />
                 </Grid.Col>
 
-                <Grid.Col span="content">
-                  <Button onClick={open}>
-                    <IconAdjustmentsHorizontal />
-                  </Button>
-                </Grid.Col>
+                {!noFilters && (
+                  <Grid.Col span="content">
+                    <Button onClick={open}>
+                      <IconAdjustmentsHorizontal />
+                    </Button>
+                  </Grid.Col>
+                )}
               </Grid>
 
               <Modal

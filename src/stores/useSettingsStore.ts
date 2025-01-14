@@ -18,7 +18,7 @@ export const useSettingsStore = create<SettingsStore>()(
       currency: '€',
       language: 'en',
       lastBackup: null,
-      newUser: false,
+      newUser: true,
       setCurrency: currency => set({ currency }),
       setLanguage: language => set({ language }),
       setLastBackup: lastBackup => set({ lastBackup }),

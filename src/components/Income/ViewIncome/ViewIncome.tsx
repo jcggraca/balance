@@ -3,13 +3,12 @@ import type { selectorState } from '@/utils/interfaces'
 import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Group, Modal, NumberInput, Select, Table, Textarea, TextInput } from '@mantine/core'
-import { DatePickerInput } from '@mantine/dates'
-import { useForm } from '@mantine/form'
+import { Button, Group, Modal, Table } from '@mantine/core'
 import dayjs from 'dayjs'
 import { type FC, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import DeleteIncome from '../DeleteIncome'
+import UpdateIncome from '../UpdateIncome'
 
 interface ViewIncomeProps {
   income: Income
@@ -42,57 +41,6 @@ const ViewIncome: FC<ViewIncomeProps> = ({ income, onClose }) => {
     fetchData()
   }, [])
 
-  const form = useForm({
-    initialValues: {
-      name: income.name,
-      amount: income.amount,
-      description: income.description || '',
-      account: income.accountId,
-      actionDate: income.actionTimestamp ? new Date(income.actionTimestamp) : null,
-    },
-    validate: {
-      name: value => !value ? intl.formatMessage({ id: 'nameIsRequired' }) : null,
-      amount: value => !value ? intl.formatMessage({ id: 'amountIsRequired' }) : null,
-      account: value => !value ? intl.formatMessage({ id: 'accountIsRequired' }) : null,
-      actionDate: value => !value ? intl.formatMessage({ id: 'actionDateIsRequired' }) : null,
-    },
-  })
-
-  const handleSubmit = async (values: typeof form.values) => {
-    try {
-      const account = await db.account.get({ id: values.account })
-      if (!account) {
-        throw new Error(`Account with ID ${values.account} not found.`)
-      }
-
-      const amount = Number(values.amount)
-      const date = dayjs().valueOf()
-
-      const data: Income = {
-        ...income,
-        name: values.name,
-        accountId: values.account,
-        description: values.description,
-        amount,
-        actionTimestamp: dayjs(values.actionDate).valueOf(),
-        updatedTimestamp: date,
-      }
-
-      await db.income.put(data)
-
-      if (income.amount !== amount) {
-        account.amount += amount - income.amount
-        account.updatedTimestamp = date
-        await db.account.put(account)
-      }
-
-      onClose()
-    }
-    catch (error) {
-      console.error('Error updating income:', error)
-    }
-  }
-
   const getAccountName = (id: string) => {
     const findAccount = accountList?.find(o => o.value === id)
     if (findAccount)
@@ -104,55 +52,7 @@ const ViewIncome: FC<ViewIncomeProps> = ({ income, onClose }) => {
     <Modal centered opened onClose={onClose} title={intl.formatMessage({ id: 'viewIncome' })}>
       {editMode
         ? (
-            <form onSubmit={form.onSubmit(handleSubmit)}>
-              <TextInput
-                label={intl.formatMessage({ id: 'name' })}
-                placeholder={intl.formatMessage({ id: 'enterName' })}
-                required
-                mt="md"
-                {...form.getInputProps('name')}
-              />
-
-              <NumberInput
-                label={intl.formatMessage({ id: 'amount' })}
-                prefix={currency}
-                hideControls
-                decimalScale={2}
-                placeholder={intl.formatMessage({ id: 'enterAmount' })}
-                required
-                mt="md"
-                {...form.getInputProps('amount')}
-              />
-
-              <Select
-                label={intl.formatMessage({ id: 'account' })}
-                placeholder={intl.formatMessage({ id: 'pickValue' })}
-                data={accountList}
-                required
-                mt="md"
-                {...form.getInputProps('account')}
-              />
-
-              <DatePickerInput
-                label={intl.formatMessage({ id: 'actionDate' })}
-                placeholder={intl.formatMessage({ id: 'pickActionDate' })}
-                required
-                mt="md"
-                {...form.getInputProps('actionDate')}
-              />
-
-              <Textarea
-                label={intl.formatMessage({ id: 'description' })}
-                mt="md"
-                placeholder={intl.formatMessage({ id: 'enterDescription' })}
-                {...form.getInputProps('description')}
-              />
-
-              <Group mt="xl">
-                <Button type="submit">{intl.formatMessage({ id: 'update' })}</Button>
-                <Button variant="outline" onClick={() => setEditMode(false)}>{intl.formatMessage({ id: 'cancel' })}</Button>
-              </Group>
-            </form>
+            <UpdateIncome accountList={accountList} onClose={onClose} income={income} />
           )
         : (
             <>

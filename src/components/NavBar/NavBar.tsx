@@ -29,7 +29,7 @@ const appLinksData = [
 ]
 
 const linksData = [
-  { icon: IconBrandGithub, label: 'giveAStar', href: 'https://github.com/jcggraca/my-personal-finance' },
+  { icon: IconBrandGithub, label: 'giveAStar', href: 'https://github.com/jcggraca/balance' },
   { icon: IconMail, label: 'sendFeedback', href: 'mailto:jgraca95@gmail.com' },
 ]
 

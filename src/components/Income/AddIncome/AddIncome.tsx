@@ -1,39 +1,17 @@
-import type { Income } from '@/db'
 import type { selectorState } from '@/utils/interfaces'
 import { db } from '@/db'
-import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Group, Modal, NumberInput, Select, Textarea, TextInput, Tooltip } from '@mantine/core'
-import { DatePickerInput } from '@mantine/dates'
-import { useForm } from '@mantine/form'
+import { Button, Modal, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { IconPlus } from '@tabler/icons-react'
-import dayjs from 'dayjs'
 import { type FC, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
-import { v4 as uuidv4 } from 'uuid'
+import UpdateIncome from '../UpdateIncome'
 
 const AddIncome: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
   const intl = useIntl()
-  const { currency } = useSettingsStore()
   const [opened, { open, close }] = useDisclosure(false)
 
   const [accountList, setAccountList] = useState<selectorState[]>([])
-
-  const form = useForm({
-    initialValues: {
-      name: '',
-      amount: '',
-      description: '',
-      account: '',
-      actionDate: null as Date | null,
-    },
-    validate: {
-      name: value => !value ? intl.formatMessage({ id: 'nameIsRequired' }) : null,
-      amount: value => !value ? intl.formatMessage({ id: 'amountIsRequired' }) : null,
-      account: value => !value ? intl.formatMessage({ id: 'accountIsRequired' }) : null,
-      actionDate: value => !value ? intl.formatMessage({ id: 'dateIsRequired' }) : null,
-    },
-  })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,41 +31,6 @@ const AddIncome: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
 
     fetchData()
   }, [])
-
-  const handleSubmit = async (values: typeof form.values) => {
-    try {
-      const account = await db.account.get({ id: values.account })
-      if (!account) {
-        throw new Error(`Account with ID ${values.account} not found.`)
-      }
-
-      const amount = Number(values.amount)
-      const date = dayjs().valueOf()
-
-      const income: Income = {
-        id: uuidv4(),
-        name: values.name,
-        amount,
-        accountId: values.account,
-        description: values.description || null,
-        actionTimestamp: dayjs(values.actionDate).valueOf(),
-        createdTimestamp: date,
-        updatedTimestamp: date,
-      }
-
-      await db.income.add(income)
-
-      account.amount += amount
-      account.updatedTimestamp = date
-      await db.account.put(account)
-
-      form.reset()
-      close()
-    }
-    catch (error) {
-      console.error('Error adding income:', error)
-    }
-  }
 
   const RenderAddButton = () => {
     if (isMobile) {
@@ -117,55 +60,7 @@ const AddIncome: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
       <RenderAddButton />
 
       <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'addIncome' })}>
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <TextInput
-            label={intl.formatMessage({ id: 'name' })}
-            placeholder={intl.formatMessage({ id: 'enterName' })}
-            required
-            mt="md"
-            {...form.getInputProps('name')}
-          />
-
-          <NumberInput
-            label={intl.formatMessage({ id: 'amount' })}
-            prefix={currency}
-            hideControls
-            decimalScale={2}
-            required
-            mt="md"
-            placeholder={intl.formatMessage({ id: 'enterAmount' })}
-            {...form.getInputProps('amount')}
-          />
-
-          <Select
-            label={intl.formatMessage({ id: 'account' })}
-            placeholder={intl.formatMessage({ id: 'selectAccount' })}
-            data={accountList}
-            required
-            mt="md"
-            {...form.getInputProps('account')}
-          />
-
-          <DatePickerInput
-            label={intl.formatMessage({ id: 'actionDate' })}
-            placeholder={intl.formatMessage({ id: 'selectActionDate' })}
-            required
-            mt="md"
-            {...form.getInputProps('actionDate')}
-          />
-
-          <Textarea
-            label={intl.formatMessage({ id: 'description' })}
-            mt="md"
-            placeholder={intl.formatMessage({ id: 'enterDescription' })}
-            {...form.getInputProps('description')}
-          />
-
-          <Group mt="xl">
-            <Button type="submit">{intl.formatMessage({ id: 'addIncome' })}</Button>
-            <Button variant="outline" onClick={close}>{intl.formatMessage({ id: 'cancel' })}</Button>
-          </Group>
-        </form>
+        <UpdateIncome accountList={accountList} onClose={close} isCreating />
       </Modal>
     </>
   )

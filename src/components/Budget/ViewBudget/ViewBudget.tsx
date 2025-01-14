@@ -1,12 +1,11 @@
 import type { Budget } from '@/db'
-import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Group, Modal, NumberInput, Table, Textarea, TextInput } from '@mantine/core'
-import { useForm } from '@mantine/form'
+import { Button, Group, Modal, Table } from '@mantine/core'
 import dayjs from 'dayjs'
 import { type FC, useState } from 'react'
 import { useIntl } from 'react-intl'
 import DeleteBudget from '../DeleteBudget'
+import UpdateBudget from '../UpdateBudget'
 
 interface ViewBudgetProps {
   budget: Budget
@@ -19,91 +18,11 @@ const ViewBudget: FC<ViewBudgetProps> = ({ budget, onClose }) => {
 
   const [editMode, setEditMode] = useState(false)
 
-  const form = useForm({
-    initialValues: {
-      name: budget.name,
-      description: budget.description,
-      amount: budget.amount,
-    },
-    validate: {
-      name: (value) => {
-        if (!value)
-          return intl.formatMessage({ id: 'nameIsRequired' })
-        if (value.length < 3)
-          return intl.formatMessage({ id: 'nameMustBeAtLeast3Characters' })
-        return null
-      },
-      description: (value) => {
-        if (!value)
-          return intl.formatMessage({ id: 'descriptionIsRequired' })
-        if (value.length < 10)
-          return intl.formatMessage({ id: 'descriptionMustBeAtLeast10Characters' })
-        return null
-      },
-    },
-  })
-
-  const handleSubmit = async (values: typeof form.values) => {
-    const date = dayjs().valueOf()
-
-    const data: Budget = {
-      ...budget,
-      name: values.name,
-      description: values.description,
-      amount: Number(values.amount),
-      updatedTimestamp: date,
-    }
-
-    await db.budget.put(data)
-    setEditMode(false)
-    onClose()
-  }
-
   return (
     <Modal centered opened onClose={onClose} title={intl.formatMessage({ id: 'viewBudget' })}>
       {editMode
         ? (
-            <form onSubmit={form.onSubmit(handleSubmit)}>
-              <TextInput
-                label={intl.formatMessage({ id: 'name' })}
-                placeholder={intl.formatMessage({ id: 'enterName' })}
-                {...form.getInputProps('name')}
-                required
-                mt="md"
-              />
-
-              <NumberInput
-                label={intl.formatMessage({ id: 'amount' })}
-                prefix={currency}
-                hideControls
-                decimalScale={2}
-                placeholder={intl.formatMessage({ id: 'enterAmount' })}
-                required
-                {...form.getInputProps('amount')}
-                mt="md"
-              />
-
-              <Textarea
-                label={intl.formatMessage({ id: 'description' })}
-                placeholder={intl.formatMessage({ id: 'enterDescription' })}
-                {...form.getInputProps('description')}
-                required
-                mt="md"
-              />
-
-              <Group mt="xl">
-                <Button type="submit">{intl.formatMessage({ id: 'update' })}</Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEditMode(false)
-                    form.reset()
-                  }}
-                >
-                  {intl.formatMessage({ id: 'cancel' })}
-                </Button>
-              </Group>
-            </form>
+            <UpdateBudget budget={budget} onClose={onClose} />
           )
         : (
             <>

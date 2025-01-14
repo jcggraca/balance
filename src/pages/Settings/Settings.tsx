@@ -1,8 +1,9 @@
 import type { FC } from 'react'
+import SelectCurrency from '@/components/SelectCurrency'
+import SelectLanguage from '@/components/SelectLanguage'
 import { db } from '@/db'
-import { useSettingsStore } from '@/stores/useSettingsStore'
 import { decrypt, encrypt } from '@/utils/crypto'
-import { Button, FileInput, Flex, Paper, Select, Stack, Text, TextInput, Title } from '@mantine/core'
+import { Button, FileInput, Flex, Paper, Stack, Text, TextInput, Title } from '@mantine/core'
 import { useField, useForm } from '@mantine/form'
 import Dexie from 'dexie'
 import { exportDB } from 'dexie-export-import'
@@ -150,7 +151,6 @@ function ExportUserDB() {
 }
 
 const Settings: FC = () => {
-  const { currency, setCurrency, language, setLanguage } = useSettingsStore()
   const intl = useIntl()
 
   const handleDelete = async () => {
@@ -207,33 +207,14 @@ const Settings: FC = () => {
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
           <Title order={2} size="h3">{intl.formatMessage({ id: 'currency' })}</Title>
-          <Select
-            label={intl.formatMessage({ id: 'selectCurrency' })}
-            value={currency}
-            onChange={value => setCurrency(value || '€')}
-            data={[
-              { value: '€', label: 'Euro (€)' },
-              { value: '£', label: 'Pound (£)' },
-              { value: '$', label: 'Dollar ($)' },
-              { value: '¥', label: 'Yen (¥)' },
-              { value: 'R$', label: 'Real (R$)' },
-            ]}
-          />
+          <SelectCurrency />
         </Stack>
       </Paper>
 
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
           <Title order={2} size="h3">{intl.formatMessage({ id: 'language' })}</Title>
-          <Select
-            label={intl.formatMessage({ id: 'selectLanguage' })}
-            value={language}
-            onChange={value => setLanguage(value || 'en')}
-            data={[
-              { value: 'en', label: intl.formatMessage({ id: 'english' }) },
-              { value: 'pt', label: intl.formatMessage({ id: 'portuguese' }) },
-            ]}
-          />
+          <SelectLanguage />
         </Stack>
       </Paper>
 

@@ -4,13 +4,12 @@ import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { EVALUATION } from '@/utils/values'
-import { Button, Group, Modal, NumberInput, Select, Table, TextInput } from '@mantine/core'
-import { DatePickerInput } from '@mantine/dates'
-import { useForm } from '@mantine/form'
+import { Button, Group, Modal, Table } from '@mantine/core'
 import dayjs from 'dayjs'
-import { type FC, useEffect, useMemo, useState } from 'react'
+import { type FC, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import DeleteExpense from '../DeleteExpense'
+import UpdateExpense from '../UpdateExpense'
 
 interface ViewExpenseProps {
   expense: Expense
@@ -22,35 +21,9 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
   const { currency } = useSettingsStore()
 
   const [editMode, setEditMode] = useState(false)
-  const [categoriesList, setCategoriesList] = useState<selectorState[]>()
-  const [accountList, setAccountList] = useState<selectorState[]>()
-  const [budgetList, setBudgetList] = useState<selectorState[]>()
-
-  const form = useForm({
-    initialValues: {
-      name: expense.name,
-      amount: expense.amount,
-      accountId: expense.accountId,
-      category: expense.category,
-      evaluation: expense.evaluation,
-      budget: expense.budget || '',
-      actionDate: expense.actionTimestamp ? new Date(expense.actionTimestamp) : null,
-    },
-    validate: {
-      name: value => !value ? intl.formatMessage({ id: 'nameIsRequired' }) : null,
-      amount: (value) => {
-        if (!value)
-          return intl.formatMessage({ id: 'amountIsRequired' })
-        if (value <= 0)
-          return intl.formatMessage({ id: 'amountMustBeGreaterThan0' })
-        return null
-      },
-      accountId: value => !value ? intl.formatMessage({ id: 'accountIsRequired' }) : null,
-      category: value => !value ? intl.formatMessage({ id: 'categoryIsRequired' }) : null,
-      evaluation: value => !value ? intl.formatMessage({ id: 'evaluationIsRequired' }) : null,
-      actionDate: value => !value ? intl.formatMessage({ id: 'actionDateIsRequired' }) : null,
-    },
-  })
+  const [categoriesList, setCategoriesList] = useState<selectorState[]>([])
+  const [accountList, setAccountList] = useState<selectorState[]>([])
+  const [budgetList, setBudgetList] = useState<selectorState[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -85,66 +58,11 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
     }
 
     fetchData()
+
+    return () => {
+      setEditMode(false)
+    }
   }, [])
-
-  useMemo(() => {
-    if (expense && accountList && !accountList.find(o => o.value === expense.accountId)) {
-      setEditMode(true)
-    }
-  }, [expense, accountList])
-
-  const handleSubmit = async (values: typeof form.values) => {
-    try {
-      const account = await db.account.get({ id: values.accountId })
-      if (!account) {
-        form.setFieldError('accountId', 'Account not found')
-        return
-      }
-
-      const amount = Number(values.amount)
-      const date = dayjs().valueOf()
-
-      const data: Expense = {
-        ...expense,
-        name: values.name,
-        amount,
-        accountId: values.accountId,
-        evaluation: values.evaluation,
-        category: values.category,
-        budget: values.budget,
-        actionTimestamp: dayjs(values.actionDate).valueOf(),
-        updatedTimestamp: date,
-      }
-
-      await db.expenses.put(data)
-
-      if (expense.amount !== amount) {
-        const amountDiff = expense.amount - amount
-        account.amount -= +amountDiff
-        account.updatedTimestamp = date
-
-        await db.account.put(account)
-
-        if (values.budget) {
-          const budgetAccount = await db.budget.get({ id: values.budget })
-          if (!budgetAccount) {
-            form.setFieldError('budget', 'Budget not found')
-            return
-          }
-
-          budgetAccount.amount -= +amountDiff
-          budgetAccount.updatedTimestamp = date
-
-          await db.budget.put(budgetAccount)
-        }
-      }
-
-      onClose()
-    }
-    catch (error) {
-      console.error('Error updating expense:', error)
-    }
-  }
 
   const getEvaluationName = (value: string) => {
     const findEvaluation = EVALUATION.find(o => o.value === value)
@@ -176,92 +94,11 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
     return <WarningNotFound>{intl.formatMessage({ id: 'account' })}</WarningNotFound>
   }
 
-  const evaluationData = EVALUATION.map((item) => {
-    return {
-      value: item.value,
-      label: intl.formatMessage({ id: item.label }),
-    }
-  })
-
   return (
     <Modal centered opened onClose={onClose} title={intl.formatMessage({ id: 'expenseDetails' })}>
       {editMode
         ? (
-            <form onSubmit={form.onSubmit(handleSubmit)}>
-              <TextInput
-                label={intl.formatMessage({ id: 'name' })}
-                placeholder={intl.formatMessage({ id: 'enterName' })}
-                mt="md"
-                required
-                {...form.getInputProps('name')}
-              />
-
-              <NumberInput
-                label={intl.formatMessage({ id: 'amount' })}
-                prefix={currency}
-                hideControls
-                decimalScale={2}
-                placeholder={intl.formatMessage({ id: 'enterAmount' })}
-                mt="md"
-                required
-                {...form.getInputProps('amount')}
-              />
-
-              <Select
-                label={intl.formatMessage({ id: 'account' })}
-                placeholder={intl.formatMessage({ id: 'selectAccount' })}
-                data={accountList}
-                mt="md"
-                required
-                {...form.getInputProps('accountId')}
-              />
-
-              <DatePickerInput
-                label={intl.formatMessage({ id: 'actionDate' })}
-                placeholder={intl.formatMessage({ id: 'selectActionDate' })}
-                mt="md"
-                required
-                {...form.getInputProps('actionDate')}
-              />
-
-              <Select
-                label={intl.formatMessage({ id: 'category' })}
-                placeholder={intl.formatMessage({ id: 'selectCategory' })}
-                data={categoriesList}
-                searchable
-                mt="md"
-                required
-                {...form.getInputProps('category')}
-              />
-
-              <Select
-                label={intl.formatMessage({ id: 'evaluation' })}
-                placeholder={intl.formatMessage({ id: 'selectEvaluation' })}
-                data={evaluationData}
-                mt="md"
-                required
-                {...form.getInputProps('evaluation')}
-              />
-
-              <Select
-                label={intl.formatMessage({ id: 'budget' })}
-                placeholder={intl.formatMessage({ id: 'selectBudget' })}
-                data={budgetList}
-                disabled={budgetList?.length === 0}
-                mt="md"
-                {...form.getInputProps('budget')}
-              />
-
-              <Group mt="xl">
-                <Button type="submit">{intl.formatMessage({ id: 'update' })}</Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setEditMode(false)}
-                >
-                  {intl.formatMessage({ id: 'cancel' })}
-                </Button>
-              </Group>
-            </form>
+            <UpdateExpense onClose={onClose} expense={expense} />
           )
         : (
             <>
