@@ -2,7 +2,7 @@ import type { Account, Budget, Category, Debt } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { Avatar, Card, Grid, Loader, Text } from '@mantine/core'
 import { IconMoneybag } from '@tabler/icons-react'
-import RenderIcon from '../RenderIcon'
+import IconRenderer from '../IconRenderer'
 import classes from './GenericMobileList.module.css'
 
 interface GenericMobileListProps {
@@ -10,21 +10,6 @@ interface GenericMobileListProps {
   onClick: (item: Account | Budget | Debt | Category) => void
   emptyMessage: string
   isLoading?: boolean
-}
-
-interface ErrorItem {
-  item: Category
-}
-
-function RenderAvatar({ item }: ErrorItem) {
-  const avatarColor = item?.color ? item.color : 'green'
-  const avatarIcon = item?.icon ? <RenderIcon noStyle icon={item.icon} /> : <IconMoneybag />
-
-  return (
-    <Avatar color={avatarColor} radius="xl">
-      {avatarIcon}
-    </Avatar>
-  )
 }
 
 function GenericMobileList({
@@ -57,9 +42,13 @@ function GenericMobileList({
             >
               <Grid>
                 <Grid.Col span="content">
-                  <Avatar color="green" radius="xl">
-                    {'icon' in item ? <RenderAvatar item={item} /> : <IconMoneybag />}
-                  </Avatar>
+                  {'icon' in item
+                    ? (
+                        <Avatar color={item?.color ? item.color : 'green'} radius="xl">
+                          {item?.icon ? <IconRenderer icon={item.icon} /> : <IconMoneybag />}
+                        </Avatar>
+                      )
+                    : <IconMoneybag />}
                 </Grid.Col>
 
                 <Grid.Col span="auto">

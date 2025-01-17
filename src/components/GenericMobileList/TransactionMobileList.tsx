@@ -4,7 +4,7 @@ import { Avatar, Card, Grid, Loader, Text } from '@mantine/core'
 import { IconAlertTriangle, IconMoneybag } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useRef } from 'react'
-import RenderIcon from '../RenderIcon'
+import IconRenderer from '../IconRenderer'
 import classes from './GenericMobileList.module.css'
 
 interface ErrorItem {
@@ -34,7 +34,7 @@ function RenderAvatar({ displayError, item, categories }: ErrorItem) {
 
   const categoryData = 'category' in item && categories?.find(o => o.id === item?.category)
   const avatarColor = categoryData && categoryData?.color ? categoryData.color : 'green'
-  const avatarIcon = categoryData && categoryData?.icon ? <RenderIcon noStyle icon={categoryData.icon} /> : <IconMoneybag />
+  const avatarIcon = categoryData && categoryData?.icon ? <IconRenderer icon={categoryData.icon} /> : <IconMoneybag />
 
   return (
     <Avatar color={avatarColor} radius="xl">

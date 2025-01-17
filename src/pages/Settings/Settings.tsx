@@ -3,8 +3,10 @@ import SelectCurrency from '@/components/SelectCurrency'
 import SelectLanguage from '@/components/SelectLanguage'
 import { db } from '@/db'
 import { decrypt, encrypt } from '@/utils/crypto'
-import { Button, FileInput, Flex, Paper, Stack, Text, TextInput, Title } from '@mantine/core'
+import { Button, Divider, FileInput, Group, Modal, Paper, Stack, Text, TextInput, Title } from '@mantine/core'
 import { useField, useForm } from '@mantine/form'
+import { useDisclosure } from '@mantine/hooks'
+import { notifications } from '@mantine/notifications'
 import Dexie from 'dexie'
 import { exportDB } from 'dexie-export-import'
 import { useState } from 'react'
@@ -33,13 +35,40 @@ function ImportUserDB() {
     if (!file)
       return
 
+    // onToggle()
+
     try {
       setIsLoading(true)
+
       const fileBuffer = await file.arrayBuffer()
       const isEncrypted = file.name.endsWith('.encrypted')
       let data
-      if (isEncrypted && password) {
-        data = await decrypt(fileBuffer, password)
+
+      if (isEncrypted) {
+        if (!password) {
+          notifications.show({
+            title: intl.formatMessage({ id: 'error' }),
+            message: intl.formatMessage({ id: 'passwordRequiredForDecryption' }),
+            color: 'red',
+          })
+          form.setErrors({
+            password: intl.formatMessage({ id: 'passwordRequiredForDecryption' }),
+          })
+          return
+        }
+
+        try {
+          data = await decrypt(fileBuffer, password)
+        }
+        catch (error) {
+          console.error('import error', error)
+          notifications.show({
+            title: intl.formatMessage({ id: 'error' }),
+            message: intl.formatMessage({ id: 'wrongPassword' }),
+            color: 'red',
+          })
+          return
+        }
       }
       else {
         const textDecoder = new TextDecoder()
@@ -51,21 +80,34 @@ function ImportUserDB() {
       const blob = new Blob([data], { type: 'application/json' })
       await Dexie.import(blob)
       window.location.reload()
+
+      notifications.show({
+        title: intl.formatMessage({ id: 'success' }),
+        message: intl.formatMessage({ id: 'importedSuccessfully' }),
+        color: 'green',
+      })
     }
     catch (error) {
       console.error('Import failed:', error)
       form.setErrors({
-        file: intl.formatMessage({ id: 'importFailed' }),
+        file: intl.formatMessage({ id: 'importedError' }),
+      })
+      notifications.show({
+        title: intl.formatMessage({ id: 'error' }),
+        message: error instanceof Error ? error.message : intl.formatMessage({ id: 'importedError' }),
+        color: 'red',
       })
     }
     finally {
+      // onToggle()
       setIsLoading(false)
     }
   }
 
   return (
     <form onSubmit={form.onSubmit(importDB)}>
-      <Text>{intl.formatMessage({ id: 'importFile' })}</Text>
+      <Title mb="xs" order={4}>{intl.formatMessage({ id: 'importFile' })}</Title>
+      <Text>{intl.formatMessage({ id: 'cleanBeforeDB' })}</Text>
       <TextInput
         {...form.getInputProps('password')}
         label={intl.formatMessage({ id: 'password' })}
@@ -104,6 +146,7 @@ function ExportUserDB() {
   const exportLocalDB = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const password = field.getValue()
+    // onToggle()
 
     try {
       setIsLoading(true)
@@ -118,11 +161,23 @@ function ExportUserDB() {
       document.body.appendChild(downloadLink)
       downloadLink.click()
       URL.revokeObjectURL(fileURL)
+
+      notifications.show({
+        title: intl.formatMessage({ id: 'success' }),
+        message: intl.formatMessage({ id: 'exportedSuccessfully' }),
+        color: 'green',
+      })
     }
     catch (error) {
       console.error('Export failed:', error)
+      notifications.show({
+        title: intl.formatMessage({ id: 'error' }),
+        message: error instanceof Error ? error.message : intl.formatMessage({ id: 'exportedError' }),
+        color: 'red',
+      })
     }
     finally {
+      // onToggle()
       setTimeout(() => {
         setIsLoading(false)
       }, 500)
@@ -131,7 +186,7 @@ function ExportUserDB() {
 
   return (
     <form onSubmit={exportLocalDB}>
-      <Text>{intl.formatMessage({ id: 'exportDatabase' })}</Text>
+      <Title mb="xs" order={4}>{intl.formatMessage({ id: 'exportDatabase' })}</Title>
       <TextInput
         {...field.getInputProps()}
         label={`${intl.formatMessage({ id: 'password' })} (${intl.formatMessage({ id: 'recommended' })})`}
@@ -152,15 +207,24 @@ function ExportUserDB() {
 
 const Settings: FC = () => {
   const intl = useIntl()
+  // const [visible, { toggle }] = useDisclosure(false)
+  const [opened, { open, close }] = useDisclosure(false)
 
   const handleDelete = async () => {
     try {
-      await db.delete()
+      // toggle()
       localStorage.clear()
+      await db.delete()
+      history.pushState(null, '', '/')
+      // toggle()
+      location.reload()
     }
     catch (error) {
       console.error('Failed to delete user data:', error)
     }
+    // finally {
+    //   toggle()
+    // }
   }
 
   const handleExportCSV = async () => {
@@ -204,53 +268,66 @@ const Settings: FC = () => {
 
   return (
     <Stack>
+      <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'deleteAllData' })}>
+        <Text>
+          {intl.formatMessage({ id: 'confirmDeleteDB' })}
+          ?
+        </Text>
+
+        <Text c="red" mt="md" fw="bold">
+          {intl.formatMessage({ id: 'isIrreversible' })}
+          !
+        </Text>
+
+        <Group mt="xl">
+          <Button color="red" onClick={handleDelete}>
+            {intl.formatMessage({ id: 'confirm' })}
+          </Button>
+          <Button onClick={close}>
+            {intl.formatMessage({ id: 'cancel' })}
+          </Button>
+        </Group>
+      </Modal>
+
+      {/* <LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} /> */}
+
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
-          <Title order={2} size="h3">{intl.formatMessage({ id: 'currency' })}</Title>
+          <Title order={3}>{intl.formatMessage({ id: 'currency' })}</Title>
           <SelectCurrency />
         </Stack>
       </Paper>
 
       <Paper shadow="xs" p="md" withBorder>
         <Stack>
-          <Title order={2} size="h3">{intl.formatMessage({ id: 'language' })}</Title>
+          <Title order={3}>{intl.formatMessage({ id: 'language' })}</Title>
           <SelectLanguage />
         </Stack>
       </Paper>
 
       <Paper shadow="xs" p="md" withBorder>
-        <Stack>
-          <Title order={3}>{intl.formatMessage({ id: 'databaseManagement' })}</Title>
-          <Text></Text>
-          <Flex
-            gap="md"
-            direction={{ base: 'column', sm: 'row' }}
-          >
-            <Paper withBorder p="md" style={{ flex: 1 }}>
-              <ImportUserDB />
-            </Paper>
-            <Paper withBorder p="md" style={{ flex: 1 }}>
-              <ExportUserDB />
-            </Paper>
-            <Paper withBorder p="md" style={{ flex: 1 }}>
-              <Title order={3}>{intl.formatMessage({ id: 'exportCSV' })}</Title>
-              <Button
-                onClick={handleExportCSV}
-              >
-                {intl.formatMessage({ id: 'export' })}
-              </Button>
-            </Paper>
-            <Paper withBorder p="md" style={{ flex: 1 }}>
-              <Title order={3}>{intl.formatMessage({ id: 'deleteUserData' })}</Title>
-              <Button
-                color="red"
-                onClick={handleDelete}
-              >
-                {intl.formatMessage({ id: 'delete' })}
-              </Button>
-            </Paper>
-          </Flex>
-        </Stack>
+        <Title order={3}>{intl.formatMessage({ id: 'databaseManagement' })}</Title>
+
+        <ImportUserDB />
+        <Divider my="md" />
+        <ExportUserDB />
+        <Divider my="md" />
+        <Title order={4}>{intl.formatMessage({ id: 'exportCSV' })}</Title>
+        <Text mt="lg" mb="xs">{intl.formatMessage({ id: 'noImportCSV' })}</Text>
+        <Button
+          onClick={handleExportCSV}
+        >
+          {intl.formatMessage({ id: 'export' })}
+        </Button>
+        <Divider my="md" />
+        <Title order={4}>{intl.formatMessage({ id: 'delete' })}</Title>
+        <Text mt="lg" mb="xs">{intl.formatMessage({ id: 'deleteAllData' })}</Text>
+        <Button
+          color="red"
+          onClick={open}
+        >
+          {intl.formatMessage({ id: 'delete' })}
+        </Button>
       </Paper>
     </Stack>
   )

@@ -7,9 +7,9 @@ import SearchFilters from '@/components/SearchFilters'
 import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Card } from '@mantine/core'
+import { Avatar, Card } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconAlertTriangle } from '@tabler/icons-react'
+import { IconAlertTriangle, IconBellDollar } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useEffect, useMemo, useState } from 'react'
@@ -96,6 +96,15 @@ const Income: FC = () => {
   }
 
   const columns = [
+    {
+      key: 'icon',
+      header: intl.formatMessage({ id: 'icon' }),
+      render: () => (
+        <Avatar color="green" radius="xl">
+          <IconBellDollar />
+        </Avatar>
+      ),
+    },
     {
       key: 'name',
       header: intl.formatMessage({ id: 'name' }),

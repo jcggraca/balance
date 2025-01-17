@@ -1,16 +1,18 @@
 import type { Category } from '@/db'
 import type { CategoryForm } from '@/utils/interfaces'
 import type { FC } from 'react'
-import RenderIcon from '@/components/RenderIcon'
+import IconRenderer from '@/components/IconRenderer'
+import iconsMap from '@/components/IconRenderer/iconsMap'
 import { db } from '@/db'
 import { colorSchema, descriptionSchema, iconSchema, nameSchema } from '@/schema/form'
-import { Button, ColorInput, Flex, Group, Textarea, TextInput } from '@mantine/core'
+import { Button, ColorInput, Group, Paper, Text, Textarea, TextInput, UnstyledButton } from '@mantine/core'
 import { useForm, zodResolver } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import classes from './UpdateCategory.module.css'
 
 interface UpdateCategoryProps {
   onClose: () => void
@@ -33,7 +35,7 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
       name: category?.name || '',
       description: category?.description || '',
       color: category?.color || '#0055ff',
-      icon: category?.icon || 'shopping-cart',
+      icon: category?.icon as keyof typeof iconsMap || 'IconShoppingCart',
     },
     validate: zodResolver(schema),
   })
@@ -48,6 +50,7 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
           id: uuidv4(),
           name: values.name.trim(),
           description: values.description?.trim(),
+          icon: values.icon as keyof typeof iconsMap,
           createdTimestamp: date,
           updatedTimestamp: date,
         }
@@ -61,6 +64,7 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
         const dataUpdate: Category = {
           ...category,
           ...values,
+          icon: values.icon as keyof typeof iconsMap,
           name: values.name.trim(),
           description: values.description?.trim(),
           updatedTimestamp: date,
@@ -93,6 +97,8 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
         placeholder={intl.formatMessage({ id: 'enterName' })}
         required
         mt="md"
+        minLength={2}
+        maxLength={32}
         {...form.getInputProps('name')}
       />
 
@@ -104,27 +110,30 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
         {...form.getInputProps('color')}
       />
 
-      <Flex align="center">
-        <TextInput
-          label={intl.formatMessage({ id: 'icon' })}
-          placeholder={intl.formatMessage({ id: 'enterIcon' })}
-          required
-          value={form.values.icon}
-          w="100%"
-          mt="md"
-          {...form.getInputProps('icon')}
-        />
-        <RenderIcon icon={form.values.icon} />
-      </Flex>
-      <a href="https://tabler.io/icons" target="_blank" rel="noreferrer">
-        {intl.formatMessage({ id: 'searchIcon' })}
-      </a>
+      <Text mt="md">
+        Icons
+        <span className={classes.red}> *</span>
+      </Text>
+      <Paper withBorder className={classes.iconsContainer}>
+        {Object.keys(iconsMap).map(iconKey => (
+          <UnstyledButton
+            className={classes.icons}
+            data-selected={form.getValues().icon === iconKey}
+            onClick={() => form.setFieldValue('icon', iconKey)}
+            key={iconKey}
+          >
+            <IconRenderer icon={iconKey as keyof typeof iconsMap} />
+          </UnstyledButton>
+        ))}
+      </Paper>
 
       <Textarea
         label={intl.formatMessage({ id: 'description' })}
         placeholder={intl.formatMessage({ id: 'enterDescription' })}
         required
         mt="md"
+        minLength={2}
+        maxLength={350}
         {...form.getInputProps('description')}
       />
 

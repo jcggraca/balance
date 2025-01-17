@@ -9,6 +9,14 @@
   text-overflow: ellipsis;
 }
 
+.name {
+  width: 14rem;
+}
+
+.icon {
+  width: 4rem;
+}
+
 @media (max-width: 768px) {
   .description {
     max-width: 120px;

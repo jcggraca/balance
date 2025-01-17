@@ -1,5 +1,5 @@
 import type { Category } from '@/db'
-import RenderIcon from '@/components/RenderIcon'
+import IconRenderer from '@/components/IconRenderer'
 import { Button, Group, Modal, Table } from '@mantine/core'
 import dayjs from 'dayjs'
 import { type FC, useEffect, useState } from 'react'
@@ -56,7 +56,7 @@ const ViewCategory: FC<ViewCategoryProps> = ({ category, onClose }) => {
                       :
                     </Table.Th>
                     <Table.Td>
-                      <RenderIcon noStyle icon={category.icon} />
+                      <IconRenderer icon={category.icon} />
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>

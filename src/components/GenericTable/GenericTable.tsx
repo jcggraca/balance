@@ -28,6 +28,16 @@ function GenericTable<T,>({
   if (!data?.length)
     return <Text mt="xl">{emptyMessage}</Text>
 
+  const tableStyle = (key: string) => {
+    if (key === 'description')
+      return classes.description
+    if (key === 'icon')
+      return classes.icon
+    if (key === 'name')
+      return classes.name
+    return ''
+  }
+
   return (
     <Box style={{ overflowX: 'auto', width: '100%' }}>
       <Table stickyHeader highlightOnHover>
@@ -49,7 +59,7 @@ function GenericTable<T,>({
                 <Table.Td
                   key={column.key}
                   data-key={column.key}
-                  className={column.key === 'description' ? classes.description : ''}
+                  className={tableStyle(column.key)}
                 >
                   {column.render(item)}
                 </Table.Td>

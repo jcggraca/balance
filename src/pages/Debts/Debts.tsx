@@ -6,7 +6,9 @@ import GenericTable from '@/components/GenericTable'
 import SearchFilters from '@/components/SearchFilters'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
+import { Avatar } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
+import { IconCreditCard } from '@tabler/icons-react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useState } from 'react'
 import { useIntl } from 'react-intl'
@@ -54,6 +56,15 @@ const Debts: FC = () => {
   }
 
   const columns = [
+    {
+      key: 'icon',
+      header: intl.formatMessage({ id: 'icon' }),
+      render: () => (
+        <Avatar color="green" radius="xl">
+          <IconCreditCard />
+        </Avatar>
+      ),
+    },
     {
       key: 'name',
       header: intl.formatMessage({ id: 'name' }),

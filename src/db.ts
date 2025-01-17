@@ -1,3 +1,4 @@
+import type iconsMap from './components/IconRenderer/iconsMap'
 import Dexie, { type EntityTable } from 'dexie'
 
 interface Account {
@@ -38,7 +39,7 @@ interface Category {
   id: string
   name: string
   description: string
-  icon: string
+  icon: keyof typeof iconsMap
   color: string
   createdTimestamp: number
   updatedTimestamp: number
@@ -62,7 +63,7 @@ interface Debt {
   updatedTimestamp: number
 }
 
-const db = new Dexie('MyPersonalFinance') as Dexie & {
+const db = new Dexie('Balance') as Dexie & {
   account: EntityTable<Account, 'id'>
   expenses: EntityTable<Expense, 'id'>
   categories: EntityTable<Category, 'id'>

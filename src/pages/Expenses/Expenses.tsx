@@ -3,18 +3,45 @@ import AddExpense from '@/components/Expense/AddExpense'
 import ViewExpense from '@/components/Expense/ViewExpense'
 import TransactionMobileList from '@/components/GenericMobileList/TransactionMobileList'
 import GenericTable from '@/components/GenericTable'
+import IconRenderer from '@/components/IconRenderer'
 import SearchFilters from '@/components/SearchFilters'
 import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { EVALUATION } from '@/utils/values'
-import { Card } from '@mantine/core'
+import { Avatar, Card } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconAlertTriangle } from '@tabler/icons-react'
+import { IconAlertTriangle, IconMoneybag } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useEffect, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
+
+interface ErrorItem {
+  displayError: boolean
+  item: Expense
+  categories?: Category[]
+}
+
+function RenderAvatar({ displayError, item, categories }: ErrorItem) {
+  if (displayError) {
+    return (
+      <Avatar color="red" radius="xl">
+        <IconAlertTriangle />
+      </Avatar>
+    )
+  }
+
+  const categoryData = categories?.find(o => o.id === item?.category)
+  const avatarColor = categoryData && categoryData?.color ? categoryData.color : 'green'
+  const avatarIcon = categoryData && categoryData?.icon ? <IconRenderer icon={categoryData.icon} /> : <IconMoneybag />
+
+  return (
+    <Avatar color={avatarColor} radius="xl">
+      {avatarIcon}
+    </Avatar>
+  )
+}
 
 const Expenses: FC = () => {
   const intl = useIntl()
@@ -110,7 +137,15 @@ const Expenses: FC = () => {
     setDateRange({ start: null, end: null })
   }
 
+  // TODO: displayError is missing in the columns
   const columns = [
+    {
+      key: 'icon',
+      header: intl.formatMessage({ id: 'icon' }),
+      render: (item: Expense) => (
+        <RenderAvatar displayError={false} categories={categories} item={item} />
+      ),
+    },
     {
       key: 'name',
       header: intl.formatMessage({ id: 'name' }),

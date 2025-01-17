@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <LanguageProvider>
       <MantineProvider defaultColorScheme="dark">
-        <Notifications />
+        <Notifications position="top-right" zIndex={1000} />
         <App />
       </MantineProvider>
     </LanguageProvider>

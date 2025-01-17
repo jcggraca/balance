@@ -3,9 +3,12 @@ import AddCategory from '@/components/Category/AddCategory'
 import ViewCategories from '@/components/Category/ViewCategory'
 import GenericMobileList from '@/components/GenericMobileList'
 import GenericTable from '@/components/GenericTable'
+import IconRenderer from '@/components/IconRenderer'
 import SearchFilters from '@/components/SearchFilters'
 import { db } from '@/db'
+import { Avatar } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
+import { IconMoneybag } from '@tabler/icons-react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { type FC, useState } from 'react'
 import { useIntl } from 'react-intl'
@@ -35,6 +38,21 @@ const Categories: FC = () => {
   }
 
   const columns = [
+    {
+      key: 'icon',
+      header: intl.formatMessage({ id: 'icon' }),
+      render: (item: Category) => (
+        <>
+          {'icon' in item
+            ? (
+                <Avatar color={item?.color ? item.color : 'green'} radius="xl">
+                  {item?.icon ? <IconRenderer icon={item.icon} /> : <IconMoneybag />}
+                </Avatar>
+              )
+            : <IconMoneybag />}
+        </>
+      ),
+    },
     {
       key: 'name',
       header: intl.formatMessage({ id: 'name' }),
