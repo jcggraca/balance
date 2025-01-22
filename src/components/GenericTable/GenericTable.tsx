@@ -1,4 +1,4 @@
-import { Box, Loader, Table, Text } from '@mantine/core'
+import { Box, Table, Text } from '@mantine/core'
 import classes from './GenericTable.module.css'
 
 interface Column<T> {
@@ -11,7 +11,6 @@ interface GenericTableProps<T> {
   data: T[] | undefined
   columns: Column<T>[]
   onClick?: (item: T) => void
-  isLoading?: boolean
   emptyMessage: string
 }
 
@@ -19,12 +18,8 @@ function GenericTable<T,>({
   data,
   columns,
   onClick,
-  isLoading,
   emptyMessage,
 }: GenericTableProps<T>) {
-  if (isLoading)
-    return <Loader color="blue" />
-
   if (!data?.length)
     return <Text mt="xl">{emptyMessage}</Text>
 
@@ -49,7 +44,7 @@ function GenericTable<T,>({
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {data.map((item, index) => (
+          {data?.map((item, index) => (
             <Table.Tr
               key={index}
               className={classes.table}

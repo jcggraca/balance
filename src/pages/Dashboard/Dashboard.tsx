@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { PieChart } from '@mantine/charts'
-import { ActionIcon, Alert, Box, Card, Grid, Group, Stack, Table, Tabs, Text } from '@mantine/core'
+import { ActionIcon, Alert, Box, Card, Grid, Group, SimpleGrid, Stack, Table, Tabs, Text } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconAlertTriangle, IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import dayjs from 'dayjs'
@@ -171,6 +171,46 @@ function Dashboard() {
         </ActionIcon>
       </Group>
 
+      <Card style={{ overflow: 'hidden', maxWidth: '100%' }} withBorder padding="lg" radius="md" mb="md">
+        <SimpleGrid cols={{ base: 3 }}>
+          <div>
+            <Text size="lg" fw={500} c="green">
+              {intl.formatMessage({ id: 'totalIncome' })}
+            </Text>
+            <Text size="xl" fw={700}>
+              <RenderErrorOrChildren error={errorIncome}>
+                {currency}
+                {totals.income}
+              </RenderErrorOrChildren>
+            </Text>
+          </div>
+
+          <div>
+            <Text size="lg" fw={500} c="red">
+              {intl.formatMessage({ id: 'totalExpenses' })}
+            </Text>
+            <Text size="xl" fw={700}>
+              <RenderErrorOrChildren error={errorExpenses}>
+                {currency}
+                {totals.expense}
+              </RenderErrorOrChildren>
+            </Text>
+          </div>
+
+          <div>
+            <Text size="lg" fw={500} c={totals.income - totals.expense < 0 ? 'red' : 'green'}>
+              {intl.formatMessage({ id: 'balance' })}
+            </Text>
+            <Text size="xl" fw={700}>
+              <RenderErrorOrChildren error={errorExpenses}>
+                {currency}
+                {totals.income - totals.expense}
+              </RenderErrorOrChildren>
+            </Text>
+          </div>
+        </SimpleGrid>
+      </Card>
+
       <Grid mb="md">
         <Grid.Col span={{ base: 12, sm: 6 }}>
           <Card withBorder padding="lg" radius="md" mb="md">
@@ -225,30 +265,6 @@ function Dashboard() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, sm: 6 }}>
-          <Card withBorder padding="lg" radius="md" mb="md">
-            <Text size="lg" fw={500} c="green">
-              {intl.formatMessage({ id: 'totalIncome' })}
-            </Text>
-            <Text size="xl" fw={700}>
-              <RenderErrorOrChildren error={errorIncome}>
-                {currency}
-                {totals.income}
-              </RenderErrorOrChildren>
-            </Text>
-          </Card>
-
-          <Card withBorder padding="lg" radius="md" mb="md">
-            <Text size="lg" fw={500} c="red">
-              {intl.formatMessage({ id: 'totalExpenses' })}
-            </Text>
-            <Text size="xl" fw={700}>
-              <RenderErrorOrChildren error={errorExpenses}>
-                {currency}
-                {totals.expense}
-              </RenderErrorOrChildren>
-            </Text>
-          </Card>
-
           {expenses.length > 0 && (
             <Card withBorder padding="lg" radius="md">
               <Text size="lg" fw={500} c="red">{intl.formatMessage({ id: 'last10Expenses' })}</Text>

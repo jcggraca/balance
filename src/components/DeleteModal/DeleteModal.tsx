@@ -55,10 +55,10 @@ const DeleteModal: FC<DeleteModalProps> = ({
         </Text>
 
         <Group mt="xl">
-          <Button onClick={handleDelete}>
+          <Button color="red" onClick={handleDelete}>
             {intl.formatMessage({ id: 'confirm' })}
           </Button>
-          <Button variant="outline" onClick={close}>
+          <Button onClick={close}>
             {intl.formatMessage({ id: 'cancel' })}
           </Button>
         </Group>

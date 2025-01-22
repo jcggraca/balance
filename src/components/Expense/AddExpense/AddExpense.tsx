@@ -13,6 +13,7 @@ const AddExpense: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
 
   const [categoriesList, setCategoriesList] = useState<selectorState[]>([])
   const [accountList, setAccountList] = useState<selectorState[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,14 +37,23 @@ const AddExpense: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
       catch (error) {
         console.error('Error fetching:', error)
       }
+      finally {
+        setIsLoading(false)
+      }
     }
 
     fetchData()
+
+    return () => {
+      setCategoriesList([])
+      setAccountList([])
+      setIsLoading(true)
+    }
   }, [])
 
   const RenderAddButton = () => {
     if (isMobile) {
-      if (accountList.length === 0 || categoriesList.length === 0) {
+      if ((accountList.length === 0 || categoriesList.length === 0) && !isLoading) {
         return (
           <Tooltip
             opened
@@ -58,7 +68,7 @@ const AddExpense: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
       return <Button className="mobileAddButton" onClick={open}><IconPlus /></Button>
     }
     else {
-      if (accountList.length === 0 || categoriesList.length === 0) {
+      if ((accountList.length === 0 || categoriesList.length === 0) && !isLoading) {
         return (
           <Tooltip label={intl.formatMessage({ id: 'oneAccountAddExpense' })}>
             <Button disabled>{intl.formatMessage({ id: 'addExpense' })}</Button>

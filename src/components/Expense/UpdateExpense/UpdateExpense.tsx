@@ -46,7 +46,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
       category: expense?.category || '',
       budget: expense?.budget || '',
       actionDate: expense?.actionTimestamp ? new Date(expense.actionTimestamp) : null,
-      description: expense?.name || '',
+      description: expense?.description || '',
     },
     validate: zodResolver(schema),
   })
@@ -54,32 +54,18 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedCategories = await db.categories.toArray()
-        setCategoriesList(fetchedCategories.map((item) => {
-          return {
-            value: item.id?.toString() || '',
-            label: item.name,
-          }
-        }))
+        const [categories, accounts, budgets] = await Promise.all([
+          db.categories.toArray(),
+          db.account.toArray(),
+          db.budget.toArray(),
+        ])
 
-        const fetchedAccounts = await db.account.toArray()
-        setAccountList(fetchedAccounts.map((item) => {
-          return {
-            value: item.id?.toString() || '',
-            label: item.name,
-          }
-        }))
-
-        const fetchedBudget = await db.budget.toArray()
-        setBudgetList(fetchedBudget.map((item) => {
-          return {
-            value: item.id?.toString() || '',
-            label: item.name,
-          }
-        }))
+        setCategoriesList(categories.map(item => ({ value: item.id?.toString() || '', label: item.name })))
+        setAccountList(accounts.map(item => ({ value: item.id?.toString() || '', label: item.name })))
+        setBudgetList(budgets.map(item => ({ value: item.id?.toString() || '', label: item.name })))
       }
       catch (error) {
-        console.error('Error fetching:', error)
+        console.error('Error fetching data:', error)
       }
     }
 
@@ -153,7 +139,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         await db.expenses.put(dataUpdate)
 
         if (expense.amount !== values.amount) {
-          const amountDiff = expense.amount - values.amount
+          const amountDiff = values.amount - expense.amount
           account.amount -= +amountDiff
           account.updatedTimestamp = date
 
@@ -174,31 +160,11 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         }
       }
 
-      account.amount -= values.amount
-      account.updatedTimestamp = date
-
-      await db.account.put(account)
-
-      if (values.budget) {
-        const budgetAccount = await db.budget.get({ id: values.budget })
-        if (!budgetAccount) {
-          return console.error(`Budget with ID ${values.budget} not found.`)
-        }
-
-        budgetAccount.amount -= values.amount
-        budgetAccount.updatedTimestamp = date
-
-        await db.budget.put(budgetAccount)
-      }
-
       notifications.show({
         title: intl.formatMessage({ id: 'success' }),
         message: intl.formatMessage({ id: isCreating ? 'expenseAddedSuccessfully' : 'expenseUpdatedSuccessfully' }),
         color: 'green',
       })
-
-      form.reset()
-      onClose()
     }
     catch (error) {
       notifications.show({
@@ -207,14 +173,16 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         color: 'red',
       })
     }
+    finally {
+      form.reset()
+      onClose()
+    }
   }
 
-  const evaluationData = EVALUATION.map((item) => {
-    return {
-      value: item.value,
-      label: intl.formatMessage({ id: item.label }),
-    }
-  })
+  const evaluationData = EVALUATION.map(item => ({
+    value: item.value,
+    label: intl.formatMessage({ id: item.label }),
+  }))
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -290,7 +258,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
       />
 
       <Group mt="xl">
-        <Button type="submit">{intl.formatMessage({ id: 'addExpense' })}</Button>
+        <Button type="submit">{intl.formatMessage({ id: isCreating ? 'addExpense' : 'updateExpense' })}</Button>
         <Button variant="outline" onClick={onClose}>{intl.formatMessage({ id: 'cancel' })}</Button>
       </Group>
     </form>

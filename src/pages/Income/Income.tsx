@@ -1,165 +1,154 @@
 import type { Account, Income as IncomeType } from '@/db'
+import type { FC, ReactNode } from 'react'
 import TransactionMobileList from '@/components/GenericMobileList/TransactionMobileList'
 import GenericTable from '@/components/GenericTable'
 import AddIncome from '@/components/Income/AddIncome'
 import ViewIncome from '@/components/Income/ViewIncome'
+import RenderAvatar from '@/components/RenderAvatar/RenderAvatar'
 import SearchFilters from '@/components/SearchFilters'
 import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Avatar, Card } from '@mantine/core'
+import { Card } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconAlertTriangle, IconBellDollar } from '@tabler/icons-react'
+import { IconAlertTriangle } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { type FC, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
+
+interface Filters {
+  searchQuery: string
+  searchAccount: string
+  dateRange: {
+    start: Date | null
+    end: Date | null
+  }
+}
+
+function getEntityName(entities: Account[] | undefined, id: string, fallbackMessage: string | ReactNode): string | ReactNode {
+  const entity = entities?.find(e => e.id === id)
+  return entity ? entity.name : <WarningNotFound>{fallbackMessage}</WarningNotFound>
+}
+
+function filterExpenses(expenses: IncomeType[], filters: Filters): IncomeType[] {
+  const { searchQuery, dateRange, searchAccount } = filters
+
+  return expenses.filter((expense) => {
+    const matchesQuery
+      = !searchQuery
+        || expense.name.toLowerCase().includes(searchQuery.toLowerCase())
+        || (expense.description?.toLowerCase() || '').includes(searchQuery.toLowerCase())
+    const matchesStartDate = !dateRange.start || expense.actionTimestamp >= dateRange.start.getTime()
+    const matchesEndDate = !dateRange.end || expense.actionTimestamp <= dateRange.end.getTime()
+    const matchesAccount = !searchAccount || expense.accountId === searchAccount
+
+    return matchesQuery && matchesStartDate && matchesEndDate && matchesAccount
+  })
+}
 
 const Income: FC = () => {
   const intl = useIntl()
   const { currency } = useSettingsStore()
   const isMobile = useMediaQuery('(max-width: 48em)')
 
-  const [accounts, setAccounts] = useState<Account[]>()
-  const [accountNotFound, setAccountNotFound] = useState(0)
   const [selectedIncome, setSelectedIncome] = useState<IncomeType | undefined>(undefined)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
-    start: null,
-    end: null,
+  const [filters, setFilters] = useState<Filters>({
+    searchQuery: '',
+    searchAccount: '',
+    dateRange: { start: null, end: null },
   })
 
   const incomeList = useLiveQuery(async () => {
-    let query = db.income.orderBy('actionTimestamp')
+    const allIncome = await db.income.orderBy('actionTimestamp').reverse().toArray()
+    return filterExpenses(allIncome, filters)
+  }, [filters])
 
-    if (searchQuery) {
-      query = query.filter(income =>
-        income.name.toLowerCase().includes(searchQuery.toLowerCase())
-        || (income.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()),
-      )
-    }
+  const accountsList = useLiveQuery(() => db.account.toArray())
 
-    if (dateRange.start) {
-      query = query.filter(income =>
-        income.actionTimestamp >= dateRange.start!.getTime(),
-      )
-    }
+  const accountNotFound = useMemo(() => {
+    if (!incomeList || !accountsList)
+      return 0
+    return incomeList.filter(e => !accountsList.find(a => a.id === e.accountId)).length
+  }, [incomeList, accountsList])
 
-    if (dateRange.end) {
-      query = query.filter(income =>
-        income.actionTimestamp <= dateRange.end!.getTime(),
-      )
-    }
+  const columns = useMemo(
+    () => [
+      {
+        key: 'icon',
+        header: intl.formatMessage({ id: 'icon' }),
+        render: (item: IncomeType) => (
+          <RenderAvatar
+            displayError={!accountsList?.find(o => o.id === item.accountId)}
+            item={item}
+            placeholderIcon="IconBellDollar"
+          />
+        ),
+      },
+      {
+        key: 'name',
+        header: intl.formatMessage({ id: 'name' }),
+        render: (item: IncomeType) => item.name,
+      },
+      {
+        key: 'amount',
+        header: intl.formatMessage({ id: 'amount' }),
+        render: (item: IncomeType) => `${currency}${item.amount}`,
+      },
+      {
+        key: 'account',
+        header: intl.formatMessage({ id: 'account' }),
+        render: (item: IncomeType) => getEntityName(accountsList, item.accountId, intl.formatMessage({ id: 'account' })),
+      },
+      {
+        key: 'description',
+        header: intl.formatMessage({ id: 'description' }),
+        render: (item: IncomeType) => (
+          <span className="tableDescription">
+            {item.description || 'N/A'}
+          </span>
+        ),
+      },
+      {
+        key: 'actionDate',
+        header: intl.formatMessage({ id: 'actionDate' }),
+        render: (item: IncomeType) => dayjs(item.actionTimestamp).format('DD/MM/YYYY'),
+      },
+    ],
+    [accountsList, intl, currency],
+  )
 
-    return await query.reverse().toArray()
-  }, [searchQuery, dateRange])
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedAccounts = await db.account.toArray()
-      setAccounts(fetchedAccounts)
-    }
-
-    fetchData()
-
-    return () => {
-      setAccounts(undefined)
-      setAccountNotFound(0)
-      setSelectedIncome(undefined)
-      setSearchQuery('')
-      setDateRange({ start: null, end: null })
-    }
-  }, [])
-
-  useMemo(() => {
-    if (incomeList && accounts) {
-      const length = incomeList.filter(o => !accounts?.find(a => a.id === o.accountId)).length
-      setAccountNotFound(length)
-    }
-  }, [incomeList, accounts])
-
-  const getAccountName = (accountId: string) => {
-    const account = accounts?.find(o => o.id === accountId)
-    if (account)
-      return account.name
-    return <WarningNotFound>{intl.formatMessage({ id: 'account' })}</WarningNotFound>
-  }
-
-  const getAccount = (accountId: string) => {
-    const account = accounts?.find(o => o.id === accountId)
-    return !!account
-  }
-
-  const handleClearFilters = () => {
-    setSearchQuery('')
-    setDateRange({ start: null, end: null })
-  }
-
-  const columns = [
-    {
-      key: 'icon',
-      header: intl.formatMessage({ id: 'icon' }),
-      render: () => (
-        <Avatar color="green" radius="xl">
-          <IconBellDollar />
-        </Avatar>
-      ),
-    },
-    {
-      key: 'name',
-      header: intl.formatMessage({ id: 'name' }),
-      render: (item: IncomeType) => item.name,
-    },
-    {
-      key: 'amount',
-      header: intl.formatMessage({ id: 'amount' }),
-      render: (item: IncomeType) => `${currency}${item.amount}`,
-    },
-    {
-      key: 'account',
-      header: intl.formatMessage({ id: 'account' }),
-      render: (item: IncomeType) => getAccountName(item.accountId),
-    },
-    {
-      key: 'description',
-      header: intl.formatMessage({ id: 'description' }),
-      render: (item: IncomeType) => (
-        <span className="tableDescription">
-          {item.description || 'N/A'}
-        </span>
-      ),
-    },
-    {
-      key: 'actionDate',
-      header: intl.formatMessage({ id: 'actionDate' }),
-      render: (item: IncomeType) => dayjs(item.actionTimestamp).format('DD/MM/YYYY'),
-    },
-  ]
+  const handleClearFilters = () =>
+    setFilters({
+      searchQuery: '',
+      searchAccount: '',
+      dateRange: { start: null, end: null },
+    })
 
   return (
     <>
       <div className="responsiveHeader">
         <SearchFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          dateRange={dateRange}
-          onDateRangeChange={setDateRange}
+          searchQuery={filters.searchQuery}
+          onSearchChange={query => setFilters({ ...filters, searchQuery: query })}
+          dateRange={filters.dateRange}
+          onDateRangeChange={range => setFilters({ ...filters, dateRange: range })}
           onClearFilters={handleClearFilters}
+          accounts={accountsList}
+          onSearchAccount={account => setFilters({ ...filters, searchAccount: account ?? '' })}
         />
         <AddIncome isMobile={isMobile} />
       </div>
 
       {selectedIncome && <ViewIncome income={selectedIncome} onClose={() => setSelectedIncome(undefined)} />}
 
-      {accountNotFound > 0 && accounts && !isMobile && (
+      {!isMobile && accountNotFound > 0 && (
         <Card className="card" withBorder radius="md" shadow="sm">
           <IconAlertTriangle />
-          {' '}
-          {accountNotFound}
-          {' '}
-          {accountNotFound === 1 ? intl.formatMessage({ id: 'incomeNoOne' }) : intl.formatMessage({ id: 'incomeNoMulti' })}
-          {' '}
-          {intl.formatMessage({ id: 'requireAccountAssociated' })}
+          {` ${accountNotFound} ${intl.formatMessage({
+            id: accountNotFound === 1 ? 'incomeNoOne' : 'incomeNoMulti',
+          })}`}
+          {` ${intl.formatMessage({ id: 'requireAccountAssociated' })}`}
         </Card>
       )}
 
@@ -168,10 +157,9 @@ const Income: FC = () => {
             <TransactionMobileList
               data={incomeList}
               onClick={item => setSelectedIncome(item as IncomeType)}
-              isLoading={!incomeList}
               emptyMessage={intl.formatMessage({ id: 'noIncomeFound' })}
-              getAccount={getAccount}
-              errorMessage="Account not found"
+              getAccount={(id: string) => !!accountsList?.find(a => a.id === id)}
+              errorMessage={intl.formatMessage({ id: 'accountNotFound' })}
             />
           )
         : (
@@ -179,7 +167,6 @@ const Income: FC = () => {
               data={incomeList}
               columns={columns}
               onClick={setSelectedIncome}
-              isLoading={!incomeList}
               emptyMessage={intl.formatMessage({ id: 'noIncomeFound' })}
             />
           )}

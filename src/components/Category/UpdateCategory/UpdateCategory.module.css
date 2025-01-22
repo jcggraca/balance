@@ -4,27 +4,9 @@
   flex-direction: row;
   flex-wrap: wrap;
   padding: 3px;
+  gap: 5px;
 }
 
 .red {
   color: var(--input-asterisk-color, var(--mantine-color-error))
-}
-
-.icons {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--mantine-radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
-
-  &:hover {
-    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-5));
-  }
-
-  &[data-selected="true"] {
-    border: 1px solid light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
-    background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-4));
-  }
 }

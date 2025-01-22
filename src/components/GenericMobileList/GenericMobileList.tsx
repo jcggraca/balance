@@ -1,6 +1,6 @@
 import type { Account, Budget, Category, Debt } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Avatar, Card, Grid, Loader, Text } from '@mantine/core'
+import { Avatar, Card, Grid, Text } from '@mantine/core'
 import { IconMoneybag } from '@tabler/icons-react'
 import IconRenderer from '../IconRenderer'
 import classes from './GenericMobileList.module.css'
@@ -9,26 +9,21 @@ interface GenericMobileListProps {
   data: Account[] | Budget[] | Debt[] | Category[] | undefined
   onClick: (item: Account | Budget | Debt | Category) => void
   emptyMessage: string
-  isLoading?: boolean
 }
 
 function GenericMobileList({
   data,
   onClick,
-  isLoading,
   emptyMessage,
 }: GenericMobileListProps) {
   const { currency } = useSettingsStore()
-
-  if (isLoading)
-    return <Loader color="blue" />
 
   if (!data?.length)
     return <Text mt="xl">{emptyMessage}</Text>
 
   return (
     <div className={classes.container}>
-      {data.map((item, index) => {
+      {data?.map((item, index) => {
         return (
           <span key={index}>
             <Card

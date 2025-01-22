@@ -5,7 +5,7 @@ import IconRenderer from '@/components/IconRenderer'
 import iconsMap from '@/components/IconRenderer/iconsMap'
 import { db } from '@/db'
 import { colorSchema, descriptionSchema, iconSchema, nameSchema } from '@/schema/form'
-import { Button, ColorInput, Group, Paper, Text, Textarea, TextInput, UnstyledButton } from '@mantine/core'
+import { Avatar, Button, ColorInput, Group, Paper, Text, Textarea, TextInput, UnstyledButton } from '@mantine/core'
 import { useForm, zodResolver } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import dayjs from 'dayjs'
@@ -117,12 +117,15 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
       <Paper withBorder className={classes.iconsContainer}>
         {Object.keys(iconsMap).map(iconKey => (
           <UnstyledButton
-            className={classes.icons}
-            data-selected={form.getValues().icon === iconKey}
             onClick={() => form.setFieldValue('icon', iconKey)}
             key={iconKey}
           >
-            <IconRenderer icon={iconKey as keyof typeof iconsMap} />
+            <Avatar
+              variant={form.getValues().icon === iconKey ? 'light' : 'transparent'}
+              color={form.getValues().icon === iconKey ? form.getValues().color : ''}
+            >
+              <IconRenderer icon={iconKey as keyof typeof iconsMap} />
+            </Avatar>
           </UnstyledButton>
         ))}
       </Paper>

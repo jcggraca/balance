@@ -106,7 +106,6 @@ const Debts: FC = () => {
             <GenericMobileList
               data={debts}
               onClick={item => setDebt(item as Debt)}
-              isLoading={!debts}
               emptyMessage={intl.formatMessage({ id: 'noDebtFound' })}
             />
           )
@@ -115,7 +114,6 @@ const Debts: FC = () => {
               data={debts}
               columns={columns}
               onClick={setDebt}
-              isLoading={!debts}
               emptyMessage={intl.formatMessage({ id: 'noDebtFound' })}
             />
           )}

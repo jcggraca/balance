@@ -85,7 +85,6 @@ const Categories: FC = () => {
             <GenericMobileList
               data={CategoriesList}
               onClick={item => setCategory(item as Category)}
-              isLoading={!CategoriesList}
               emptyMessage={intl.formatMessage({ id: 'noCategoryFound' })}
             />
           )
@@ -94,7 +93,6 @@ const Categories: FC = () => {
               data={CategoriesList}
               columns={columns}
               onClick={setCategory}
-              isLoading={!CategoriesList}
               emptyMessage={intl.formatMessage({ id: 'noCategoryFound' })}
             />
           )}

@@ -112,7 +112,6 @@ const Budget: FC = () => {
             <GenericMobileList
               data={budgets}
               onClick={item => setBudgetDetails(item as BudgetType)}
-              isLoading={!budgets}
               emptyMessage={intl.formatMessage({ id: 'noBudgetFound' })}
             />
           )
@@ -121,7 +120,6 @@ const Budget: FC = () => {
               data={budgets}
               columns={columns}
               onClick={setBudgetDetails}
-              isLoading={!budgets}
               emptyMessage={intl.formatMessage({ id: 'noBudgetFound' })}
             />
           )}

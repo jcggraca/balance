@@ -1,5 +1,6 @@
+import type { Account } from '@/db'
 import type { FC } from 'react'
-import { Button, Grid, Group, Modal, TextInput } from '@mantine/core'
+import { Button, Grid, Group, Modal, Select, TextInput } from '@mantine/core'
 import { DateInput } from '@mantine/dates'
 import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import { IconAdjustmentsHorizontal } from '@tabler/icons-react'
@@ -14,6 +15,8 @@ interface SearchFiltersProps {
   }
   onDateRangeChange?: (range: { start: Date | null, end: Date | null }) => void
   onClearFilters: () => void
+  accounts?: Account[]
+  onSearchAccount?: (id: string | null) => void
   noFilters?: boolean
   showDateFilter?: boolean
 }
@@ -24,6 +27,8 @@ const SearchFilters: FC<SearchFiltersProps> = ({
   dateRange,
   onDateRangeChange,
   onClearFilters,
+  accounts,
+  onSearchAccount,
   noFilters = false,
   showDateFilter = true,
 }) => {
@@ -49,6 +54,20 @@ const SearchFilters: FC<SearchFiltersProps> = ({
             onChange={date => onDateRangeChange({ ...dateRange, end: date })}
             mb={isMobile ? 'md' : 0}
           />
+
+          {accounts && accounts?.length > 0 && (
+            <Select
+              placeholder={intl.formatMessage({ id: 'selectAccount' })}
+              onChange={onSearchAccount}
+              data={accounts?.map((item) => {
+                return {
+                  value: item.id?.toString() || '',
+                  label: item.name,
+                }
+              })}
+              required
+            />
+          )}
         </>
       )}
     </>

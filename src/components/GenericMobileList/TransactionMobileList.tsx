@@ -1,6 +1,6 @@
 import type { Account, Category, Expense, Income } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Avatar, Card, Grid, Loader, Text } from '@mantine/core'
+import { Avatar, Card, Grid, Text } from '@mantine/core'
 import { IconAlertTriangle, IconMoneybag } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useRef } from 'react'
@@ -19,7 +19,6 @@ interface TransactionMobileListProps {
   emptyMessage: string
   getAccount: (id: string) => boolean
   errorMessage: string
-  isLoading?: boolean
   categories?: Category[]
 }
 
@@ -46,7 +45,6 @@ function RenderAvatar({ displayError, item, categories }: ErrorItem) {
 function TransactionMobileList({
   data,
   onClick,
-  isLoading,
   emptyMessage,
   getAccount,
   errorMessage,
@@ -55,15 +53,12 @@ function TransactionMobileList({
   const { currency } = useSettingsStore()
   const lastDay = useRef<number | null>(null)
 
-  if (isLoading)
-    return <Loader color="blue" />
-
   if (!data?.length)
     return <Text mt="xl">{emptyMessage}</Text>
 
   return (
     <div className={classes.container}>
-      {data.map((item, index) => {
+      {data?.map((item, index) => {
         let showDate = false
 
         if (lastDay.current !== item.actionTimestamp) {

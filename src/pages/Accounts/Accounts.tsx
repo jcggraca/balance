@@ -112,7 +112,6 @@ const Accounts: FC = () => {
             <GenericMobileList
               data={accounts}
               onClick={item => setAccount(item as Account)}
-              isLoading={!accounts}
               emptyMessage={intl.formatMessage({ id: 'noAccountFound' })}
             />
           )
@@ -121,7 +120,6 @@ const Accounts: FC = () => {
               data={accounts}
               columns={columns}
               onClick={setAccount}
-              isLoading={!accounts}
               emptyMessage={intl.formatMessage({ id: 'noAccountFound' })}
             />
           )}

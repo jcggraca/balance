@@ -1,46 +1,64 @@
 import type { Account, Category, Expense } from '@/db'
+import type { FC } from 'react'
 import AddExpense from '@/components/Expense/AddExpense'
 import ViewExpense from '@/components/Expense/ViewExpense'
 import TransactionMobileList from '@/components/GenericMobileList/TransactionMobileList'
 import GenericTable from '@/components/GenericTable'
-import IconRenderer from '@/components/IconRenderer'
+import RenderAvatar from '@/components/RenderAvatar/RenderAvatar'
 import SearchFilters from '@/components/SearchFilters'
 import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { EVALUATION } from '@/utils/values'
-import { Avatar, Card } from '@mantine/core'
+import { Card } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconAlertTriangle, IconMoneybag } from '@tabler/icons-react'
+import { IconAlertTriangle } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { type FC, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-interface ErrorItem {
-  displayError: boolean
-  item: Expense
-  categories?: Category[]
+interface Filters {
+  searchQuery: string
+  searchAccount: string
+  dateRange: {
+    start: Date | null
+    end: Date | null
+  }
 }
 
-function RenderAvatar({ displayError, item, categories }: ErrorItem) {
-  if (displayError) {
-    return (
-      <Avatar color="red" radius="xl">
-        <IconAlertTriangle />
-      </Avatar>
-    )
-  }
+function getEntityName(entities: Account[] | Category[] | undefined, id: string, fallbackMessage: string | JSX.Element): string | JSX.Element {
+  const entity = entities?.find(e => e.id === id)
+  return entity ? entity.name : <WarningNotFound>{fallbackMessage}</WarningNotFound>
+}
 
-  const categoryData = categories?.find(o => o.id === item?.category)
-  const avatarColor = categoryData && categoryData?.color ? categoryData.color : 'green'
-  const avatarIcon = categoryData && categoryData?.icon ? <IconRenderer icon={categoryData.icon} /> : <IconMoneybag />
+function getEvaluationLabel(intl: ReturnType<typeof useIntl>, value: string): JSX.Element {
+  const evaluation = EVALUATION.find(e => e.value === value)
+  return evaluation
+    ? (
+        <span style={{ color: evaluation.color }}>
+          {intl.formatMessage({ id: evaluation.label })}
+        </span>
+      )
+    : (
+        <WarningNotFound>{intl.formatMessage({ id: 'evaluation' })}</WarningNotFound>
+      )
+}
 
-  return (
-    <Avatar color={avatarColor} radius="xl">
-      {avatarIcon}
-    </Avatar>
-  )
+function filterExpenses(expenses: Expense[], filters: Filters): Expense[] {
+  const { searchQuery, dateRange, searchAccount } = filters
+
+  return expenses.filter((expense) => {
+    const matchesQuery
+      = !searchQuery
+        || expense.name.toLowerCase().includes(searchQuery.toLowerCase())
+        || (expense.description?.toLowerCase() || '').includes(searchQuery.toLowerCase())
+    const matchesStartDate = !dateRange.start || expense.actionTimestamp >= dateRange.start.getTime()
+    const matchesEndDate = !dateRange.end || expense.actionTimestamp <= dateRange.end.getTime()
+    const matchesAccount = !searchAccount || expense.accountId === searchAccount
+
+    return matchesQuery && matchesStartDate && matchesEndDate && matchesAccount
+  })
 }
 
 const Expenses: FC = () => {
@@ -48,165 +66,110 @@ const Expenses: FC = () => {
   const { currency } = useSettingsStore()
   const isMobile = useMediaQuery('(max-width: 48em)')
 
-  const [categories, setCategories] = useState<Category[]>()
-  const [accounts, setAccounts] = useState<Account[]>()
-  const [accountNotFound, setAccountNotFound] = useState(0)
-  const [expense, setExpense] = useState<Expense | undefined>(undefined)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
-    start: null,
-    end: null,
+  const [expense, setExpense] = useState<Expense | null>(null)
+  const [filters, setFilters] = useState<Filters>({
+    searchQuery: '',
+    searchAccount: '',
+    dateRange: { start: null, end: null },
   })
 
+  const accountsList = useLiveQuery(() => db.account.toArray())
+  const categories = useLiveQuery(() => db.categories.toArray())
   const expenses = useLiveQuery(async () => {
-    let query = db.expenses.orderBy('actionTimestamp')
+    const allExpenses = await db.expenses.orderBy('actionTimestamp').reverse().toArray()
+    return filterExpenses(allExpenses, filters)
+  }, [filters])
 
-    if (searchQuery) {
-      query = query.filter(expense =>
-        expense.name.toLowerCase().includes(searchQuery.toLowerCase())
-        || (expense.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()),
-      )
-    }
+  const accountNotFound = useMemo(() => {
+    if (!expenses || !accountsList)
+      return 0
+    return expenses.filter(e => !accountsList.find(a => a.id === e.accountId)).length
+  }, [expenses, accountsList])
 
-    if (dateRange.start) {
-      query = query.filter(expense =>
-        expense.actionTimestamp >= dateRange.start!.getTime(),
-      )
-    }
+  const columns = useMemo(
+    () => [
+      {
+        key: 'icon',
+        header: intl.formatMessage({ id: 'icon' }),
+        render: (item: Expense) => (
+          <RenderAvatar
+            displayError={
+              !accountsList?.find(o => o.id === item.accountId)
+              || !categories?.find(o => o.id === item.category)
+            }
+            categories={categories}
+            item={item}
+            placeholderIcon="IconMoneybag"
+          />
+        ),
+      },
+      {
+        key: 'name',
+        header: intl.formatMessage({ id: 'name' }),
+        render: (item: Expense) => item.name,
+      },
+      {
+        key: 'amount',
+        header: intl.formatMessage({ id: 'amount' }),
+        render: (item: Expense) => `${currency}${item.amount}`,
+      },
+      {
+        key: 'account',
+        header: intl.formatMessage({ id: 'account' }),
+        render: (item: Expense) =>
+          getEntityName(accountsList, item.accountId, intl.formatMessage({ id: 'account' })),
+      },
+      {
+        key: 'category',
+        header: intl.formatMessage({ id: 'category' }),
+        render: (item: Expense) =>
+          getEntityName(categories, item.category, intl.formatMessage({ id: 'category' })),
+      },
+      {
+        key: 'evaluation',
+        header: intl.formatMessage({ id: 'evaluation' }),
+        render: (item: Expense) => getEvaluationLabel(intl, item.evaluation),
+      },
+      {
+        key: 'date',
+        header: intl.formatMessage({ id: 'date' }),
+        render: (item: Expense) => dayjs(item.actionTimestamp).format('DD/MM/YYYY'),
+      },
+    ],
+    [categories, accountsList, intl, currency],
+  )
 
-    if (dateRange.end) {
-      query = query.filter(expense =>
-        expense.actionTimestamp <= dateRange.end!.getTime(),
-      )
-    }
-
-    return await query.reverse().toArray()
-  }, [searchQuery, dateRange])
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedCategories = await db.categories.toArray()
-      setCategories(fetchedCategories)
-
-      const fetchedAccounts = await db.account.toArray()
-      setAccounts(fetchedAccounts)
-    }
-
-    fetchData()
-
-    return () => {
-      setCategories(undefined)
-      setAccounts(undefined)
-      setAccountNotFound(0)
-      setExpense(undefined)
-      setSearchQuery('')
-      setDateRange({ start: null, end: null })
-    }
-  }, [])
-
-  useMemo(() => {
-    if (expenses) {
-      const length = expenses.filter(o => !accounts?.find(a => a.id === o.accountId)).length
-      setAccountNotFound(length)
-    }
-  }, [expenses, accounts])
-
-  const getCategoryName = (id: string) => {
-    const findCategory = categories?.find(o => o.id === id)
-    if (findCategory)
-      return findCategory.name
-    return <WarningNotFound>{intl.formatMessage({ id: 'type' })}</WarningNotFound>
-  }
-
-  const getEvaluationName = (value: string) => {
-    const findEvaluation = EVALUATION.find(o => o.value === value)
-    if (findEvaluation)
-      return <span style={{ color: findEvaluation.color }}>{intl.formatMessage({ id: findEvaluation.label })}</span>
-    return <WarningNotFound>{intl.formatMessage({ id: 'evaluation' })}</WarningNotFound>
-  }
-
-  const getAccountName = (accountId: string) => {
-    const account = accounts?.find(o => o.id === accountId)
-    if (account)
-      return account.name
-    return <WarningNotFound>{intl.formatMessage({ id: 'account' })}</WarningNotFound>
-  }
-
-  const handleClearFilters = () => {
-    setSearchQuery('')
-    setDateRange({ start: null, end: null })
-  }
-
-  // TODO: displayError is missing in the columns
-  const columns = [
-    {
-      key: 'icon',
-      header: intl.formatMessage({ id: 'icon' }),
-      render: (item: Expense) => (
-        <RenderAvatar displayError={false} categories={categories} item={item} />
-      ),
-    },
-    {
-      key: 'name',
-      header: intl.formatMessage({ id: 'name' }),
-      render: (item: Expense) => item.name,
-    },
-    {
-      key: 'amount',
-      header: intl.formatMessage({ id: 'amount' }),
-      render: (item: Expense) => `${currency}${item.amount}`,
-    },
-    {
-      key: 'account',
-      header: intl.formatMessage({ id: 'account' }),
-      render: (item: Expense) => getAccountName(item.accountId),
-    },
-    {
-      key: 'category',
-      header: intl.formatMessage({ id: 'category' }),
-      render: (item: Expense) => getCategoryName(item.category),
-    },
-    {
-      key: 'evaluation',
-      header: intl.formatMessage({ id: 'evaluation' }),
-      render: (item: Expense) => getEvaluationName(item.evaluation),
-    },
-    {
-      key: 'date',
-      header: intl.formatMessage({ id: 'date' }),
-      render: (item: Expense) => dayjs(item.actionTimestamp).format('DD/MM/YYYY'),
-    },
-  ]
-
-  const getAccount = (accountId: string) => {
-    const account = accounts?.find(o => o.id === accountId)
-    return !!account
-  }
+  const handleClearFilters = () =>
+    setFilters({
+      searchQuery: '',
+      searchAccount: '',
+      dateRange: { start: null, end: null },
+    })
 
   return (
     <>
       <div className="responsiveHeader">
         <SearchFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          dateRange={dateRange}
-          onDateRangeChange={setDateRange}
+          searchQuery={filters.searchQuery}
+          onSearchChange={query => setFilters({ ...filters, searchQuery: query })}
+          dateRange={filters.dateRange}
+          onDateRangeChange={range => setFilters({ ...filters, dateRange: range })}
           onClearFilters={handleClearFilters}
+          accounts={accountsList}
+          onSearchAccount={account => setFilters({ ...filters, searchAccount: account ?? '' })}
         />
         <AddExpense isMobile={isMobile} />
       </div>
 
-      {expense && <ViewExpense expense={expense} onClose={() => setExpense(undefined)} />}
+      {expense && <ViewExpense expense={expense} onClose={() => setExpense(null)} />}
 
-      {accountNotFound > 0 && accounts && !isMobile && (
+      {!isMobile && accountNotFound > 0 && (
         <Card className="card" withBorder radius="md" shadow="sm">
           <IconAlertTriangle />
-          {' '}
-          {accountNotFound}
-          {' '}
-          {accountNotFound === 1 ? intl.formatMessage({ id: 'expenseOne' }) : intl.formatMessage({ id: 'expensesMulti' })}
-          {' '}
-          {intl.formatMessage({ id: 'requireAccountAssociated' })}
+          {` ${accountNotFound} ${intl.formatMessage({
+            id: accountNotFound === 1 ? 'expenseNoOne' : 'expensesNoMulti',
+          })}`}
+          {` ${intl.formatMessage({ id: 'requireAccountAssociated' })}`}
         </Card>
       )}
 
@@ -215,11 +178,10 @@ const Expenses: FC = () => {
             <TransactionMobileList
               data={expenses}
               onClick={item => setExpense(item as Expense)}
-              isLoading={!expenses}
               emptyMessage={intl.formatMessage({ id: 'noExpenseFound' })}
-              getAccount={getAccount}
+              getAccount={(id: string) => !!accountsList?.find(a => a.id === id)}
               categories={categories}
-              errorMessage="Account or type not found"
+              errorMessage={intl.formatMessage({ id: 'accountOrCategoryNotFound' })}
             />
           )
         : (
@@ -227,7 +189,6 @@ const Expenses: FC = () => {
               data={expenses}
               columns={columns}
               onClick={setExpense}
-              isLoading={!expenses}
               emptyMessage={intl.formatMessage({ id: 'noExpenseFound' })}
             />
           )}

@@ -34,13 +34,13 @@ const DeleteExpense: FC<DeleteExpenseProps> = ({ expense, onClose }) => {
 
     if (expense.budget) {
       const budgetAccount = await db.budget.get({ id: expense.budget })
-      if (!budgetAccount) {
-        return console.error(`Account with ID ${expense.budget} not found.`)
-      }
-      else {
+      if (budgetAccount) {
         budgetAccount.amount += expense.amount
         budgetAccount.updatedTimestamp = date
         await db.budget.put(budgetAccount)
+      }
+      else {
+        console.error(`Account with ID ${expense.budget} not found.`)
       }
     }
 
