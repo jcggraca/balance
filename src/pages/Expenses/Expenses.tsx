@@ -1,5 +1,5 @@
 import type { Account, Category, Expense } from '@/db'
-import type { FC } from 'react'
+import type { FC, ReactNode } from 'react'
 import AddExpense from '@/components/Expense/AddExpense'
 import ViewExpense from '@/components/Expense/ViewExpense'
 import TransactionMobileList from '@/components/GenericMobileList/TransactionMobileList'
@@ -27,12 +27,12 @@ interface Filters {
   }
 }
 
-function getEntityName(entities: Account[] | Category[] | undefined, id: string, fallbackMessage: string | JSX.Element): string | JSX.Element {
+function getEntityName(entities: Account[] | Category[] | undefined, id: string, fallbackMessage: string | ReactNode): string | ReactNode {
   const entity = entities?.find(e => e.id === id)
   return entity ? entity.name : <WarningNotFound>{fallbackMessage}</WarningNotFound>
 }
 
-function getEvaluationLabel(intl: ReturnType<typeof useIntl>, value: string): JSX.Element {
+function getEvaluationLabel(intl: ReturnType<typeof useIntl>, value: string): ReactNode {
   const evaluation = EVALUATION.find(e => e.value === value)
   return evaluation
     ? (
