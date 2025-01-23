@@ -54,7 +54,7 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
       }
       else {
         if (!account?.id) {
-          throw new Error('Account ID is missing')
+          throw new Error('missingAccountID')
         }
 
         const dataUpdate: Account = {

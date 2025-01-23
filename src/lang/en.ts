@@ -170,6 +170,12 @@ export const messages = {
   confirmDeleteDB: 'Are you sure you want to delete your data',
   wrongPassword: 'Wrong password',
   cleanBeforeDB: 'Important: This app is currently in development and does not support checking for duplicate items. When importing a new database, all existing data will be cleared to avoid conflicts. Please back up your current data before proceeding.',
+  missingBudgetID: 'Budget ID is missing',
+  missingAccountID: 'Account ID is missing',
+  missingCategoryID: 'Category ID is missing',
+  missingDebtsID: 'Debts ID is missing',
+  missingExpenseID: 'Expense ID is missing',
+  missingIncomeID: 'Income ID is missing',
 
   defaultCategoryHousing: 'Housing',
   defaultCategoryHousingDescription: 'Rent, mortgage, property taxes, homeowners insurance.',

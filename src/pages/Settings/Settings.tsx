@@ -3,6 +3,7 @@ import SelectCurrency from '@/components/SelectCurrency'
 import SelectLanguage from '@/components/SelectLanguage'
 import { db } from '@/db'
 import { decrypt, encrypt } from '@/utils/crypto'
+import { displayNotification } from '@/utils/form'
 import {
   Button,
   Divider,
@@ -17,7 +18,6 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
-import { notifications } from '@mantine/notifications'
 import Dexie from 'dexie'
 import { exportDB } from 'dexie-export-import'
 import { useState } from 'react'
@@ -61,13 +61,6 @@ const ImportUserDB: FC = () => {
               id: 'passwordRequiredForDecryption',
             }),
           })
-          notifications.show({
-            title: intl.formatMessage({ id: 'error' }),
-            message: intl.formatMessage({
-              id: 'passwordRequiredForDecryption',
-            }),
-            color: 'red',
-          })
           return
         }
         data = await decrypt(fileBuffer, password).catch(() => {
@@ -85,20 +78,11 @@ const ImportUserDB: FC = () => {
       await Dexie.import(blob)
       window.location.reload()
 
-      notifications.show({
-        title: intl.formatMessage({ id: 'success' }),
-        message: intl.formatMessage({ id: 'importedSuccessfully' }),
-        color: 'green',
-      })
+      displayNotification(intl, 'success', 'importedSuccessfully', 'green')
     }
     catch (error: any) {
       form.setErrors({
         file: error.message || intl.formatMessage({ id: 'importedError' }),
-      })
-      notifications.show({
-        title: intl.formatMessage({ id: 'error' }),
-        message: error.message || intl.formatMessage({ id: 'importedError' }),
-        color: 'red',
       })
     }
     finally {
@@ -155,18 +139,11 @@ const ExportUserDB: FC = () => {
       downloadLink.click()
       URL.revokeObjectURL(fileURL)
 
-      notifications.show({
-        title: intl.formatMessage({ id: 'success' }),
-        message: intl.formatMessage({ id: 'exportedSuccessfully' }),
-        color: 'green',
-      })
+      displayNotification(intl, 'success', 'exportedSuccessfully', 'green')
     }
     catch (error: any) {
-      notifications.show({
-        title: intl.formatMessage({ id: 'error' }),
-        message: error.message || intl.formatMessage({ id: 'exportedError' }),
-        color: 'red',
-      })
+      const message = error.message || 'exportedError'
+      displayNotification(intl, 'success', message, 'red')
     }
     finally {
       setIsLoading(false)

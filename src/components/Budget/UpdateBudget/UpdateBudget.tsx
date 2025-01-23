@@ -4,9 +4,9 @@ import type { FC } from 'react'
 import { db } from '@/db'
 import { amountSchema, descriptionSchema, nameSchema } from '@/schema/form'
 import { useSettingsStore } from '@/stores/useSettingsStore'
+import { displayNotification } from '@/utils/form'
 import { Button, Group, NumberInput, Textarea, TextInput } from '@mantine/core'
 import { useForm, zodResolver } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
@@ -54,7 +54,7 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
       }
       else {
         if (!budget?.id) {
-          throw new Error('Budget ID is missing')
+          throw new Error('missingBudgetID')
         }
 
         const dataUpdate: Budget = {
@@ -67,21 +67,15 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
         await db.budget.put(dataUpdate)
       }
 
-      notifications.show({
-        title: intl.formatMessage({ id: 'success' }),
-        message: intl.formatMessage({ id: isCreating ? 'budgetAddedSuccessfully' : 'budgetUpdatedSuccessfully' }),
-        color: 'green',
-      })
+      const message = isCreating ? 'budgetAddedSuccessfully' : 'budgetUpdatedSuccessfully'
+      displayNotification(intl, 'success', message, 'green')
 
       form.reset()
       onClose()
     }
     catch (error) {
-      notifications.show({
-        title: intl.formatMessage({ id: 'error' }),
-        message: error instanceof Error ? error.message : intl.formatMessage({ id: 'anErrorOccurred' }),
-        color: 'red',
-      })
+      const message = error instanceof Error ? error.message : 'anErrorOccurred'
+      displayNotification(intl, 'error', message, 'red')
     }
   }
 

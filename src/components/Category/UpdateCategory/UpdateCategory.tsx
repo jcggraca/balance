@@ -5,9 +5,9 @@ import IconRenderer from '@/components/IconRenderer'
 import iconsMap from '@/components/IconRenderer/iconsMap'
 import { db } from '@/db'
 import { colorSchema, descriptionSchema, iconSchema, nameSchema } from '@/schema/form'
+import { displayNotification } from '@/utils/form'
 import { Avatar, Button, ColorInput, Group, Paper, Text, Textarea, TextInput, UnstyledButton } from '@mantine/core'
 import { useForm, zodResolver } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
@@ -58,7 +58,7 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
       }
       else {
         if (!category?.id) {
-          throw new Error('Category ID is missing')
+          throw new Error('missingCategoryID')
         }
 
         const dataUpdate: Category = {
@@ -72,21 +72,15 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
         await db.categories.put(dataUpdate)
       }
 
-      notifications.show({
-        title: intl.formatMessage({ id: 'success' }),
-        message: intl.formatMessage({ id: isCreating ? 'categoryAddedSuccessfully' : 'categoryUpdatedSuccessfully' }),
-        color: 'green',
-      })
+      const message = isCreating ? 'categoryAddedSuccessfully' : 'categoryUpdatedSuccessfully'
+      displayNotification(intl, 'success', message, 'green')
 
       form.reset()
       onClose()
     }
     catch (error) {
-      notifications.show({
-        title: intl.formatMessage({ id: 'error' }),
-        message: error instanceof Error ? error.message : intl.formatMessage({ id: 'anErrorOccurred' }),
-        color: 'red',
-      })
+      const message = error instanceof Error ? error.message : intl.formatMessage({ id: 'anErrorOccurred' })
+      displayNotification(intl, 'error', message, 'red')
     }
   }
 

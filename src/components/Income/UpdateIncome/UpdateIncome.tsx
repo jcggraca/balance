@@ -4,10 +4,10 @@ import type { FC } from 'react'
 import { db } from '@/db'
 import { accountSchema, actionDateSchema, amountSchema, descriptionSchema, nameSchema } from '@/schema/form'
 import { useSettingsStore } from '@/stores/useSettingsStore'
+import { displayNotification } from '@/utils/form'
 import { Button, Group, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm, zodResolver } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
@@ -47,7 +47,7 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
     try {
       const account = await db.account.get({ id: values.account })
       if (!account) {
-        throw new Error(`Account with ID ${values.account} not found`)
+        throw new Error('missingAccountID')
       }
 
       const amount = Number(values.amount)
@@ -72,7 +72,7 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
       }
       else {
         if (!income?.id) {
-          throw new Error('Income ID is missing')
+          throw new Error('missingIncomeID')
         }
 
         const dataUpdate: Income = {
@@ -93,21 +93,15 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
         }
       }
 
-      notifications.show({
-        title: intl.formatMessage({ id: 'success' }),
-        message: intl.formatMessage({ id: isCreating ? 'incomeAddedSuccessfully' : 'incomeUpdatedSuccessfully' }),
-        color: 'green',
-      })
+      const message = isCreating ? 'incomeAddedSuccessfully' : 'incomeUpdatedSuccessfully'
+      displayNotification(intl, 'success', message, 'green')
 
       form.reset()
       onClose()
     }
     catch (error) {
-      notifications.show({
-        title: intl.formatMessage({ id: 'error' }),
-        message: error instanceof Error ? error.message : intl.formatMessage({ id: 'anErrorOccurred' }),
-        color: 'red',
-      })
+      const message = error instanceof Error ? error.message : 'anErrorOccurred'
+      displayNotification(intl, 'error', message, 'red')
     }
   }
 

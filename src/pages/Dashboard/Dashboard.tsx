@@ -2,9 +2,9 @@ import type { Expense } from '@/db'
 import type { ReactNode } from 'react'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
+import { displayNotification } from '@/utils/form'
 import { PieChart } from '@mantine/charts'
 import { ActionIcon, Alert, Box, Card, Grid, Group, SimpleGrid, Stack, Table, Tabs, Text } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
 import { IconAlertTriangle, IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
@@ -108,15 +108,10 @@ function Dashboard() {
         setErrorIncome(null)
       }
       catch (error) {
-        const errorMessage = error instanceof Error ? error.message : intl.formatMessage({ id: 'errorMessage' })
-        console.error('Error fetching data:', error)
-        setErrorExpenses(errorMessage)
-        setErrorIncome(errorMessage)
-        notifications.show({
-          title: 'Error',
-          message: errorMessage,
-          color: 'red',
-        })
+        const errorMessage = error instanceof Error ? error.message : 'errorMessage'
+        setErrorExpenses(intl.formatMessage({ id: errorMessage }))
+        setErrorIncome(intl.formatMessage({ id: errorMessage }))
+        displayNotification(intl, 'error', errorMessage, 'red')
       }
     }
 

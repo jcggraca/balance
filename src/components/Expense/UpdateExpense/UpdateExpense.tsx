@@ -2,11 +2,11 @@ import type { ExpenseForm, selectorState } from '@/utils/interfaces'
 import { db, type Expense } from '@/db'
 import { accountSchema, actionDateSchema, amountSchema, categorySchema, descriptionSchema, evaluationSchema, nameSchema } from '@/schema/form'
 import { useSettingsStore } from '@/stores/useSettingsStore'
+import { displayNotification } from '@/utils/form'
 import { EVALUATION } from '@/utils/values'
 import { Button, Group, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm, zodResolver } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
 import dayjs from 'dayjs'
 import { type FC, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
@@ -78,14 +78,15 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
 
       const account = await db.account.get({ id: values.account })
       if (!account) {
-        throw new Error(`Account with ID ${values.account} not found`)
-      }
-
-      if (account.amount < values.amount) {
-        throw new Error(intl.formatMessage({ id: 'insufficientAccountBalance' }))
+        throw new Error('missingAccountID')
       }
 
       if (isCreating) {
+        if (account.amount < values.amount) {
+          form.setErrors({ account: intl.formatMessage({ id: 'insufficientAccountBalance' }) })
+          return
+        }
+
         const dataNew: Expense = {
           id: uuidv4(),
           name: values.name.trim(),
@@ -120,7 +121,12 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
       }
       else {
         if (!expense?.id) {
-          throw new Error('Expense ID is missing')
+          throw new Error('missingExpenseID')
+        }
+
+        if ((account.amount + expense.amount) < values.amount) {
+          form.setErrors({ account: intl.formatMessage({ id: 'insufficientAccountBalance' }) })
+          return
         }
 
         const dataUpdate: Expense = {
@@ -160,20 +166,16 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         }
       }
 
-      notifications.show({
-        title: intl.formatMessage({ id: 'success' }),
-        message: intl.formatMessage({ id: isCreating ? 'expenseAddedSuccessfully' : 'expenseUpdatedSuccessfully' }),
-        color: 'green',
-      })
+      const message = isCreating ? 'expenseAddedSuccessfully' : 'expenseUpdatedSuccessfully'
+      displayNotification(intl, 'success', message, 'green')
+
+      form.reset()
+      onClose()
     }
     catch (error) {
-      notifications.show({
-        title: intl.formatMessage({ id: 'error' }),
-        message: error instanceof Error ? error.message : intl.formatMessage({ id: 'anErrorOccurred' }),
-        color: 'red',
-      })
-    }
-    finally {
+      const message = error instanceof Error ? error.message : 'anErrorOccurred'
+      displayNotification(intl, 'error', message, 'red')
+
       form.reset()
       onClose()
     }
