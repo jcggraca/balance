@@ -1,4 +1,4 @@
-import type { Account } from '@/db'
+import type { Account, Category } from '@/db'
 import type { FC } from 'react'
 import { Button, Grid, Group, Modal, Select, TextInput } from '@mantine/core'
 import { DateInput } from '@mantine/dates'
@@ -15,8 +15,12 @@ interface SearchFiltersProps {
   }
   onDateRangeChange?: (range: { start: Date | null, end: Date | null }) => void
   onClearFilters: () => void
+  searchAccount?: string
   accounts?: Account[]
   onSearchAccount?: (id: string | null) => void
+  searchCategory?: string
+  categories?: Category[]
+  onSearchCategory?: (id: string | null) => void
   noFilters?: boolean
   showDateFilter?: boolean
 }
@@ -27,8 +31,12 @@ const SearchFilters: FC<SearchFiltersProps> = ({
   dateRange,
   onDateRangeChange,
   onClearFilters,
+  searchAccount,
   accounts,
   onSearchAccount,
+  searchCategory,
+  categories,
+  onSearchCategory,
   noFilters = false,
   showDateFilter = true,
 }) => {
@@ -59,13 +67,27 @@ const SearchFilters: FC<SearchFiltersProps> = ({
             <Select
               placeholder={intl.formatMessage({ id: 'selectAccount' })}
               onChange={onSearchAccount}
+              value={searchAccount || null}
               data={accounts?.map((item) => {
                 return {
-                  value: item.id?.toString() || '',
+                  value: item.id,
                   label: item.name,
                 }
               })}
-              required
+            />
+          )}
+
+          {categories && categories?.length > 0 && (
+            <Select
+              placeholder={intl.formatMessage({ id: 'selectCategory' })}
+              onChange={onSearchCategory}
+              value={searchCategory || null}
+              data={categories?.map((item) => {
+                return {
+                  value: item.id,
+                  label: item.name,
+                }
+              })}
             />
           )}
         </>

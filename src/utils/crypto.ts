@@ -1,4 +1,4 @@
-export async function decrypt(encryptedData: ArrayBuffer, password: string): Promise<Blob> {
+export async function decrypt(encryptedData: ArrayBuffer, password: string): Promise<string> {
   const encoder = new TextEncoder()
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -34,7 +34,8 @@ export async function decrypt(encryptedData: ArrayBuffer, password: string): Pro
     data,
   )
 
-  return new Blob([decrypted], { type: 'application/json' })
+  const decoder = new TextDecoder()
+  return decoder.decode(decrypted)
 }
 
 export async function encrypt(data: ArrayBuffer, password: string): Promise<ArrayBuffer> {

@@ -9,7 +9,7 @@ import SearchFilters from '@/components/SearchFilters'
 import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { EVALUATION } from '@/utils/values'
+import { RATING } from '@/utils/values'
 import { Card } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconAlertTriangle } from '@tabler/icons-react'
@@ -21,6 +21,7 @@ import { useIntl } from 'react-intl'
 interface Filters {
   searchQuery: string
   searchAccount: string
+  searchCategory: string
   dateRange: {
     start: Date | null
     end: Date | null
@@ -32,21 +33,28 @@ function getEntityName(entities: Account[] | Category[] | undefined, id: string,
   return entity ? entity.name : <WarningNotFound>{fallbackMessage}</WarningNotFound>
 }
 
-function getEvaluationLabel(intl: ReturnType<typeof useIntl>, value: string): ReactNode {
-  const evaluation = EVALUATION.find(e => e.value === value)
-  return evaluation
+function getRatingLabel(intl: ReturnType<typeof useIntl>, value: string): ReactNode {
+  const rating = RATING.find(e => e.value === value)
+  return rating
     ? (
-        <span style={{ color: evaluation.color }}>
-          {intl.formatMessage({ id: evaluation.label })}
+        <span style={{ color: rating.color }}>
+          {intl.formatMessage({ id: rating.label })}
         </span>
       )
     : (
-        <WarningNotFound>{intl.formatMessage({ id: 'evaluation' })}</WarningNotFound>
+        <WarningNotFound>{intl.formatMessage({ id: 'rating' })}</WarningNotFound>
       )
 }
 
+const initialFilterState = {
+  searchQuery: '',
+  searchAccount: '',
+  searchCategory: '',
+  dateRange: { start: null, end: null },
+}
+
 function filterExpenses(expenses: Expense[], filters: Filters): Expense[] {
-  const { searchQuery, dateRange, searchAccount } = filters
+  const { searchQuery, dateRange, searchAccount, searchCategory } = filters
 
   return expenses.filter((expense) => {
     const matchesQuery
@@ -56,8 +64,9 @@ function filterExpenses(expenses: Expense[], filters: Filters): Expense[] {
     const matchesStartDate = !dateRange.start || expense.actionTimestamp >= dateRange.start.getTime()
     const matchesEndDate = !dateRange.end || expense.actionTimestamp <= dateRange.end.getTime()
     const matchesAccount = !searchAccount || expense.accountId === searchAccount
+    const matchesCategory = !searchCategory || expense.category === searchCategory
 
-    return matchesQuery && matchesStartDate && matchesEndDate && matchesAccount
+    return matchesQuery && matchesStartDate && matchesEndDate && matchesAccount && matchesCategory
   })
 }
 
@@ -67,11 +76,7 @@ const Expenses: FC = () => {
   const isMobile = useMediaQuery('(max-width: 48em)')
 
   const [expense, setExpense] = useState<Expense | null>(null)
-  const [filters, setFilters] = useState<Filters>({
-    searchQuery: '',
-    searchAccount: '',
-    dateRange: { start: null, end: null },
-  })
+  const [filters, setFilters] = useState<Filters>(initialFilterState)
 
   const accountsList = useLiveQuery(() => db.account.toArray())
   const categories = useLiveQuery(() => db.categories.toArray())
@@ -126,9 +131,9 @@ const Expenses: FC = () => {
           getEntityName(categories, item.category, intl.formatMessage({ id: 'category' })),
       },
       {
-        key: 'evaluation',
-        header: intl.formatMessage({ id: 'evaluation' }),
-        render: (item: Expense) => getEvaluationLabel(intl, item.evaluation),
+        key: 'rating',
+        header: intl.formatMessage({ id: 'rating' }),
+        render: (item: Expense) => getRatingLabel(intl, item.rating),
       },
       {
         key: 'date',
@@ -139,24 +144,21 @@ const Expenses: FC = () => {
     [categories, accountsList, intl, currency],
   )
 
-  const handleClearFilters = () =>
-    setFilters({
-      searchQuery: '',
-      searchAccount: '',
-      dateRange: { start: null, end: null },
-    })
-
   return (
     <>
       <div className="responsiveHeader">
         <SearchFilters
           searchQuery={filters.searchQuery}
-          onSearchChange={query => setFilters({ ...filters, searchQuery: query })}
+          onSearchChange={query => setFilters(prevState => ({ ...prevState, searchQuery: query }))}
           dateRange={filters.dateRange}
-          onDateRangeChange={range => setFilters({ ...filters, dateRange: range })}
-          onClearFilters={handleClearFilters}
+          onDateRangeChange={range => setFilters(prevState => ({ ...prevState, dateRange: range }))}
+          searchAccount={filters.searchAccount}
           accounts={accountsList}
-          onSearchAccount={account => setFilters({ ...filters, searchAccount: account ?? '' })}
+          onSearchAccount={account => setFilters(prevState => ({ ...prevState, searchAccount: account ?? '' }))}
+          searchCategory={filters.searchCategory}
+          categories={categories}
+          onSearchCategory={category => setFilters(prevState => ({ ...prevState, searchCategory: category ?? '' }))}
+          onClearFilters={() => setFilters(initialFilterState)}
         />
         <AddExpense isMobile={isMobile} />
       </div>

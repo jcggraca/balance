@@ -3,7 +3,7 @@ import type { selectorState } from '@/utils/interfaces'
 import WarningNotFound from '@/components/WarningNotFound'
 import { db } from '@/db'
 import { useSettingsStore } from '@/stores/useSettingsStore'
-import { EVALUATION } from '@/utils/values'
+import { RATING } from '@/utils/values'
 import { Button, Group, Modal, Table } from '@mantine/core'
 import dayjs from 'dayjs'
 import { type FC, useEffect, useState } from 'react'
@@ -64,11 +64,11 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
     }
   }, [])
 
-  const getEvaluationName = (value: string) => {
-    const findEvaluation = EVALUATION.find(o => o.value === value)
-    if (findEvaluation)
-      return <span style={{ color: findEvaluation.color }}>{intl.formatMessage({ id: findEvaluation.label })}</span>
-    return <WarningNotFound>{intl.formatMessage({ id: 'evaluation' })}</WarningNotFound>
+  const getRatingName = (value: string) => {
+    const findRating = RATING.find(o => o.value === value)
+    if (findRating)
+      return <span style={{ color: findRating.color }}>{intl.formatMessage({ id: findRating.label })}</span>
+    return <WarningNotFound>{intl.formatMessage({ id: 'rating' })}</WarningNotFound>
   }
 
   const getCategoryName = (id: string) => {
@@ -141,11 +141,11 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
                   </Table.Tr>
                   <Table.Tr>
                     <Table.Th w={100}>
-                      {intl.formatMessage({ id: 'evaluation' })}
+                      {intl.formatMessage({ id: 'rating' })}
                       :
                     </Table.Th>
                     <Table.Td>
-                      {getEvaluationName(expense.evaluation)}
+                      {getRatingName(expense.rating)}
                     </Table.Td>
                   </Table.Tr>
                   <Table.Tr>

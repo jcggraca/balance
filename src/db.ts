@@ -15,7 +15,7 @@ interface Expense {
   name: string
   amount: number
   accountId: string
-  evaluation: 'necessary' | 'not-necessary' | 'wasteful'
+  rating: 'necessary' | 'avoidable' | 'not-necessary'
   category: string
   budget: string
   description: string
@@ -72,9 +72,9 @@ const db = new Dexie('Balance') as Dexie & {
   debts: EntityTable<Debt, 'id'>
 }
 
-db.version(5).stores({
+db.version(6).stores({
   account: '++id, name, amount, description, createdTimestamp, updatedTimestamp',
-  expenses: '++id, name, description, accountId, amount, category, actionTimestamp, createdTimestamp, updatedTimestamp',
+  expenses: '++id, name, description, accountId, rating, amount, category, actionTimestamp, createdTimestamp, updatedTimestamp',
   categories: '++id, name, description, createdTimestamp, updatedTimestamp',
   budget: '++id, name, amount, description, createdTimestamp, updatedTimestamp',
   income: '++id, name, amount, accountId, description, actionTimestamp, createdTimestamp, updatedTimestamp',

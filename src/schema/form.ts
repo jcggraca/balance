@@ -5,16 +5,16 @@ export function nameSchema(intl: IntlShape) {
   return z
     .string()
     .trim()
-    .min(2, { message: `${intl.formatMessage({ id: 'nameMinRequired' })} 2 ${intl.formatMessage({ id: 'letters' })}` })
-    .max(32, { message: `${intl.formatMessage({ id: 'nameMaxRequired' })} 32 ${intl.formatMessage({ id: 'letters' })}` })
+    .min(2, { message: `${intl.formatMessage({ id: 'nameMinRequired' })} 2 ${intl.formatMessage({ id: 'characters' })}` })
+    .max(32, { message: `${intl.formatMessage({ id: 'nameMaxRequired' })} 32 ${intl.formatMessage({ id: 'characters' })}` })
 }
 
 export function descriptionSchema(intl: IntlShape) {
   return z
     .string()
     .trim()
-    .min(2, { message: `${intl.formatMessage({ id: 'descriptionMinRequired' })} 2 ${intl.formatMessage({ id: 'letters' })}` })
-    .max(350, { message: `${intl.formatMessage({ id: 'descriptionMaxRequired' })} 350 ${intl.formatMessage({ id: 'letters' })}` })
+    .min(2, { message: `${intl.formatMessage({ id: 'descriptionMinRequired' })} 2 ${intl.formatMessage({ id: 'characters' })}` })
+    .max(350, { message: `${intl.formatMessage({ id: 'descriptionMaxRequired' })} 350 ${intl.formatMessage({ id: 'characters' })}` })
     .optional()
     .or(z.literal(''))
 }
@@ -23,8 +23,8 @@ export function descriptionRequiredSchema(intl: IntlShape) {
   return z
     .string()
     .trim()
-    .min(2, { message: `${intl.formatMessage({ id: 'descriptionMinRequired' })} 2 ${intl.formatMessage({ id: 'letters' })}` })
-    .max(350, { message: `${intl.formatMessage({ id: 'descriptionMaxRequired' })} 350 ${intl.formatMessage({ id: 'letters' })}` })
+    .min(2, { message: `${intl.formatMessage({ id: 'descriptionMinRequired' })} 2 ${intl.formatMessage({ id: 'characters' })}` })
+    .max(350, { message: `${intl.formatMessage({ id: 'descriptionMaxRequired' })} 350 ${intl.formatMessage({ id: 'characters' })}` })
 }
 
 export function amountSchema(intl: IntlShape) {
@@ -47,10 +47,10 @@ export function accountSchema(intl: IntlShape) {
 }
 
 // TODO: Validating from a List
-export function evaluationSchema(intl: IntlShape) {
+export function ratingSchema(intl: IntlShape) {
   return z
     .string()
-    .min(1, { message: intl.formatMessage({ id: 'evaluationIsRequired' }) })
+    .min(1, { message: intl.formatMessage({ id: 'ratingIsRequired' }) })
 }
 
 // TODO: Validating from a List Dynamically

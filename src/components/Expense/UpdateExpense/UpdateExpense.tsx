@@ -1,9 +1,9 @@
 import type { ExpenseForm, selectorState } from '@/utils/interfaces'
 import { db, type Expense } from '@/db'
-import { accountSchema, actionDateSchema, amountSchema, categorySchema, descriptionSchema, evaluationSchema, nameSchema } from '@/schema/form'
+import { accountSchema, actionDateSchema, amountSchema, categorySchema, descriptionSchema, nameSchema, ratingSchema } from '@/schema/form'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { displayNotification } from '@/utils/form'
-import { EVALUATION } from '@/utils/values'
+import { RATING } from '@/utils/values'
 import { Button, Group, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm, zodResolver } from '@mantine/form'
@@ -33,7 +33,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
     amount: amountSchema(intl),
     actionDate: actionDateSchema(intl),
     account: accountSchema(intl),
-    evaluation: evaluationSchema(intl),
+    rating: ratingSchema(intl),
     category: categorySchema(intl),
   })
 
@@ -42,7 +42,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
       name: expense?.name || '',
       amount: expense?.amount || 0,
       account: expense?.accountId || '',
-      evaluation: expense?.evaluation || 'necessary',
+      rating: expense?.rating || 'necessary',
       category: expense?.category || '',
       budget: expense?.budget || '',
       actionDate: expense?.actionTimestamp ? new Date(expense.actionTimestamp) : null,
@@ -92,7 +92,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
           name: values.name.trim(),
           amount: values.amount,
           accountId: values.account,
-          evaluation: values.evaluation,
+          rating: values.rating,
           description: values.description.trim(),
           category: values.category,
           budget: values.budget || '',
@@ -134,7 +134,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
           name: values.name.trim(),
           amount: values.amount,
           accountId: values.account,
-          evaluation: values.evaluation,
+          rating: values.rating,
           description: values.description.trim(),
           category: values.category,
           budget: values.budget || '',
@@ -181,7 +181,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
     }
   }
 
-  const evaluationData = EVALUATION.map(item => ({
+  const ratingData = RATING.map(item => ({
     value: item.value,
     label: intl.formatMessage({ id: item.label }),
   }))
@@ -235,12 +235,12 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
       />
 
       <Select
-        label={intl.formatMessage({ id: 'evaluation' })}
-        placeholder={intl.formatMessage({ id: 'selectEvaluation' })}
-        data={evaluationData}
+        label={intl.formatMessage({ id: 'rating' })}
+        placeholder={intl.formatMessage({ id: 'selectRating' })}
+        data={ratingData}
         required
         mt="md"
-        {...form.getInputProps('evaluation')}
+        {...form.getInputProps('rating')}
       />
 
       <Select

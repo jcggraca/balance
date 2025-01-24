@@ -21,7 +21,7 @@ export interface ExpenseForm {
   name: string
   amount: number
   account: string
-  evaluation: 'necessary' | 'not-necessary' | 'wasteful'
+  rating: 'necessary' | 'avoidable' | 'not-necessary'
   category: string
   budget?: string
   actionDate: Date | null
@@ -45,4 +45,43 @@ export interface CategoryForm {
   description: string
   color: string
   icon: string
+}
+
+interface Table {
+  name: string
+  schema: string
+  rowCount: number
+}
+
+interface TableData {
+  tableName: string
+  inbound: boolean
+  rows: Row[]
+}
+
+interface Row {
+  id: string
+  name: string
+  description?: string
+  amount?: number
+  accountId?: string
+  rating?: string
+  category?: string
+  budget?: string
+  actionTimestamp?: number
+  createdTimestamp: number
+  updatedTimestamp: number
+  color?: string
+  icon?: string
+}
+
+export interface ExpenseData {
+  formatName: string
+  formatVersion: number
+  data: {
+    databaseName: string
+    databaseVersion: number
+    tables: Table[]
+    data: TableData[]
+  }
 }

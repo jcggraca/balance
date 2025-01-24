@@ -72,7 +72,51 @@ const ImportUserDB: FC = () => {
         data = textDecoder.decode(fileBuffer)
       }
 
-      // Replace the current database
+      // TODO: Get better solution for import
+      // const importObject: ExpenseData = JSON.parse(data)
+      // const tables = ['account', 'expenses', 'categories', 'budget', 'income', 'debts']
+      // const filteredData = await Promise.all(tables.map(async (table) => {
+      //   const importTable = importObject.data.data
+      //   const importTableIndex = importTable.findIndex(o => o.tableName === table)
+      //   const currentTable = await db[table].toArray()
+
+      //   let newRows
+
+      //   if (importTable?.[importTableIndex]?.rows && currentTable) {
+      //     newRows = importTable[importTableIndex].rows.map((item) => {
+      //       const findCurrentDuplicated = currentTable.find(o => o.id === item.id)
+      //       if (findCurrentDuplicated) {
+      //         if (findCurrentDuplicated.updatedTimestamp > item.updatedTimestamp) {
+      //           // TODO: Ask the user with data he want to save
+      //           return findCurrentDuplicated
+      //         } else if (findCurrentDuplicated.updatedTimestamp > item.updatedTimestamp) {
+      //           return item
+      //         }
+      //       }
+      //       return item
+      //     })
+      //   }
+      //   else if (!currentTable) {
+      //     throw new Error(intl.formatMessage({ id: 'importedError' }))
+      //   }
+      //   else {
+      //     newRows = currentTable
+      //   }
+
+      //   const current = importObject.data.data[currentTable]
+      //   return {
+      //     ...current,
+      //     rows: newRows,
+      //   }
+      // }))
+      // console.log({
+      //   ...importObject,
+      //   data: {
+      //     ...importObject.data,
+      //     data: filteredData,
+      //   },
+      // })
+
       await db.delete()
       const blob = new Blob([data], { type: 'application/json' })
       await Dexie.import(blob)
@@ -81,9 +125,8 @@ const ImportUserDB: FC = () => {
       displayNotification(intl, 'success', 'importedSuccessfully', 'green')
     }
     catch (error: any) {
-      form.setErrors({
-        file: error.message || intl.formatMessage({ id: 'importedError' }),
-      })
+      console.error(error)
+      form.setErrors({ file: intl.formatMessage({ id: 'importedError' }) })
     }
     finally {
       setIsLoading(false)
