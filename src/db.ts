@@ -1,5 +1,6 @@
+import type { EntityTable } from 'dexie'
 import type iconsMap from './components/IconRenderer/iconsMap'
-import Dexie, { type EntityTable } from 'dexie'
+import Dexie from 'dexie'
 
 interface Account {
   id: string

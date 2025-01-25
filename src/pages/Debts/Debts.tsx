@@ -1,4 +1,5 @@
 import type { Debt } from '@/db'
+import type { FC } from 'react'
 import AddDebt from '@/components/Debt/AddDebt'
 import ViewDebt from '@/components/Debt/ViewDebt'
 import GenericMobileList from '@/components/GenericMobileList'
@@ -10,7 +11,7 @@ import { Avatar } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconCreditCard } from '@tabler/icons-react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { type FC, useState } from 'react'
+import { useState } from 'react'
 import { useIntl } from 'react-intl'
 
 const Debts: FC = () => {
@@ -26,7 +27,7 @@ const Debts: FC = () => {
   })
 
   const debts = useLiveQuery(async () => {
-    let query = db.debts.orderBy('createdTimestamp')
+    let query = db.debts.orderBy('updatedTimestamp')
 
     if (searchQuery) {
       query = query.filter(debt =>
@@ -37,13 +38,15 @@ const Debts: FC = () => {
 
     if (dateRange.start) {
       query = query.filter(debt =>
-        debt.createdTimestamp >= dateRange.start!.getTime(),
+        debt.updatedTimestamp >= dateRange.start!.getTime(),
       )
     }
 
     if (dateRange.end) {
+      const endDate = new Date(dateRange.end)
+      endDate.setHours(23, 59, 59, 999)
       query = query.filter(debt =>
-        debt.createdTimestamp <= dateRange.end!.getTime(),
+        debt.createdTimestamp <= endDate.getTime(),
       )
     }
 

@@ -170,7 +170,7 @@ function Dashboard() {
         <SimpleGrid cols={{ base: 3 }}>
           <div>
             <Text size="lg" fw={500} c="green">
-              {intl.formatMessage({ id: 'totalIncome' })}
+              {intl.formatMessage({ id: 'income' })}
             </Text>
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorIncome}>
@@ -182,7 +182,7 @@ function Dashboard() {
 
           <div>
             <Text size="lg" fw={500} c="red">
-              {intl.formatMessage({ id: 'totalExpenses' })}
+              {intl.formatMessage({ id: 'expenses' })}
             </Text>
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorExpenses}>

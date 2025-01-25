@@ -1,4 +1,5 @@
 import Layout from '@/layout/Layout'
+import ErrorNotFound from '@/pages/ErrorNotFound'
 import { createRootRoute } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
@@ -19,4 +20,5 @@ export const Route = createRootRoute({
       </Suspense>
     </>
   ),
+  notFoundComponent: () => <ErrorNotFound />,
 })

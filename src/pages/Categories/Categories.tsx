@@ -1,4 +1,5 @@
 import type { Category } from '@/db'
+import type { FC } from 'react'
 import AddCategory from '@/components/Category/AddCategory'
 import ViewCategories from '@/components/Category/ViewCategory'
 import GenericMobileList from '@/components/GenericMobileList'
@@ -10,7 +11,7 @@ import { Avatar } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconMoneybag } from '@tabler/icons-react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { type FC, useState } from 'react'
+import { useState } from 'react'
 import { useIntl } from 'react-intl'
 
 const Categories: FC = () => {
@@ -21,7 +22,7 @@ const Categories: FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
 
   const CategoriesList = useLiveQuery(async () => {
-    let query = db.categories.orderBy('updatedTimestamp')
+    let query = db.categories.orderBy('name')
 
     if (searchQuery) {
       query = query.filter(category =>

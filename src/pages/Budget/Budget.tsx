@@ -1,4 +1,5 @@
 import type { Budget as BudgetType } from '@/db'
+import type { FC } from 'react'
 import AddBudget from '@/components/Budget/AddBudget'
 import ViewBudget from '@/components/Budget/ViewBudget'
 import GenericMobileList from '@/components/GenericMobileList'
@@ -11,7 +12,7 @@ import { useMediaQuery } from '@mantine/hooks'
 import { IconCalendarDollar } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { type FC, useState } from 'react'
+import { useState } from 'react'
 import { useIntl } from 'react-intl'
 
 const Budget: FC = () => {
@@ -43,8 +44,10 @@ const Budget: FC = () => {
     }
 
     if (dateRange.end) {
+      const endDate = new Date(dateRange.end)
+      endDate.setHours(23, 59, 59, 999)
       query = query.filter(budget =>
-        budget.updatedTimestamp <= dateRange.end!.getTime(),
+        budget.createdTimestamp <= endDate.getTime(),
       )
     }
 

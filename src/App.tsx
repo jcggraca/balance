@@ -3,9 +3,6 @@ import dayjs from 'dayjs'
 import localeData from 'dayjs/plugin/localeData'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import WelcomeModal from './components/WelcomeModal'
-// import ErrorNotFoundPage from './pages/ErrorNotFound'
-// import Privacy from './pages/Privacy'
-// import Terms from './pages/Terms'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
