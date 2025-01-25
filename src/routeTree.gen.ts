@@ -23,7 +23,6 @@ const DebtsLazyImport = createFileRoute('/debts')()
 const CategoriesLazyImport = createFileRoute('/categories')()
 const BudgetLazyImport = createFileRoute('/budget')()
 const AccountsLazyImport = createFileRoute('/accounts')()
-const AboutLazyImport = createFileRoute('/about')()
 const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
@@ -70,12 +69,6 @@ const AccountsLazyRoute = AccountsLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/accounts.lazy').then((d) => d.Route))
 
-const AboutLazyRoute = AboutLazyImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/about.lazy').then((d) => d.Route))
-
 const IndexLazyRoute = IndexLazyImport.update({
   id: '/',
   path: '/',
@@ -91,13 +84,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutLazyImport
       parentRoute: typeof rootRoute
     }
     '/accounts': {
@@ -156,7 +142,6 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
-  '/about': typeof AboutLazyRoute
   '/accounts': typeof AccountsLazyRoute
   '/budget': typeof BudgetLazyRoute
   '/categories': typeof CategoriesLazyRoute
@@ -168,7 +153,6 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
-  '/about': typeof AboutLazyRoute
   '/accounts': typeof AccountsLazyRoute
   '/budget': typeof BudgetLazyRoute
   '/categories': typeof CategoriesLazyRoute
@@ -181,7 +165,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
-  '/about': typeof AboutLazyRoute
   '/accounts': typeof AccountsLazyRoute
   '/budget': typeof BudgetLazyRoute
   '/categories': typeof CategoriesLazyRoute
@@ -195,7 +178,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
     | '/accounts'
     | '/budget'
     | '/categories'
@@ -206,7 +188,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
     | '/accounts'
     | '/budget'
     | '/categories'
@@ -217,7 +198,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/about'
     | '/accounts'
     | '/budget'
     | '/categories'
@@ -230,7 +210,6 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
-  AboutLazyRoute: typeof AboutLazyRoute
   AccountsLazyRoute: typeof AccountsLazyRoute
   BudgetLazyRoute: typeof BudgetLazyRoute
   CategoriesLazyRoute: typeof CategoriesLazyRoute
@@ -242,7 +221,6 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
-  AboutLazyRoute: AboutLazyRoute,
   AccountsLazyRoute: AccountsLazyRoute,
   BudgetLazyRoute: BudgetLazyRoute,
   CategoriesLazyRoute: CategoriesLazyRoute,
@@ -263,7 +241,6 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/about",
         "/accounts",
         "/budget",
         "/categories",
@@ -275,9 +252,6 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.lazy.tsx"
-    },
-    "/about": {
-      "filePath": "about.lazy.tsx"
     },
     "/accounts": {
       "filePath": "accounts.lazy.tsx"

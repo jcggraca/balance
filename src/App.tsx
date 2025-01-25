@@ -32,7 +32,6 @@ function App() {
       {newUser && <WelcomeModal />}
       <RouterProvider router={router} />
     </>
-
   )
 }
 
