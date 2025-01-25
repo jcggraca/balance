@@ -3,9 +3,9 @@ import Navbar from '@/components/NavBar/NavBar'
 import { AppShell, Burger, Group, Title } from '@mantine/core'
 import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import { IconCalendarDollar } from '@tabler/icons-react'
+import { Outlet, useLocation } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { useIntl } from 'react-intl'
-import { Outlet, useLocation } from 'react-router-dom'
 
 const Layout: FC = () => {
   const intl = useIntl()
@@ -64,7 +64,9 @@ const Layout: FC = () => {
         <Navbar toggle={toggle} isMobile={isMobile} />
       </AppShell.Navbar>
 
-      <AppShell.Main><Outlet /></AppShell.Main>
+      <AppShell.Main>
+        <Outlet />
+      </AppShell.Main>
     </AppShell>
   )
 }

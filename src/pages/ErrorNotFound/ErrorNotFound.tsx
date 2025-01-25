@@ -1,5 +1,5 @@
 import { Button, Container, Group, Text, Title } from '@mantine/core'
-import { Link } from 'react-router-dom'
+import { Link } from '@tanstack/react-router'
 import classes from './ErrorNotFound.module.css'
 
 export default function ErrorNotFound() {
