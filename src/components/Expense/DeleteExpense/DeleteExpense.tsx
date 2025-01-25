@@ -1,6 +1,7 @@
+import type { Expense } from '@/db'
 import type { FC } from 'react'
 import DeleteModal from '@/components/DeleteModal/DeleteModal'
-import { db, type Expense } from '@/db'
+import { db } from '@/db'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 

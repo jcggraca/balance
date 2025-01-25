@@ -1,21 +1,28 @@
 import { Button, Container, Group, Text, Title } from '@mantine/core'
-import { Link } from 'react-router-dom'
+import { Link } from '@tanstack/react-router'
+import { useIntl } from 'react-intl'
 import classes from './ErrorNotFound.module.css'
+import { Illustration } from './Illustration'
 
 export default function ErrorNotFound() {
+  const intl = useIntl()
+
   return (
     <Container className={classes.root}>
-      <div className={classes.label}>404</div>
-      <Title className={classes.title}>You have found a secret place.</Title>
-      <Text c="dimmed" size="lg" ta="center" className={classes.description}>
-        Unfortunately, this is only a 404 page. You may have mistyped the address, or the page has
-        been moved to another URL.
-      </Text>
-      <Group justify="center">
-        <Button variant="subtle" size="md" component={Link} to="/">
-          Take me back to home page
-        </Button>
-      </Group>
+      <div className={classes.inner}>
+        <Illustration className={classes.image} />
+        <div className={classes.content}>
+          <Title className={classes.title}>{intl.formatMessage({ id: 'notFoundTitle' })}</Title>
+          <Text ta="center" c="dimmed" size="lg" className={classes.description}>
+            {intl.formatMessage({ id: 'notFoundText' })}
+          </Text>
+          <Group justify="center">
+            <Button variant="subtle" size="md" component={Link} to="/">
+              {intl.formatMessage({ id: 'notfoundLink' })}
+            </Button>
+          </Group>
+        </div>
+      </div>
     </Container>
   )
 }

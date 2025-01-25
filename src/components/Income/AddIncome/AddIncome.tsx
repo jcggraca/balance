@@ -1,9 +1,10 @@
 import type { selectorState } from '@/utils/interfaces'
+import type { FC } from 'react'
 import { db } from '@/db'
 import { Button, Modal, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { IconPlus } from '@tabler/icons-react'
-import { type FC, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import UpdateIncome from '../UpdateIncome'
 

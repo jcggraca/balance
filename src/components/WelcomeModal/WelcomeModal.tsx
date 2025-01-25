@@ -13,10 +13,12 @@ function WelcomeModal() {
   const intl = useIntl()
   const [opened, { close }] = useDisclosure(true)
   const { setNewUser } = useSettingsStore()
-  const [checked, setChecked] = useState(true)
+
+  const [checkedCategories, setCheckedCategories] = useState(true)
+  const [checkedTerms, setCheckedTerms] = useState(false)
 
   const handleComplete = () => {
-    if (checked) {
+    if (checkedCategories) {
       const defaultCategories: Category[] = [
         {
           id: uuidv4(),
@@ -190,12 +192,18 @@ function WelcomeModal() {
       <Checkbox
         mt="md"
         label={intl.formatMessage({ id: 'defaultCategories' })}
-        checked={checked}
-        onChange={event => setChecked(event.currentTarget.checked)}
+        checked={checkedCategories}
+        onChange={event => setCheckedCategories(event.currentTarget.checked)}
+      />
+
+      <Checkbox
+        mt="md"
+        label={intl.formatMessage({ id: 'termsAgree' })}
+        onChange={event => setCheckedTerms(event.currentTarget.checked)}
       />
 
       <Group justify="center" mt="xl">
-        <Button onClick={handleComplete} type="submit" size="md">
+        <Button disabled={!checkedTerms} onClick={handleComplete} type="submit" size="md">
           {intl.formatMessage({ id: 'complete' })}
         </Button>
       </Group>

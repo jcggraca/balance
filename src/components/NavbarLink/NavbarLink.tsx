@@ -1,8 +1,8 @@
 import type { IconHome2 } from '@tabler/icons-react'
 import type { FC } from 'react'
 import { Tooltip, UnstyledButton } from '@mantine/core'
+import { Link, useLocation } from '@tanstack/react-router'
 import { useIntl } from 'react-intl'
-import { Link, useLocation } from 'react-router-dom'
 import classes from './NavbarLink.module.css'
 
 interface NavbarLinkProps {

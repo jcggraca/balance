@@ -27,6 +27,12 @@ export function descriptionRequiredSchema(intl: IntlShape) {
     .max(350, { message: `${intl.formatMessage({ id: 'descriptionMaxRequired' })} 350 ${intl.formatMessage({ id: 'characters' })}` })
 }
 
+export function amountAccountSchema(intl: IntlShape) {
+  return z
+    .number()
+    .min(0, { message: intl.formatMessage({ id: 'amountMinRequired' }) })
+}
+
 export function amountSchema(intl: IntlShape) {
   return z
     .number()

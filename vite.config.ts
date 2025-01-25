@@ -1,3 +1,4 @@
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -6,7 +7,7 @@ import manifest from './manifest.json'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tsconfigPaths(), VitePWA({
+  plugins: [react(), TanStackRouterVite(), tsconfigPaths(), VitePWA({
     registerType: 'autoUpdate',
     manifest,
     includeAssets: ['favicon.svg', 'favicon-192.svg', 'favicon-512.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.svg'],

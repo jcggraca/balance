@@ -2,7 +2,7 @@ import type { Account } from '@/db'
 import type { AccountForm } from '@/utils/interfaces'
 import type { FC } from 'react'
 import { db } from '@/db'
-import { amountSchema, descriptionSchema, nameSchema } from '@/schema/form'
+import { amountAccountSchema, descriptionSchema, nameSchema } from '@/schema/form'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { displayNotification } from '@/utils/form'
 import { Button, Group, NumberInput, Textarea, TextInput } from '@mantine/core'
@@ -25,7 +25,7 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
   const schema = z.object({
     name: nameSchema(intl),
     description: descriptionSchema(intl),
-    amount: amountSchema(intl),
+    amount: amountAccountSchema(intl),
   })
 
   const form = useForm<AccountForm>({

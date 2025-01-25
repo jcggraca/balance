@@ -1,8 +1,8 @@
 export default function Terms() {
   return (
     <>
-      <h1>Terms and Conditions</h1>
-      <p>Last updated: January 03, 2025</p>
+      <h2>Terms and Conditions</h2>
+      <p>Last updated: January 25, 2025</p>
       <p>Please read these terms and conditions carefully before using Our Service.</p>
       <h2>Interpretation and Definitions</h2>
       <h3>Interpretation</h3>
@@ -28,7 +28,7 @@ export default function Terms() {
           <p>
             <strong>Company</strong>
             {' '}
-            (referred to as either &quot;the Company&quot;, &quot;We&quot;, &quot;Us&quot; or &quot;Our&quot; in this Agreement) refers to My Personal Finance.
+            (referred to as either &quot;the Company&quot;, &quot;We&quot;, &quot;Us&quot; or &quot;Our&quot; in this Agreement) refers to Balance.
           </p>
         </li>
         <li>
@@ -51,7 +51,7 @@ export default function Terms() {
             {' '}
             (also referred as &quot;Terms&quot;) mean these Terms and Conditions that form the entire agreement between You and the Company regarding the use of the Service. This Terms and Conditions agreement has been created with the help of the
             {' '}
-            <a href="https://www.termsfeed.com/terms-conditions-generator/" target="_blank">Terms and Conditions Generator</a>
+            <a href="https://www.freeprivacypolicy.com/free-terms-and-conditions-generator/" target="_blank">Free Terms and Conditions Generator</a>
             .
           </p>
         </li>
@@ -66,9 +66,9 @@ export default function Terms() {
           <p>
             <strong>Website</strong>
             {' '}
-            refers to My Personal Finance, accessible from
+            refers to Balance, accessible from
             {' '}
-            <a href="http://localhost:5173/" rel="external nofollow noopener" target="_blank">http://localhost:5173/</a>
+            <a href="https://my-personal-finance-ochre.vercel.app/" rel="external nofollow noopener" target="_blank">https://my-personal-finance-ochre.vercel.app/</a>
           </p>
         </li>
         <li>
@@ -124,10 +124,7 @@ export default function Terms() {
       <h2>Contact Us</h2>
       <p>If you have any questions about these Terms and Conditions, You can contact us:</p>
       <ul>
-        <li>
-          By visiting this page on our website:
-          <a href="http://localhost:5173/" rel="external nofollow noopener" target="_blank">http://localhost:5173/</a>
-        </li>
+        <li>By email: jcggraca@proton.me</li>
       </ul>
     </>
   )

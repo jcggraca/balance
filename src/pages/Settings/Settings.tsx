@@ -18,6 +18,7 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
+import { Link } from '@tanstack/react-router'
 import Dexie from 'dexie'
 import { exportDB } from 'dexie-export-import'
 import { useState } from 'react'
@@ -273,6 +274,16 @@ const Settings: FC = () => {
         <Button color="red" onClick={open} mt="md">
           {intl.formatMessage({ id: 'delete' })}
         </Button>
+      </Paper>
+
+      <Paper shadow="xs" p="md" withBorder>
+        <Title order={3}>{intl.formatMessage({ id: 'privacyPolicyTitle' })}</Title>
+        <Text mb="md">{intl.formatMessage({ id: 'privacyPolicyText' })}</Text>
+
+        <Title order={3}>{intl.formatMessage({ id: 'termsTitle' })}</Title>
+        <Link to="/terms">
+          {intl.formatMessage({ id: 'termsReadLink' })}
+        </Link>
       </Paper>
     </Stack>
   )

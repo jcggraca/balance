@@ -1,6 +1,7 @@
+import type { Account } from '@/db'
 import type { FC } from 'react'
 import DeleteModal from '@/components/DeleteModal/DeleteModal'
-import { type Account, db } from '@/db'
+import { db } from '@/db'
 import { useIntl } from 'react-intl'
 
 interface DeleteAccountProps {

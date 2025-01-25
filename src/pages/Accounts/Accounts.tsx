@@ -1,4 +1,5 @@
 import type { Account } from '@/db'
+import type { FC } from 'react'
 import AddAccount from '@/components/Account/AddAccount'
 import ViewAccount from '@/components/Account/ViewAccount'
 import GenericMobileList from '@/components/GenericMobileList'
@@ -11,7 +12,7 @@ import { useMediaQuery } from '@mantine/hooks'
 import { IconBuildingBank } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { type FC, useState } from 'react'
+import { useState } from 'react'
 import { useIntl } from 'react-intl'
 
 const Accounts: FC = () => {
@@ -43,8 +44,10 @@ const Accounts: FC = () => {
     }
 
     if (dateRange.end) {
+      const endDate = new Date(dateRange.end)
+      endDate.setHours(23, 59, 59, 999)
       query = query.filter(account =>
-        account.updatedTimestamp <= dateRange.end!.getTime(),
+        account.createdTimestamp <= endDate.getTime(),
       )
     }
 
