@@ -1,5 +1,5 @@
-import type { Account, Category } from '@/db'
 import type { FC } from 'react'
+import type { Account, Category } from '../../db'
 import { Button, Grid, Group, Modal, Select, TextInput } from '@mantine/core'
 import { DateInput } from '@mantine/dates'
 import { useDisclosure, useMediaQuery } from '@mantine/hooks'

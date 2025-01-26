@@ -1,16 +1,16 @@
-import type { Account } from '@/db'
-import type { AccountForm } from '@/utils/interfaces'
 import type { FC } from 'react'
-import { db } from '@/db'
-import { amountAccountSchema, descriptionSchema, nameSchema } from '@/schema/form'
-import { useSettingsStore } from '@/stores/useSettingsStore'
-import { displayNotification } from '@/utils/form'
+import type { Account } from '../../../db'
+import type { AccountForm } from '../../../utils/interfaces'
 import { Button, Group, NumberInput, Textarea, TextInput } from '@mantine/core'
 import { useForm, zodResolver } from '@mantine/form'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import { db } from '../../../db'
+import { amountAccountSchema, descriptionSchema, nameSchema } from '../../../schema/form'
+import { useSettingsStore } from '../../../stores/useSettingsStore'
+import { displayNotification } from '../../../utils/form'
 
 interface UpdateAccountProps {
   onClose: () => void
@@ -109,7 +109,7 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
       />
 
       <Group mt="xl">
-        <Button type="submit">{intl.formatMessage({ id: 'addAccount' })}</Button>
+        <Button type="submit">{intl.formatMessage({ id: isCreating ? 'addAccount' : 'updateAccount' })}</Button>
         <Button variant="outline" onClick={onClose}>{intl.formatMessage({ id: 'cancel' })}</Button>
       </Group>
     </form>

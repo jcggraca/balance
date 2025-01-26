@@ -1,14 +1,14 @@
-import type { Expense } from '@/db'
 import type { ReactNode } from 'react'
-import { db } from '@/db'
-import { useSettingsStore } from '@/stores/useSettingsStore'
-import { displayNotification } from '@/utils/form'
+import type { Expense } from '../../db'
 import { PieChart } from '@mantine/charts'
 import { ActionIcon, Alert, Box, Card, Grid, Group, SimpleGrid, Stack, Table, Tabs, Text } from '@mantine/core'
 import { IconAlertTriangle, IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
+import { db } from '../../db'
+import { useSettingsStore } from '../../stores/useSettingsStore'
+import { displayNotification } from '../../utils/form'
 
 function RenderErrorOrChildren({ error, children }: { error: string | null, children: ReactNode }) {
   const intl = useIntl()
@@ -30,8 +30,9 @@ function RenderErrorOrChildren({ error, children }: { error: string | null, chil
 
 function Dashboard() {
   const intl = useIntl()
-  const { currency } = useSettingsStore()
+  const { currency, lastBackup } = useSettingsStore()
 
+  const [backupWarning, setBackupWarning] = useState(0)
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [errorExpenses, setErrorExpenses] = useState<string | null>(null)
   const [errorIncome, setErrorIncome] = useState<string | null>(null)
@@ -51,6 +52,13 @@ function Dashboard() {
 
   const [visibleStartIndex, setVisibleStartIndex] = useState(0)
   const visibleMonths = monthOptions.slice(visibleStartIndex, visibleStartIndex + 6)
+
+  useEffect(() => {
+    const currentDay = dayjs().valueOf()
+    const diffMilliseconds = Math.abs(currentDay - lastBackup)
+    const diffDays = Math.floor(diffMilliseconds / (1000 * 60 * 60 * 24))
+    setBackupWarning(diffDays)
+  }, [lastBackup])
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -80,7 +88,7 @@ function Dashboard() {
 
         const categories = await db.categories.toArray()
         const expenseCategory = Array.from(categoryMap.entries()).map(([name, value]) => ({
-          name: categories.find(category => category.id === name)?.name || name,
+          name: categories.find(category => category.id === name)?.name || intl.formatMessage({ id: 'categoryNotFound' }),
           value,
           color: categories.find(category => category.id === name)?.color || '#ff6b6b',
         })).sort((a, b) => b.value - a.value)
@@ -117,11 +125,6 @@ function Dashboard() {
 
     fetchExpenses()
   }, [selectedMonth])
-
-  const pieChartData = [
-    { name: 'income', value: totals.income, color: '#51cf66' },
-    { name: 'expenses', value: totals.expense, color: '#ff6b6b' },
-  ]
 
   return (
     <>
@@ -166,6 +169,16 @@ function Dashboard() {
         </ActionIcon>
       </Group>
 
+      {backupWarning > 7 && (
+        <Alert variant="light" color="red" title="Account status" mb="md">
+          The last backup was
+          {' '}
+          {backupWarning}
+          {' '}
+          days ago!
+        </Alert>
+      )}
+
       <Card style={{ overflow: 'hidden', maxWidth: '100%' }} withBorder padding="lg" radius="md" mb="md">
         <SimpleGrid cols={{ base: 3 }}>
           <div>
@@ -175,7 +188,7 @@ function Dashboard() {
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorIncome}>
                 {currency}
-                {totals.income}
+                {Number(totals.income).toFixed(2)}
               </RenderErrorOrChildren>
             </Text>
           </div>
@@ -187,7 +200,7 @@ function Dashboard() {
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorExpenses}>
                 {currency}
-                {totals.expense}
+                {Number(totals.expense).toFixed(2)}
               </RenderErrorOrChildren>
             </Text>
           </div>
@@ -199,7 +212,7 @@ function Dashboard() {
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorExpenses}>
                 {currency}
-                {totals.income - totals.expense}
+                {Number(totals.income - totals.expense).toFixed(2)}
               </RenderErrorOrChildren>
             </Text>
           </div>
@@ -208,30 +221,6 @@ function Dashboard() {
 
       <Grid mb="md">
         <Grid.Col span={{ base: 12, sm: 6 }}>
-          <Card withBorder padding="lg" radius="md" mb="md">
-            <Text size="lg" fw={500} mb="md">{intl.formatMessage({ id: 'monthlyOverview' })}</Text>
-            <Group align="center">
-              <PieChart
-                data={pieChartData}
-                size={300}
-              />
-              <Stack>
-                {pieChartData.map(item => (
-                  <Group key={item.name} gap="xs">
-                    <Box w={16} h={16} style={{ backgroundColor: item.color, borderRadius: 4 }} />
-                    <Text size="sm">
-                      {intl.formatMessage({ id: item?.name || 'error' })}
-                      :
-                      {' '}
-                      {currency}
-                      {item.value}
-                    </Text>
-                  </Group>
-                ))}
-              </Stack>
-            </Group>
-          </Card>
-
           {expensesByCategories.length > 0 && (
             <Card withBorder padding="lg" radius="md" mb="md">
               <Text size="lg" fw={500} mb="md">{intl.formatMessage({ id: 'expensesByCategories' })}</Text>

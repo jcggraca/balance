@@ -1,11 +1,11 @@
-import type { selectorState } from '@/utils/interfaces'
 import type { FC } from 'react'
-import { db } from '@/db'
+import type { selectorState } from '../../../utils/interfaces'
 import { Button, Modal, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { IconPlus } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
+import { db } from '../../../db'
 import UpdateExpense from '../UpdateExpense'
 
 const AddExpense: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
@@ -71,7 +71,11 @@ const AddExpense: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
     else {
       if ((accountList.length === 0 || categoriesList.length === 0) && !isLoading) {
         return (
-          <Tooltip label={intl.formatMessage({ id: 'oneAccountAddExpense' })}>
+          <Tooltip
+            label={intl.formatMessage({
+              id: accountList.length === 0 ? 'oneAccountAddExpense' : 'oneCategoryAddExpense',
+            })}
+          >
             <Button disabled>{intl.formatMessage({ id: 'addExpense' })}</Button>
           </Tooltip>
         )

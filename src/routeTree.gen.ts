@@ -16,7 +16,6 @@ import { Route as rootRoute } from './routes/__root'
 
 // Create Virtual Routes
 
-const TermsLazyImport = createFileRoute('/terms')()
 const SettingsLazyImport = createFileRoute('/settings')()
 const IncomeLazyImport = createFileRoute('/income')()
 const ExpensesLazyImport = createFileRoute('/expenses')()
@@ -27,12 +26,6 @@ const AccountsLazyImport = createFileRoute('/accounts')()
 const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
-
-const TermsLazyRoute = TermsLazyImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/terms.lazy').then((d) => d.Route))
 
 const SettingsLazyRoute = SettingsLazyImport.update({
   id: '/settings',
@@ -142,13 +135,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsLazyImport
       parentRoute: typeof rootRoute
     }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsLazyImport
-      parentRoute: typeof rootRoute
-    }
   }
 }
 
@@ -163,7 +149,6 @@ export interface FileRoutesByFullPath {
   '/expenses': typeof ExpensesLazyRoute
   '/income': typeof IncomeLazyRoute
   '/settings': typeof SettingsLazyRoute
-  '/terms': typeof TermsLazyRoute
 }
 
 export interface FileRoutesByTo {
@@ -175,7 +160,6 @@ export interface FileRoutesByTo {
   '/expenses': typeof ExpensesLazyRoute
   '/income': typeof IncomeLazyRoute
   '/settings': typeof SettingsLazyRoute
-  '/terms': typeof TermsLazyRoute
 }
 
 export interface FileRoutesById {
@@ -188,7 +172,6 @@ export interface FileRoutesById {
   '/expenses': typeof ExpensesLazyRoute
   '/income': typeof IncomeLazyRoute
   '/settings': typeof SettingsLazyRoute
-  '/terms': typeof TermsLazyRoute
 }
 
 export interface FileRouteTypes {
@@ -202,7 +185,6 @@ export interface FileRouteTypes {
     | '/expenses'
     | '/income'
     | '/settings'
-    | '/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -213,7 +195,6 @@ export interface FileRouteTypes {
     | '/expenses'
     | '/income'
     | '/settings'
-    | '/terms'
   id:
     | '__root__'
     | '/'
@@ -224,7 +205,6 @@ export interface FileRouteTypes {
     | '/expenses'
     | '/income'
     | '/settings'
-    | '/terms'
   fileRoutesById: FileRoutesById
 }
 
@@ -237,7 +217,6 @@ export interface RootRouteChildren {
   ExpensesLazyRoute: typeof ExpensesLazyRoute
   IncomeLazyRoute: typeof IncomeLazyRoute
   SettingsLazyRoute: typeof SettingsLazyRoute
-  TermsLazyRoute: typeof TermsLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -249,7 +228,6 @@ const rootRouteChildren: RootRouteChildren = {
   ExpensesLazyRoute: ExpensesLazyRoute,
   IncomeLazyRoute: IncomeLazyRoute,
   SettingsLazyRoute: SettingsLazyRoute,
-  TermsLazyRoute: TermsLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -269,8 +247,7 @@ export const routeTree = rootRoute
         "/debts",
         "/expenses",
         "/income",
-        "/settings",
-        "/terms"
+        "/settings"
       ]
     },
     "/": {
@@ -296,9 +273,6 @@ export const routeTree = rootRoute
     },
     "/settings": {
       "filePath": "settings.lazy.tsx"
-    },
-    "/terms": {
-      "filePath": "terms.lazy.tsx"
     }
   }
 }

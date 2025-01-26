@@ -1,9 +1,9 @@
-import type { Account, Category, Expense, Income } from '@/db'
-import { useSettingsStore } from '@/stores/useSettingsStore'
+import type { Account, Category, Expense, Income } from '../../db'
 import { Avatar, Card, Grid, Text } from '@mantine/core'
 import { IconAlertTriangle, IconMoneybag } from '@tabler/icons-react'
 import dayjs from 'dayjs'
 import { useRef } from 'react'
+import { useSettingsStore } from '../../stores/useSettingsStore'
 import IconRenderer from '../IconRenderer'
 import classes from './GenericMobileList.module.css'
 

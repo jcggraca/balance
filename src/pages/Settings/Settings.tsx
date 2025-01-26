@@ -1,10 +1,6 @@
 import type { FC } from 'react'
-import SelectCurrency from '@/components/SelectCurrency'
-import SelectLanguage from '@/components/SelectLanguage'
-import { db } from '@/db'
-import { decrypt, encrypt } from '@/utils/crypto'
-import { displayNotification } from '@/utils/form'
 import {
+  Anchor,
   Button,
   Divider,
   FileInput,
@@ -18,11 +14,17 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
-import { Link } from '@tanstack/react-router'
+import dayjs from 'dayjs'
 import Dexie from 'dexie'
 import { exportDB } from 'dexie-export-import'
 import { useState } from 'react'
 import { useIntl } from 'react-intl'
+import SelectCurrency from '../../components/SelectCurrency'
+import SelectLanguage from '../../components/SelectLanguage'
+import { db } from '../../db'
+import { useSettingsStore } from '../../stores/useSettingsStore'
+import { decrypt, encrypt } from '../../utils/crypto'
+import { displayNotification } from '../../utils/form'
 
 const ImportUserDB: FC = () => {
   const intl = useIntl()
@@ -161,6 +163,7 @@ const ImportUserDB: FC = () => {
 
 const ExportUserDB: FC = () => {
   const intl = useIntl()
+  const { setLastBackup } = useSettingsStore()
 
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -184,6 +187,7 @@ const ExportUserDB: FC = () => {
       URL.revokeObjectURL(fileURL)
 
       displayNotification(intl, 'success', 'exportedSuccessfully', 'green')
+      setLastBackup(dayjs().valueOf())
     }
     catch (error: any) {
       const message = error.message || 'exportedError'
@@ -281,9 +285,9 @@ const Settings: FC = () => {
         <Text mb="md">{intl.formatMessage({ id: 'privacyPolicyText' })}</Text>
 
         <Title order={3}>{intl.formatMessage({ id: 'termsTitle' })}</Title>
-        <Link to="/terms">
+        <Anchor href="/terms" target="_blank" inherit>
           {intl.formatMessage({ id: 'termsReadLink' })}
-        </Link>
+        </Anchor>
       </Paper>
     </Stack>
   )

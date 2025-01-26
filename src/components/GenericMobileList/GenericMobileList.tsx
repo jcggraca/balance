@@ -1,7 +1,7 @@
-import type { Account, Budget, Category, Debt } from '@/db'
-import { useSettingsStore } from '@/stores/useSettingsStore'
+import type { Account, Budget, Category, Debt } from '../../db'
 import { Avatar, Card, Grid, Text } from '@mantine/core'
 import { IconMoneybag } from '@tabler/icons-react'
+import { useSettingsStore } from '../../stores/useSettingsStore'
 import IconRenderer from '../IconRenderer'
 import classes from './GenericMobileList.module.css'
 

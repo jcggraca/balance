@@ -1,5 +1,5 @@
-import type { Category, Expense, Income } from '@/db'
 import type { FC } from 'react'
+import type { Category, Expense, Income } from '../../db'
 import type iconsMap from '../IconRenderer/iconsMap'
 import { Avatar } from '@mantine/core'
 import { IconAlertTriangle } from '@tabler/icons-react'

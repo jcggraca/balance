@@ -1,15 +1,5 @@
-import type { Account, Category, Expense } from '@/db'
 import type { FC, ReactNode } from 'react'
-import AddExpense from '@/components/Expense/AddExpense'
-import ViewExpense from '@/components/Expense/ViewExpense'
-import TransactionMobileList from '@/components/GenericMobileList/TransactionMobileList'
-import GenericTable from '@/components/GenericTable'
-import RenderAvatar from '@/components/RenderAvatar/RenderAvatar'
-import SearchFilters from '@/components/SearchFilters'
-import WarningNotFound from '@/components/WarningNotFound'
-import { db } from '@/db'
-import { useSettingsStore } from '@/stores/useSettingsStore'
-import { RATING } from '@/utils/values'
+import type { Account, Category, Expense } from '../../db'
 import { Card } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconAlertTriangle } from '@tabler/icons-react'
@@ -17,6 +7,16 @@ import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
+import AddExpense from '../../components/Expense/AddExpense'
+import ViewExpense from '../../components/Expense/ViewExpense'
+import TransactionMobileList from '../../components/GenericMobileList/TransactionMobileList'
+import GenericTable from '../../components/GenericTable'
+import RenderAvatar from '../../components/RenderAvatar/RenderAvatar'
+import SearchFilters from '../../components/SearchFilters'
+import WarningNotFound from '../../components/WarningNotFound'
+import { db } from '../../db'
+import { useSettingsStore } from '../../stores/useSettingsStore'
+import { RATING } from '../../utils/values'
 
 interface Filters {
   searchQuery: string
@@ -81,7 +81,10 @@ const Expenses: FC = () => {
   const accountsList = useLiveQuery(() => db.account.toArray())
   const categories = useLiveQuery(() => db.categories.toArray())
   const expenses = useLiveQuery(async () => {
-    const allExpenses = await db.expenses.orderBy('actionTimestamp').reverse().toArray()
+    const allExpenses = await db.expenses
+      .orderBy('actionTimestamp')
+      .reverse()
+      .toArray()
     return filterExpenses(allExpenses, filters)
   }, [filters])
 
@@ -90,6 +93,12 @@ const Expenses: FC = () => {
       return 0
     return expenses.filter(e => !accountsList.find(a => a.id === e.accountId)).length
   }, [expenses, accountsList])
+
+  const categoryNotFound = useMemo(() => {
+    if (!expenses || !categories)
+      return 0
+    return expenses.filter(e => !categories.find(a => a.id === e.category)).length
+  }, [expenses, categories])
 
   const columns = useMemo(
     () => [
@@ -171,7 +180,15 @@ const Expenses: FC = () => {
           {` ${accountNotFound} ${intl.formatMessage({
             id: accountNotFound === 1 ? 'expenseNoOne' : 'expensesNoMulti',
           })}`}
-          {` ${intl.formatMessage({ id: 'requireAccountAssociated' })}`}
+        </Card>
+      )}
+
+      {!isMobile && categoryNotFound > 0 && (
+        <Card className="card" withBorder radius="md" shadow="sm">
+          <IconAlertTriangle />
+          {` ${categoryNotFound} ${intl.formatMessage({
+            id: categoryNotFound === 1 ? 'expenseCategoryNoOne' : 'expensesCategoryNoMulti',
+          })}`}
         </Card>
       )}
 

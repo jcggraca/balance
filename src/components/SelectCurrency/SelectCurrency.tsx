@@ -1,6 +1,6 @@
-import { useSettingsStore } from '@/stores/useSettingsStore'
 import { Select } from '@mantine/core'
 import { useIntl } from 'react-intl'
+import { useSettingsStore } from '../../stores/useSettingsStore'
 
 function SelectCurrency() {
   const { currency, setCurrency } = useSettingsStore()
@@ -8,7 +8,10 @@ function SelectCurrency() {
 
   return (
     <Select
-      label={intl.formatMessage({ id: 'selectCurrency' })}
+      label={`
+        ${intl.formatMessage({ id: 'selectCurrency' })} 
+        (${intl.formatMessage({ id: 'onlyVisual' })})
+      `}
       value={currency}
       onChange={value => setCurrency(value || '€')}
       data={[
@@ -18,6 +21,7 @@ function SelectCurrency() {
         { value: '¥', label: 'Yen (¥)' },
         { value: 'R$', label: 'Real (R$)' },
       ]}
+      allowDeselect={false}
     />
   )
 }

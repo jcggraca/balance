@@ -1,14 +1,5 @@
-import type { Account, Income as IncomeType } from '@/db'
 import type { FC, ReactNode } from 'react'
-import TransactionMobileList from '@/components/GenericMobileList/TransactionMobileList'
-import GenericTable from '@/components/GenericTable'
-import AddIncome from '@/components/Income/AddIncome'
-import ViewIncome from '@/components/Income/ViewIncome'
-import RenderAvatar from '@/components/RenderAvatar/RenderAvatar'
-import SearchFilters from '@/components/SearchFilters'
-import WarningNotFound from '@/components/WarningNotFound'
-import { db } from '@/db'
-import { useSettingsStore } from '@/stores/useSettingsStore'
+import type { Account, Income as IncomeType } from '../../db'
 import { Card } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconAlertTriangle } from '@tabler/icons-react'
@@ -16,6 +7,15 @@ import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
+import TransactionMobileList from '../../components/GenericMobileList/TransactionMobileList'
+import GenericTable from '../../components/GenericTable'
+import AddIncome from '../../components/Income/AddIncome'
+import ViewIncome from '../../components/Income/ViewIncome'
+import RenderAvatar from '../../components/RenderAvatar/RenderAvatar'
+import SearchFilters from '../../components/SearchFilters'
+import WarningNotFound from '../../components/WarningNotFound'
+import { db } from '../../db'
+import { useSettingsStore } from '../../stores/useSettingsStore'
 
 interface Filters {
   searchQuery: string
@@ -148,7 +148,6 @@ const Income: FC = () => {
           {` ${accountNotFound} ${intl.formatMessage({
             id: accountNotFound === 1 ? 'incomeNoOne' : 'incomeNoMulti',
           })}`}
-          {` ${intl.formatMessage({ id: 'requireAccountAssociated' })}`}
         </Card>
       )}
 

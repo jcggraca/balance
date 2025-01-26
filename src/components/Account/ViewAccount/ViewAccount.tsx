@@ -1,10 +1,10 @@
-import type { Account } from '@/db'
 import type { FC } from 'react'
-import { useSettingsStore } from '@/stores/useSettingsStore'
+import type { Account } from '../../../db'
 import { Button, Group, Modal, Table } from '@mantine/core'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
+import { useSettingsStore } from '../../../stores/useSettingsStore'
 import DeleteAccount from '../DeleteAccount'
 import UpdateAccount from '../UpdateAccount'
 

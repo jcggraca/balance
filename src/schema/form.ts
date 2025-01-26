@@ -30,7 +30,7 @@ export function descriptionRequiredSchema(intl: IntlShape) {
 export function amountAccountSchema(intl: IntlShape) {
   return z
     .number()
-    .min(0, { message: intl.formatMessage({ id: 'amountMinRequired' }) })
+    .min(0, { message: intl.formatMessage({ id: 'amountAccountMinRequired' }) })
 }
 
 export function amountSchema(intl: IntlShape) {

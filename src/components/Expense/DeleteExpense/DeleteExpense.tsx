@@ -1,9 +1,9 @@
-import type { Expense } from '@/db'
 import type { FC } from 'react'
-import DeleteModal from '@/components/DeleteModal/DeleteModal'
-import { db } from '@/db'
+import type { Expense } from '../../../db'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
+import { db } from '../../../db'
+import DeleteModal from '../../DeleteModal'
 
 interface DeleteExpenseProps {
   expense: Expense
@@ -23,10 +23,7 @@ const DeleteExpense: FC<DeleteExpenseProps> = ({ expense, onClose }) => {
 
     if (expense.accountId) {
       const account = await db.account.get({ id: expense.accountId })
-      if (!account) {
-        return console.error(`Account with ID ${expense.accountId} not found.`)
-      }
-      else {
+      if (account) {
         account.amount += expense.amount
         account.updatedTimestamp = date
         await db.account.put(account)

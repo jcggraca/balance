@@ -1,10 +1,10 @@
-import type { Budget } from '@/db'
 import type { FC } from 'react'
-import { useSettingsStore } from '@/stores/useSettingsStore'
+import type { Budget } from '../../../db'
 import { Button, Group, Modal, Table } from '@mantine/core'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { useIntl } from 'react-intl'
+import { useSettingsStore } from '../../../stores/useSettingsStore'
 import DeleteBudget from '../DeleteBudget'
 import UpdateBudget from '../UpdateBudget'
 
