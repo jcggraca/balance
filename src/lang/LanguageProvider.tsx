@@ -1,9 +1,9 @@
 import type { FC } from 'react'
-import { useSettingsStore } from '@/stores/useSettingsStore'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { IntlProvider } from 'react-intl'
 import { messages } from '.'
+import { useSettingsStore } from '../stores/useSettingsStore'
 
 interface LanguageProviderProps {
   children: React.ReactNode

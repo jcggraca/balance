@@ -1,7 +1,7 @@
-import Layout from '@/layout/Layout'
-import ErrorNotFound from '@/pages/ErrorNotFound'
 import { createRootRoute } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
+import Layout from '../layout/Layout'
+import ErrorNotFound from '../pages/ErrorNotFound'
 
 const TanStackRouterDevtools = import.meta.env.VITE_ENV === 'production'
   ? () => null

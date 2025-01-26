@@ -1,5 +1,5 @@
-import Accounts from '@/pages/Accounts'
 import { createLazyFileRoute } from '@tanstack/react-router'
+import Accounts from '../pages/Accounts'
 
 export const Route = createLazyFileRoute('/accounts')({
   component: RouteComponent,

@@ -1,4 +1,4 @@
-import { db } from '@/db'
+import { db } from '../db'
 
 export async function getAccount(id: string) {
   const account = await db.account.get({ id })

@@ -1,18 +1,18 @@
-import type { Category } from '@/db'
 import type { FC } from 'react'
-import AddCategory from '@/components/Category/AddCategory'
-import ViewCategories from '@/components/Category/ViewCategory'
-import GenericMobileList from '@/components/GenericMobileList'
-import GenericTable from '@/components/GenericTable'
-import IconRenderer from '@/components/IconRenderer'
-import SearchFilters from '@/components/SearchFilters'
-import { db } from '@/db'
+import type { Category } from '../../db'
 import { Avatar } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconMoneybag } from '@tabler/icons-react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { useIntl } from 'react-intl'
+import AddCategory from '../../components/Category/AddCategory'
+import ViewCategory from '../../components/Category/ViewCategory'
+import GenericMobileList from '../../components/GenericMobileList'
+import GenericTable from '../../components/GenericTable'
+import IconRenderer from '../../components/IconRenderer'
+import SearchFilters from '../../components/SearchFilters'
+import { db } from '../../db'
 
 const Categories: FC = () => {
   const intl = useIntl()
@@ -79,7 +79,7 @@ const Categories: FC = () => {
         <AddCategory />
       </div>
 
-      {category && <ViewCategories category={category} onClose={() => setCategory(undefined)} />}
+      {category && <ViewCategory category={category} onClose={() => setCategory(undefined)} />}
 
       {isMobile
         ? (

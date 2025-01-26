@@ -4,12 +4,8 @@
     "jsx": "react-jsx",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "useDefineForClassFields": true,
-    "baseUrl": "./",
     "module": "ESNext",
     "moduleResolution": "Node",
-    "paths": {
-      "@/*": ["src/*"]
-    },
     "resolveJsonModule": true,
     "types": ["vite-plugin-pwa/client"],
     "allowImportingTsExtensions": true,

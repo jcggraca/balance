@@ -3,6 +3,9 @@
   "type": "module",
   "version": "1.0.1",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,17 +13,19 @@
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "prepare": "husky",
-    "generate-pwa-assets": "pwa-assets-generator"
+    "generate-pwa-assets": "pwa-assets-generator",
+    "test": "vitest --run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "@mantine/charts": "^7.16.1",
-    "@mantine/core": "^7.16.1",
-    "@mantine/dates": "^7.16.1",
-    "@mantine/form": "^7.16.1",
-    "@mantine/hooks": "^7.16.1",
-    "@mantine/notifications": "^7.16.1",
+    "@mantine/charts": "^7.16.2",
+    "@mantine/core": "^7.16.2",
+    "@mantine/dates": "^7.16.2",
+    "@mantine/form": "^7.16.2",
+    "@mantine/hooks": "^7.16.2",
+    "@mantine/notifications": "^7.16.2",
     "@tabler/icons-react": "^3.29.0",
-    "@tanstack/react-router": "^1.97.20",
+    "@tanstack/react-router": "^1.97.23",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.11",
     "dexie-export-import": "^4.1.4",
@@ -36,8 +41,13 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.1.0",
-    "@tanstack/router-devtools": "^1.97.20",
-    "@tanstack/router-plugin": "^1.97.20",
+    "@tanstack/router-devtools": "^1.97.23",
+    "@tanstack/router-plugin": "^1.97.23",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.10.10",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vite-pwa/assets-generator": "^0.2.6",

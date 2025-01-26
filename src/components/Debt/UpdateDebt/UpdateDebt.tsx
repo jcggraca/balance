@@ -1,16 +1,16 @@
-import type { Debt } from '@/db'
-import type { DebtForm } from '@/utils/interfaces'
 import type { FC } from 'react'
-import { db } from '@/db'
-import { amountSchema, descriptionSchema, nameSchema } from '@/schema/form'
-import { useSettingsStore } from '@/stores/useSettingsStore'
-import { displayNotification } from '@/utils/form'
+import type { Debt } from '../../../db'
+import type { DebtForm } from '../../../utils/interfaces'
 import { Button, Group, NumberInput, Textarea, TextInput } from '@mantine/core'
 import { useForm, zodResolver } from '@mantine/form'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import { db } from '../../../db'
+import { amountSchema, descriptionSchema, nameSchema } from '../../../schema/form'
+import { useSettingsStore } from '../../../stores/useSettingsStore'
+import { displayNotification } from '../../../utils/form'
 
 interface UpdateDebtProps {
   onClose: () => void
@@ -108,7 +108,7 @@ const UpdateDebt: FC<UpdateDebtProps> = ({ onClose, debt, isCreating = false }) 
       />
 
       <Group mt="xl">
-        <Button type="submit">{intl.formatMessage({ id: 'addDebt' })}</Button>
+        <Button type="submit">{intl.formatMessage({ id: isCreating ? 'addDebt' : 'updateDebt' })}</Button>
         <Button variant="outline" onClick={onClose} type="button">{intl.formatMessage({ id: 'cancel' })}</Button>
       </Group>
     </form>

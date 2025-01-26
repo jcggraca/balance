@@ -1,10 +1,10 @@
-import type { Debt } from '@/db'
 import type { FC } from 'react'
-import { useSettingsStore } from '@/stores/useSettingsStore'
+import type { Debt } from '../../../db'
 import { Button, Group, Modal, Table } from '@mantine/core'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
+import { useSettingsStore } from '../../../stores/useSettingsStore'
 import DeleteDebt from '../DeleteDebt'
 import UpdateDebt from '../UpdateDebt'
 

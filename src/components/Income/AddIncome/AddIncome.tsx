@@ -1,11 +1,11 @@
-import type { selectorState } from '@/utils/interfaces'
 import type { FC } from 'react'
-import { db } from '@/db'
+import type { selectorState } from '../../../utils/interfaces'
 import { Button, Modal, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { IconPlus } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
+import { db } from '../../../db'
 import UpdateIncome from '../UpdateIncome'
 
 const AddIncome: FC<{ isMobile?: boolean }> = ({ isMobile }) => {

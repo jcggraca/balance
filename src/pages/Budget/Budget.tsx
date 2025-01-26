@@ -1,12 +1,5 @@
-import type { Budget as BudgetType } from '@/db'
 import type { FC } from 'react'
-import AddBudget from '@/components/Budget/AddBudget'
-import ViewBudget from '@/components/Budget/ViewBudget'
-import GenericMobileList from '@/components/GenericMobileList'
-import GenericTable from '@/components/GenericTable'
-import SearchFilters from '@/components/SearchFilters'
-import { db } from '@/db'
-import { useSettingsStore } from '@/stores/useSettingsStore'
+import type { Budget as BudgetType } from '../../db'
 import { Avatar } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconCalendarDollar } from '@tabler/icons-react'
@@ -14,6 +7,13 @@ import dayjs from 'dayjs'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { useIntl } from 'react-intl'
+import AddBudget from '../../components/Budget/AddBudget'
+import ViewBudget from '../../components/Budget/ViewBudget'
+import GenericMobileList from '../../components/GenericMobileList'
+import GenericTable from '../../components/GenericTable'
+import SearchFilters from '../../components/SearchFilters'
+import { db } from '../../db'
+import { useSettingsStore } from '../../stores/useSettingsStore'
 
 const Budget: FC = () => {
   const intl = useIntl()
@@ -51,7 +51,7 @@ const Budget: FC = () => {
       )
     }
 
-    return await query.toArray()
+    return await query.reverse().toArray()
   }, [searchQuery, dateRange])
 
   const handleClearFilters = () => {

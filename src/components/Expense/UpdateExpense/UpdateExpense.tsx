@@ -1,11 +1,6 @@
-import type { Expense } from '@/db'
-import type { ExpenseForm, selectorState } from '@/utils/interfaces'
 import type { FC } from 'react'
-import { db } from '@/db'
-import { accountSchema, actionDateSchema, amountSchema, categorySchema, descriptionSchema, nameSchema, ratingSchema } from '@/schema/form'
-import { useSettingsStore } from '@/stores/useSettingsStore'
-import { displayNotification } from '@/utils/form'
-import { RATING } from '@/utils/values'
+import type { Expense } from '../../../db'
+import type { ExpenseForm, selectorState } from '../../../utils/interfaces'
 import { Button, Group, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm, zodResolver } from '@mantine/form'
@@ -14,6 +9,11 @@ import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import { db } from '../../../db'
+import { accountSchema, actionDateSchema, amountSchema, categorySchema, descriptionSchema, nameSchema, ratingSchema } from '../../../schema/form'
+import { useSettingsStore } from '../../../stores/useSettingsStore'
+import { displayNotification } from '../../../utils/form'
+import { RATING } from '../../../utils/values'
 
 interface UpdateExpenseProps {
   onClose: () => void
@@ -146,23 +146,48 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         }
         await db.expenses.put(dataUpdate)
 
-        if (expense.amount !== values.amount) {
+        if (expense.accountId === values.account && expense.amount !== values.amount) {
           const amountDiff = values.amount - expense.amount
           account.amount -= +amountDiff
           account.updatedTimestamp = date
-
           await db.account.put(account)
+        }
+        else if (expense.accountId !== values.account) {
+          const oldAccount = await db.account.get({ id: expense.accountId })
+          if (oldAccount) {
+            oldAccount.amount += expense.amount
+            oldAccount.updatedTimestamp = date
+            await db.account.put(oldAccount)
+          }
+
+          account.amount -= values.amount
+          account.updatedTimestamp = date
+          await db.account.put(account)
+        }
+
+        if (expense.budget === values.budget && expense.amount !== values.amount) {
+          const amountDiff = values.amount - expense.amount
+          const budgetAccount = await db.budget.get({ id: values.budget })
+          if (budgetAccount) {
+            budgetAccount.amount -= +amountDiff
+            budgetAccount.updatedTimestamp = date
+            await db.budget.put(budgetAccount)
+          }
+        }
+        else if (expense.budget !== values.budget) {
+          const oldBudget = await db.budget.get({ id: expense.budget })
+          if (oldBudget) {
+            oldBudget.amount += expense.amount
+            oldBudget.updatedTimestamp = date
+            await db.budget.put(oldBudget)
+          }
 
           if (values.budget) {
             const budgetAccount = await db.budget.get({ id: values.budget })
             if (budgetAccount) {
-              budgetAccount.amount -= +amountDiff
+              budgetAccount.amount -= values.amount
               budgetAccount.updatedTimestamp = date
-
               await db.budget.put(budgetAccount)
-            }
-            else {
-              console.error(`Budget with ID ${values.budget} not found.`)
             }
           }
         }
@@ -175,7 +200,8 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
       onClose()
     }
     catch (error) {
-      const message = error instanceof Error ? error.message : 'anErrorOccurred'
+      const message = isCreating ? 'failedCreatingExpense' : 'failedUpdatingExpense'
+      console.error(message, error)
       displayNotification(intl, 'error', message, 'red')
 
       form.reset()
@@ -215,6 +241,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         data={accountList}
         required
         mt="md"
+        allowDeselect={false}
         {...form.getInputProps('account')}
       />
 
@@ -233,6 +260,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         searchable
         required
         mt="md"
+        allowDeselect={false}
         {...form.getInputProps('category')}
       />
 
@@ -242,6 +270,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         data={ratingData}
         required
         mt="md"
+        allowDeselect={false}
         {...form.getInputProps('rating')}
       />
 

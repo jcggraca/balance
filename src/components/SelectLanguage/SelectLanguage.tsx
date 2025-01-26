@@ -1,6 +1,6 @@
-import { useSettingsStore } from '@/stores/useSettingsStore'
 import { Select } from '@mantine/core'
 import { useIntl } from 'react-intl'
+import { useSettingsStore } from '../../stores/useSettingsStore'
 
 function SelectLanguage() {
   const { language, setLanguage } = useSettingsStore()
@@ -15,6 +15,7 @@ function SelectLanguage() {
         { value: 'en', label: intl.formatMessage({ id: 'english' }) },
         { value: 'pt', label: intl.formatMessage({ id: 'portuguese' }) },
       ]}
+      allowDeselect={false}
     />
   )
 }

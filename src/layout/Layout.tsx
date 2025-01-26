@@ -1,11 +1,11 @@
 import type { FC } from 'react'
-import Navbar from '@/components/NavBar/NavBar'
 import { AppShell, Burger, Group, Title } from '@mantine/core'
 import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import { IconCalendarDollar } from '@tabler/icons-react'
 import { Outlet, useLocation } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { useIntl } from 'react-intl'
+import Navbar from '../components/NavBar'
 
 const Layout: FC = () => {
   const intl = useIntl()

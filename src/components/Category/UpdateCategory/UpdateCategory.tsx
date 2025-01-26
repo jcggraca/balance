@@ -1,17 +1,17 @@
-import type { Category } from '@/db'
-import type { CategoryForm } from '@/utils/interfaces'
 import type { FC } from 'react'
-import IconRenderer from '@/components/IconRenderer'
-import iconsMap from '@/components/IconRenderer/iconsMap'
-import { db } from '@/db'
-import { colorSchema, descriptionSchema, iconSchema, nameSchema } from '@/schema/form'
-import { displayNotification } from '@/utils/form'
+import type { Category } from '../../../db'
+import type { CategoryForm } from '../../../utils/interfaces'
 import { Avatar, Button, ColorInput, Group, Paper, Text, Textarea, TextInput, UnstyledButton } from '@mantine/core'
 import { useForm, zodResolver } from '@mantine/form'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import { db } from '../../../db'
+import { colorSchema, descriptionSchema, iconSchema, nameSchema } from '../../../schema/form'
+import { displayNotification } from '../../../utils/form'
+import IconRenderer from '../../IconRenderer'
+import iconsMap from '../../IconRenderer/iconsMap'
 import classes from './UpdateCategory.module.css'
 
 interface UpdateCategoryProps {
@@ -127,7 +127,6 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
       <Textarea
         label={intl.formatMessage({ id: 'description' })}
         placeholder={intl.formatMessage({ id: 'enterDescription' })}
-        required
         mt="md"
         minLength={2}
         maxLength={350}
@@ -135,7 +134,7 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
       />
 
       <Group mt="xl">
-        <Button type="submit">{intl.formatMessage({ id: 'addCategory' })}</Button>
+        <Button type="submit">{intl.formatMessage({ id: isCreating ? 'addCategory' : 'updateCategory' })}</Button>
         <Button variant="outline" onClick={onClose} type="button">
           {intl.formatMessage({ id: 'cancel' })}
         </Button>

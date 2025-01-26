@@ -1,10 +1,6 @@
-import type { Income } from '@/db'
-import type { IncomeForm, selectorState } from '@/utils/interfaces'
 import type { FC } from 'react'
-import { db } from '@/db'
-import { accountSchema, actionDateSchema, amountSchema, descriptionSchema, nameSchema } from '@/schema/form'
-import { useSettingsStore } from '@/stores/useSettingsStore'
-import { displayNotification } from '@/utils/form'
+import type { Income } from '../../../db'
+import type { IncomeForm, selectorState } from '../../../utils/interfaces'
 import { Button, Group, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm, zodResolver } from '@mantine/form'
@@ -12,6 +8,10 @@ import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import { db } from '../../../db'
+import { accountSchema, actionDateSchema, amountSchema, descriptionSchema, nameSchema } from '../../../schema/form'
+import { useSettingsStore } from '../../../stores/useSettingsStore'
+import { displayNotification } from '../../../utils/form'
 
 interface UpdateIncomeProps {
   onClose: () => void
@@ -86,8 +86,21 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
         }
         await db.income.put(dataUpdate)
 
-        if (income.amount !== amount) {
-          account.amount += amount - income.amount
+        if (income.accountId === values.account && income.amount !== amount) {
+          const amountDiff = values.amount - income.amount
+          account.amount += +amountDiff
+          account.updatedTimestamp = date
+          await db.account.put(account)
+        }
+        else if (income.accountId !== values.account) {
+          const oldAccount = await db.account.get({ id: income.accountId })
+          if (oldAccount) {
+            oldAccount.amount -= income.amount
+            oldAccount.updatedTimestamp = date
+            await db.account.put(oldAccount)
+          }
+
+          account.amount += amount
           account.updatedTimestamp = date
           await db.account.put(account)
         }
@@ -100,7 +113,8 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
       onClose()
     }
     catch (error) {
-      const message = error instanceof Error ? error.message : 'anErrorOccurred'
+      const message = isCreating ? 'failedCreatingIncome' : 'failedUpdatingIncome'
+      console.error(message, error)
       displayNotification(intl, 'error', message, 'red')
     }
   }
@@ -118,11 +132,11 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
       <NumberInput
         label={intl.formatMessage({ id: 'amount' })}
         prefix={currency}
-        hideControls
         decimalScale={2}
+        hideControls
+        placeholder={intl.formatMessage({ id: 'enterAmount' })}
         required
         mt="md"
-        placeholder={intl.formatMessage({ id: 'enterAmount' })}
         {...form.getInputProps('amount')}
       />
 
@@ -132,6 +146,7 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
         data={accountList}
         required
         mt="md"
+        allowDeselect={false}
         {...form.getInputProps('account')}
       />
 
@@ -151,7 +166,7 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
       />
 
       <Group mt="xl">
-        <Button type="submit">{intl.formatMessage({ id: 'addIncome' })}</Button>
+        <Button type="submit">{intl.formatMessage({ id: isCreating ? 'addIncome' : 'updateIncome' })}</Button>
         <Button variant="outline" onClick={onClose}>{intl.formatMessage({ id: 'cancel' })}</Button>
       </Group>
     </form>

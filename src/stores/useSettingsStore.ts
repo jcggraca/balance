@@ -1,14 +1,15 @@
+import dayjs from 'dayjs'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 interface SettingsStore {
   currency: string
   language: string
-  lastBackup: string | null
+  lastBackup: number
   newUser: boolean
   setCurrency: (currency: string) => void
   setLanguage: (language: string) => void
-  setLastBackup: (lastBackup: string | null) => void
+  setLastBackup: (lastBackup: number) => void
   setNewUser: (newUser: boolean) => void
 }
 
@@ -17,7 +18,7 @@ export const useSettingsStore = create<SettingsStore>()(
     set => ({
       currency: '€',
       language: 'en',
-      lastBackup: null,
+      lastBackup: dayjs().valueOf(),
       newUser: true,
       setCurrency: currency => set({ currency }),
       setLanguage: language => set({ language }),

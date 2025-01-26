@@ -1,11 +1,11 @@
-import type { Category } from '@/db'
-import { db } from '@/db'
-import { useSettingsStore } from '@/stores/useSettingsStore'
-import { Button, Checkbox, Group, Modal, Text, Title } from '@mantine/core'
+import type { Category } from '../../db'
+import { Anchor, Button, Checkbox, Group, Modal, Text, Title } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useState } from 'react'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
+import { db } from '../../db'
+import { useSettingsStore } from '../../stores/useSettingsStore'
 import SelectCurrency from '../SelectCurrency'
 import SelectLanguage from '../SelectLanguage'
 
@@ -173,7 +173,14 @@ function WelcomeModal() {
   }
 
   return (
-    <Modal centered opened={opened} onClose={close}>
+    <Modal
+      closeOnClickOutside={false}
+      closeOnEscape={false}
+      centered
+      opened={opened}
+      onClose={close}
+      withCloseButton={false}
+    >
       <Title
         order={2}
         size="h1"
@@ -198,7 +205,15 @@ function WelcomeModal() {
 
       <Checkbox
         mt="md"
-        label={intl.formatMessage({ id: 'termsAgree' })}
+        label={(
+          <>
+            {intl.formatMessage({ id: 'termsAgree' })}
+            {' '}
+            <Anchor href="/terms" target="_blank" inherit>
+              {intl.formatMessage({ id: 'termsTitle' })}
+            </Anchor>
+          </>
+        )}
         onChange={event => setCheckedTerms(event.currentTarget.checked)}
       />
 

@@ -1,9 +1,9 @@
-import type { Income } from '@/db'
 import type { FC } from 'react'
-import DeleteModal from '@/components/DeleteModal/DeleteModal'
-import { db } from '@/db'
+import type { Income } from '../../../db'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
+import { db } from '../../../db'
+import DeleteModal from '../../DeleteModal'
 
 interface DeleteIncomeProps {
   income: Income
@@ -23,10 +23,7 @@ const DeleteIncome: FC<DeleteIncomeProps> = ({ income, onClose }) => {
 
     if (income.accountId) {
       const account = await db.account.get({ id: income.accountId })
-      if (!account) {
-        return console.error(`An account with the ID ${income.accountId} was not found.`)
-      }
-      else {
+      if (account) {
         account.amount -= income.amount
         account.updatedTimestamp = date
         await db.account.put(account)

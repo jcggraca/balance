@@ -1,16 +1,16 @@
-import type { Budget } from '@/db'
-import type { BudgetForm } from '@/utils/interfaces'
 import type { FC } from 'react'
-import { db } from '@/db'
-import { amountSchema, descriptionSchema, nameSchema } from '@/schema/form'
-import { useSettingsStore } from '@/stores/useSettingsStore'
-import { displayNotification } from '@/utils/form'
+import type { Budget } from '../../../db'
+import type { BudgetForm } from '../../../utils/interfaces'
 import { Button, Group, NumberInput, Textarea, TextInput } from '@mantine/core'
 import { useForm, zodResolver } from '@mantine/form'
 import dayjs from 'dayjs'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import { db } from '../../../db'
+import { amountSchema, descriptionSchema, nameSchema } from '../../../schema/form'
+import { useSettingsStore } from '../../../stores/useSettingsStore'
+import { displayNotification } from '../../../utils/form'
 
 interface UpdateBudgetProps {
   onClose: () => void
@@ -108,7 +108,7 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
       />
 
       <Group mt="xl">
-        <Button type="submit">{intl.formatMessage({ id: 'addAccount' })}</Button>
+        <Button type="submit">{intl.formatMessage({ id: isCreating ? 'addBudget' : 'updateBudget' })}</Button>
         <Button variant="outline" onClick={onClose}>{intl.formatMessage({ id: 'cancel' })}</Button>
       </Group>
     </form>
