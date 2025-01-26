@@ -1,7 +1,7 @@
 {
   "name": "balance",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -20,7 +20,7 @@
     "@mantine/hooks": "^7.16.1",
     "@mantine/notifications": "^7.16.1",
     "@tabler/icons-react": "^3.29.0",
-    "@tanstack/react-router": "^1.97.19",
+    "@tanstack/react-router": "^1.97.20",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.11",
     "dexie-export-import": "^4.1.4",
@@ -36,8 +36,8 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.1.0",
-    "@tanstack/router-devtools": "^1.97.19",
-    "@tanstack/router-plugin": "^1.97.19",
+    "@tanstack/router-devtools": "^1.97.20",
+    "@tanstack/router-plugin": "^1.97.20",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vite-pwa/assets-generator": "^0.2.6",
@@ -52,6 +52,7 @@
     "typescript": "^5.7.3",
     "vite": "^6.0.11",
     "vite-plugin-pwa": "^0.21.1",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.4"
   }
 }
