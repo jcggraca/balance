@@ -1,7 +1,7 @@
 {
   "name": "balance",
   "type": "module",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "private": true,
   "engines": {
     "node": "22.x"
@@ -15,7 +15,9 @@
     "prepare": "husky",
     "generate-pwa-assets": "pwa-assets-generator",
     "test": "vitest --run",
-    "test:watch": "vitest"
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@mantine/charts": "^7.16.2",
@@ -52,6 +54,8 @@
     "@types/react-dom": "^19.0.3",
     "@vite-pwa/assets-generator": "^0.2.6",
     "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-istanbul": "^3.0.4",
+    "@vitest/ui": "^3.0.4",
     "eslint": "^9.19.0",
     "globals": "^15.14.0",
     "husky": "^9.1.7",

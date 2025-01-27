@@ -12,7 +12,7 @@ const WarningNotFound: FC<WarningNotFoundProps> = ({ children }) => {
 
   return (
     <span className={classes.warning}>
-      <IconAlertTriangle />
+      <IconAlertTriangle data-testid="warning-icon" />
       {' '}
       {children}
       {' '}

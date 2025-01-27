@@ -2,7 +2,7 @@
 
 A simple personal finance app to help you manage your finances.
 
-<img alt="screen capture" src="screen-capture.png" />
+<img alt="screen capture" src="public/screen-capture.png" />
 
 ## Features
 - A dashboard with a detailed resume of all your expenses and Income, defined for each Month

@@ -12,10 +12,10 @@ import {
   IconSettings,
   IconTags,
 } from '@tabler/icons-react'
-import NavbarLink from '../NavbarLink'
 import ThemeToggle from '../ThemeToggle'
 import classes from './NavBar.module.css'
 import NavBarButtons from './NavBarButtons'
+import NavbarLink from './NavbarLink'
 
 const appLinksData = [
   { icon: IconHome2, label: 'dashboard', to: '/' },

@@ -13,7 +13,7 @@ function IconRenderer({ icon }: IconRendererProps) {
   if (!IconComponent)
     return <Text c="red">{intl.formatMessage({ id: 'iconNotFound' })}</Text>
 
-  return <IconComponent />
+  return <IconComponent data-testid="test-icon" />
 }
 
 export default IconRenderer

@@ -1,5 +1,18 @@
-import { vi } from 'vitest'
+import { cleanup } from '@testing-library/react'
+import { afterEach, vi } from 'vitest'
 import '@testing-library/jest-dom'
+
+// Cleanup after each test
+afterEach(() => {
+  cleanup()
+})
+
+// Mock ResizeObserver
+globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
 
 // Mock `getComputedStyle`
 const { getComputedStyle } = window
@@ -23,9 +36,6 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 })
 
-// Mock ResizeObserver which Mantine needs
-globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
+vi.mock('@mantine/hooks', () => ({
+  useDisclosure: () => [true, { close: vi.fn() }],
 }))
