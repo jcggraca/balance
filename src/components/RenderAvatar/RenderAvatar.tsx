@@ -15,7 +15,7 @@ interface RenderAvatarProps {
 const RenderAvatar: FC<RenderAvatarProps> = ({ displayError, item, categories, placeholderIcon }) => {
   if (displayError) {
     return (
-      <Avatar color="red" radius="xl">
+      <Avatar data-testid="avatar" color="red" radius="xl">
         <IconAlertTriangle />
       </Avatar>
     )
@@ -26,7 +26,7 @@ const RenderAvatar: FC<RenderAvatarProps> = ({ displayError, item, categories, p
   const icon = <IconRenderer icon={(categoryData && categoryData.icon) || placeholderIcon} />
 
   return (
-    <Avatar color={color} radius="xl">
+    <Avatar data-testid="avatar" color={color} radius="xl">
       {icon}
     </Avatar>
   )

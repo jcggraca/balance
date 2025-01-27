@@ -17,6 +17,7 @@ export default defineConfig({
     },
     workbox: {
       globPatterns: ['**/*.{js,css,html}', '**/*.{svg,png,jpg,gif}'],
+      cleanupOutdatedCaches: true,
     },
   })],
   resolve: {

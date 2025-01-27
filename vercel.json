@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/terms",
+      "destination": "/"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
+}
