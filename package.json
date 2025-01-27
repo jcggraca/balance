@@ -1,7 +1,7 @@
 {
   "name": "balance",
   "type": "module",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "engines": {
     "node": "22.x"
@@ -27,7 +27,7 @@
     "@mantine/hooks": "^7.16.2",
     "@mantine/notifications": "^7.16.2",
     "@tabler/icons-react": "^3.29.0",
-    "@tanstack/react-router": "^1.97.23",
+    "@tanstack/react-router": "^1.97.24",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.11",
     "dexie-export-import": "^4.1.4",
@@ -43,8 +43,8 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.1.0",
-    "@tanstack/router-devtools": "^1.97.23",
-    "@tanstack/router-plugin": "^1.97.23",
+    "@tanstack/router-devtools": "^1.97.24",
+    "@tanstack/router-plugin": "^1.97.24",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
