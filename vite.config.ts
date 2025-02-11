@@ -10,15 +10,16 @@ export default defineConfig({
   plugins: [react(), TanStackRouterVite(), tsconfigPaths(), VitePWA({
     registerType: 'autoUpdate',
     manifest,
-    includeAssets: ['favicon.svg', 'favicon-192.svg', 'favicon-512.svg', 'favicon.ico', 'robots.txt', 'apple-touch-icon.svg'],
+    includeAssets: ['**/*'],
     // switch to "true" to enable sw on development
     devOptions: {
       enabled: true,
     },
     workbox: {
-      globPatterns: ['**/*.{js,css,html}', '**/*.{svg,png,jpg,gif}'],
+      globPatterns: ['**/*'],
       cleanupOutdatedCaches: true,
     },
+    selfDestroying: true,
   })],
   resolve: {
     alias: {
