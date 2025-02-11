@@ -47,7 +47,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
       rating: expense?.rating || 'necessary',
       category: expense?.category || '',
       budget: expense?.budget || '',
-      actionDate: expense?.actionTimestamp ? new Date(expense.actionTimestamp) : null,
+      actionDate: expense?.actionTimestamp ? new Date(expense.actionTimestamp) : new Date(),
       description: expense?.description || '',
     },
     validate: zodResolver(schema),
@@ -76,15 +76,16 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
 
   const handleSubmit = async (values: ExpenseForm) => {
     try {
-      const date = dayjs().valueOf()
-
       const account = await db.account.get({ id: values.account })
       if (!account) {
-        throw new Error('missingAccountID')
+        throw new Error(intl.formatMessage({ id: 'missingAccountID' }))
       }
 
+      const amount = Number(values.amount)
+      const date = dayjs().valueOf()
+
       if (isCreating) {
-        if (account.amount < values.amount) {
+        if (account.amount < amount) {
           form.setErrors({ account: intl.formatMessage({ id: 'insufficientAccountBalance' }) })
           return
         }
@@ -92,7 +93,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         const dataNew: Expense = {
           id: uuidv4(),
           name: values.name.trim(),
-          amount: values.amount,
+          amount,
           accountId: values.account,
           rating: values.rating,
           description: values.description.trim(),
@@ -104,14 +105,14 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         }
         await db.expenses.add(dataNew)
 
-        account.amount -= values.amount
+        account.amount -= amount
         account.updatedTimestamp = date
         await db.account.put(account)
 
         if (values.budget) {
           const budgetAccount = await db.budget.get({ id: values.budget })
           if (budgetAccount) {
-            budgetAccount.amount -= values.amount
+            budgetAccount.amount -= amount
             budgetAccount.updatedTimestamp = date
 
             await db.budget.put(budgetAccount)
@@ -126,7 +127,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
           throw new Error('missingExpenseID')
         }
 
-        if ((account.amount + expense.amount) < values.amount) {
+        if ((account.amount + expense.amount) < amount) {
           form.setErrors({ account: intl.formatMessage({ id: 'insufficientAccountBalance' }) })
           return
         }
@@ -146,8 +147,8 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         }
         await db.expenses.put(dataUpdate)
 
-        if (expense.accountId === values.account && expense.amount !== values.amount) {
-          const amountDiff = values.amount - expense.amount
+        if (expense.accountId === values.account && expense.amount !== amount) {
+          const amountDiff = amount - expense.amount
           account.amount -= +amountDiff
           account.updatedTimestamp = date
           await db.account.put(account)
@@ -160,13 +161,13 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
             await db.account.put(oldAccount)
           }
 
-          account.amount -= values.amount
+          account.amount -= amount
           account.updatedTimestamp = date
           await db.account.put(account)
         }
 
-        if (expense.budget === values.budget && expense.amount !== values.amount) {
-          const amountDiff = values.amount - expense.amount
+        if (expense.budget === values.budget && expense.amount !== amount) {
+          const amountDiff = amount - expense.amount
           const budgetAccount = await db.budget.get({ id: values.budget })
           if (budgetAccount) {
             budgetAccount.amount -= +amountDiff
@@ -185,7 +186,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
           if (values.budget) {
             const budgetAccount = await db.budget.get({ id: values.budget })
             if (budgetAccount) {
-              budgetAccount.amount -= values.amount
+              budgetAccount.amount -= amount
               budgetAccount.updatedTimestamp = date
               await db.budget.put(budgetAccount)
             }

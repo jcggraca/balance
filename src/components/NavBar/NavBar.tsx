@@ -30,7 +30,7 @@ const appLinksData = [
 
 const linksData = [
   { icon: IconBrandGithub, label: 'giveAStar', href: 'https://github.com/jcggraca/balance' },
-  { icon: IconMail, label: 'sendFeedback', href: 'mailto:jcggraca@proton.me' },
+  { icon: IconMail, label: 'sendFeedback', href: 'mailto:mail@joaograca.dev' },
 ]
 
 interface NavbarProps {

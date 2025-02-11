@@ -191,6 +191,7 @@ export const messages = {
   termsReadLink: 'Lê os Termos e Condições',
   termsAgree: 'Concordo com os',
   onlyVisual: 'O câmbio/conversão de moeda não está disponível',
+  randomColor: 'Cor aleatória',
 
   defaultCategoryHousing: 'Habitação',
   defaultCategoryHousingDescription: 'Aluguer, hipoteca, impostos sobre a propriedade, seguro de habitação.',

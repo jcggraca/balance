@@ -191,6 +191,7 @@ export const messages = {
   termsReadLink: 'Check out the Terms & Conditions',
   termsAgree: 'I agree with the',
   onlyVisual: 'Currency exchange/converter is not available',
+  randomColor: 'Random color',
 
   defaultCategoryHousing: 'Housing',
   defaultCategoryHousingDescription: 'Rent, mortgage, property taxes, homeowners insurance.',
