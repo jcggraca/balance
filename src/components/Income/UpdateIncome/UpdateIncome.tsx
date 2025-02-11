@@ -38,7 +38,7 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
       amount: income?.amount || 0,
       description: income?.description || '',
       account: income?.accountId || '',
-      actionDate: income?.actionTimestamp ? new Date(income.actionTimestamp) : null,
+      actionDate: income?.actionTimestamp ? new Date(income.actionTimestamp) : new Date(),
     },
     validate: zodResolver(schema),
   })

@@ -25,6 +25,7 @@ import { db } from '../../db'
 import { useSettingsStore } from '../../stores/useSettingsStore'
 import { decrypt, encrypt } from '../../utils/crypto'
 import { displayNotification } from '../../utils/form'
+import { getCurrentDateString } from '../../utils/utils'
 
 const ImportUserDB: FC = () => {
   const intl = useIntl()
@@ -154,7 +155,7 @@ const ImportUserDB: FC = () => {
         placeholder={intl.formatMessage({ id: 'pickFile' })}
         mb="md"
       />
-      <Button type="submit" loading={isLoading}>
+      <Button disabled={!form.getValues().file} type="submit" loading={isLoading}>
         {intl.formatMessage({ id: 'importFile' })}
       </Button>
     </form>
@@ -177,8 +178,9 @@ const ExportUserDB: FC = () => {
       const encryptedData = password
         ? await encrypt(arrayBuffer, password)
         : arrayBuffer
+      const date = getCurrentDateString()
 
-      const fileName = `db.${password ? 'encrypted' : 'json'}`
+      const fileName = `db-${date}.${password ? 'encrypted' : 'json'}`
       const fileURL = URL.createObjectURL(new Blob([encryptedData]))
       const downloadLink = document.createElement('a')
       downloadLink.href = fileURL
@@ -231,7 +233,9 @@ const Settings: FC = () => {
       location.reload()
     }
     catch (error) {
+      const message = intl.formatMessage({ id: 'confirmDeleteDB' })
       console.error('Failed to delete user data:', error)
+      displayNotification(intl, 'error', message, 'red')
     }
   }
 

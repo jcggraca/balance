@@ -1,4 +1,5 @@
 # Balance <img width="32" height="32" alt="screen capture" src="public/favicon.svg" />
+## PWA Financial Tracker – Your Personal Finance Companion
 
 A simple personal finance app to help you manage your finances.
 
@@ -31,23 +32,10 @@ A simple personal finance app to help you manage your finances.
 - [ ] **Account currency:**
 - [ ] **Export PDF report:**
 
-## How to install
-```
-git clone https://github.com/jcggraca/balance.git
-```
-```
-npm install
-```
-```
-npm run dev
-```
-
 ## Contact
 Have questions or feedback? Feel free to reach out:
 - GitHub Issues: [Report an Issue](https://github.com/jcggraca/balance/issues)
-- Email: jcggraca@proton.me
+- Email: mail@joaograca.dev
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
-
-Made by [João](https://www.linkedin.com/in/jcggraca/) :wave:

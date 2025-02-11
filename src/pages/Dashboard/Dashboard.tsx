@@ -116,10 +116,12 @@ function Dashboard() {
         setErrorIncome(null)
       }
       catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'errorMessage'
-        setErrorExpenses(intl.formatMessage({ id: errorMessage }))
-        setErrorIncome(intl.formatMessage({ id: errorMessage }))
+        const errorMessage = intl.formatMessage({ id: 'errorMessage' })
+        setErrorExpenses(errorMessage)
+        setErrorIncome(errorMessage)
         displayNotification(intl, 'error', errorMessage, 'red')
+
+        console.error('Dashboard error:', error)
       }
     }
 
@@ -269,7 +271,7 @@ function Dashboard() {
                         <Table.Td>
                           <Text size="sm" fw={500} c="red">
                             {currency}
-                            {expense.amount}
+                            {Number(expense.amount).toFixed(2)}
                           </Text>
                         </Table.Td>
                         <Table.Td>{dayjs(expense.actionTimestamp).fromNow()}</Table.Td>

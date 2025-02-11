@@ -74,8 +74,9 @@ const UpdateDebt: FC<UpdateDebtProps> = ({ onClose, debt, isCreating = false }) 
       onClose()
     }
     catch (error) {
-      const message = error instanceof Error ? error.message : 'anErrorOccurred'
-      displayNotification(intl, 'error', message, 'red')
+      const title = intl.formatMessage({ id: 'anErrorOccurred' })
+      console.error('UpdateDebt handleSubmit:', error)
+      displayNotification(intl, 'error', title, 'red')
     }
   }
 

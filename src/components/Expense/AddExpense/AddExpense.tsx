@@ -36,7 +36,7 @@ const AddExpense: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
         }))
       }
       catch (error) {
-        console.error('Error fetching:', error)
+        console.error('AddExpense Error fetching:', error)
       }
       finally {
         setIsLoading(false)

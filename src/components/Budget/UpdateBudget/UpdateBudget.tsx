@@ -74,7 +74,8 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
       onClose()
     }
     catch (error) {
-      const message = error instanceof Error ? error.message : 'anErrorOccurred'
+      const message = intl.formatMessage({ id: 'anErrorOccurred' })
+      console.error('UpdateBudget handleSubmit:', error)
       displayNotification(intl, 'error', message, 'red')
     }
   }

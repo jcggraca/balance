@@ -54,7 +54,7 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
         }))
       }
       catch (error) {
-        console.error('Error fetching:', error)
+        console.error('ViewExpense Error fetching:', error)
       }
     }
 

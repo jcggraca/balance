@@ -174,6 +174,7 @@ export const messages = {
   updateExpense: 'Atualizar Despesa',
   balance: 'Saldo',
   confirmDeleteDB: 'Tens a certeza que queres eliminar os teus dados',
+  failedDeleteDB: 'Falha ao eliminar os dados do utilizador',
   wrongPassword: 'Palavra-passe errada',
   cleanBeforeDB: 'Importante: Esta aplicação está em desenvolvimento e não suporta a verificação de itens duplicados. Ao importar uma nova base de dados, todos os dados existentes serão apagados para evitar conflitos. Faz um backup dos teus dados antes de continuar.',
   missingBudgetID: 'ID de orçamento em falta',
@@ -191,6 +192,7 @@ export const messages = {
   termsReadLink: 'Lê os Termos e Condições',
   termsAgree: 'Concordo com os',
   onlyVisual: 'O câmbio/conversão de moeda não está disponível',
+  randomColor: 'Cor aleatória',
 
   defaultCategoryHousing: 'Habitação',
   defaultCategoryHousingDescription: 'Aluguer, hipoteca, impostos sobre a propriedade, seguro de habitação.',
