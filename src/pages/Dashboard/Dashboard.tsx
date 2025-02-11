@@ -271,7 +271,7 @@ function Dashboard() {
                         <Table.Td>
                           <Text size="sm" fw={500} c="red">
                             {currency}
-                            {expense.amount}
+                            {Number(expense.amount).toFixed(2)}
                           </Text>
                         </Table.Td>
                         <Table.Td>{dayjs(expense.actionTimestamp).fromNow()}</Table.Td>
