@@ -67,7 +67,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         setBudgetList(budgets.map(item => ({ value: item.id?.toString() || '', label: item.name })))
       }
       catch (error) {
-        console.error('Error fetching data:', error)
+        console.error('UpdateExpense Error fetching data:', error)
       }
     }
 

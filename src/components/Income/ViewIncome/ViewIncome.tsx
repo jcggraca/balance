@@ -35,7 +35,7 @@ const ViewIncome: FC<ViewIncomeProps> = ({ income, onClose }) => {
         }))
       }
       catch (error) {
-        console.error('Error fetching:', error)
+        console.error('ViewIncome Error fetching:', error)
       }
     }
 

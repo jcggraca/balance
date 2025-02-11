@@ -71,7 +71,8 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
       displayNotification(intl, 'success', title, 'green')
     }
     catch (error) {
-      const title = error instanceof Error ? error.message : intl.formatMessage({ id: 'anErrorOccurred' })
+      const title = intl.formatMessage({ id: 'anErrorOccurred' })
+      console.error('UpdateAccount handleSubmit:', error)
       displayNotification(intl, 'error', title, 'red')
     }
     finally {

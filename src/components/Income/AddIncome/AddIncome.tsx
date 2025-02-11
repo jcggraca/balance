@@ -27,7 +27,7 @@ const AddIncome: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
         }))
       }
       catch (error) {
-        console.error('Error fetching:', error)
+        console.error('AddIncome Error fetching:', error)
       }
       finally {
         setIsLoading(false)

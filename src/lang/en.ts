@@ -174,6 +174,7 @@ export const messages = {
   updateExpense: 'Update Expense',
   balance: 'Balance',
   confirmDeleteDB: 'Are you sure you want to delete your data',
+  failedDeleteDB: 'Failed to delete user data',
   wrongPassword: 'Wrong password',
   cleanBeforeDB: 'Important: This app is currently in development and does not support checking for duplicate items. When importing a new database, all existing data will be cleared to avoid conflicts. Please back up your current data before proceeding.',
   missingBudgetID: 'Budget ID is missing',

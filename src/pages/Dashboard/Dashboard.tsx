@@ -116,10 +116,12 @@ function Dashboard() {
         setErrorIncome(null)
       }
       catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'errorMessage'
-        setErrorExpenses(intl.formatMessage({ id: errorMessage }))
-        setErrorIncome(intl.formatMessage({ id: errorMessage }))
+        const errorMessage = intl.formatMessage({ id: 'errorMessage' })
+        setErrorExpenses(errorMessage)
+        setErrorIncome(errorMessage)
         displayNotification(intl, 'error', errorMessage, 'red')
+
+        console.error('Dashboard error:', error)
       }
     }
 

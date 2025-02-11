@@ -80,8 +80,9 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
       onClose()
     }
     catch (error) {
-      const message = error instanceof Error ? error.message : intl.formatMessage({ id: 'anErrorOccurred' })
-      displayNotification(intl, 'error', message, 'red')
+      const title = intl.formatMessage({ id: 'anErrorOccurred' })
+      console.error('UpdateCategory handleSubmit:', error)
+      displayNotification(intl, 'error', title, 'red')
     }
   }
 

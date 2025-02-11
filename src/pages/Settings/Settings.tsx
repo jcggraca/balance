@@ -233,7 +233,9 @@ const Settings: FC = () => {
       location.reload()
     }
     catch (error) {
+      const message = intl.formatMessage({ id: 'confirmDeleteDB' })
       console.error('Failed to delete user data:', error)
+      displayNotification(intl, 'error', message, 'red')
     }
   }
 
