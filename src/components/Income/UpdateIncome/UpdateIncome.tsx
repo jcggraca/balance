@@ -50,7 +50,7 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
         throw new Error('missingAccountID')
       }
 
-      const amount = Number(values.amount)
+      const amount = Number(Number(values.amount).toFixed(2))
       const date = dayjs().valueOf()
 
       if (isCreating) {

@@ -40,13 +40,14 @@ const UpdateDebt: FC<UpdateDebtProps> = ({ onClose, debt, isCreating = false }) 
   const handleSubmit = async (values: DebtForm) => {
     try {
       const date = dayjs().valueOf()
+      const amount = Number(Number(values.amount).toFixed(2))
 
       if (isCreating) {
         const dataNew: Debt = {
           id: uuidv4(),
           name: values.name.trim(),
           description: values.description?.trim(),
-          amount: Number(values.amount),
+          amount,
           createdTimestamp: date,
           updatedTimestamp: date,
         }
@@ -61,7 +62,7 @@ const UpdateDebt: FC<UpdateDebtProps> = ({ onClose, debt, isCreating = false }) 
           ...debt,
           name: values.name.trim(),
           description: values.description?.trim(),
-          amount: Number(values.amount),
+          amount,
           updatedTimestamp: date,
         }
         await db.debts.put(dataUpdate)

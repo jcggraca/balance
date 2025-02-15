@@ -83,13 +83,13 @@ function Dashboard() {
         const categoryMap = new Map<string, number>()
         selectedMonthExpenses.forEach((expense) => {
           const current = categoryMap.get(expense.category) || 0
-          categoryMap.set(expense.category, current + expense.amount)
+          categoryMap.set(expense.category, current + Number(Number(expense.amount).toFixed(2)))
         })
 
         const categories = await db.categories.toArray()
         const expenseCategory = Array.from(categoryMap.entries()).map(([name, value]) => ({
           name: categories.find(category => category.id === name)?.name || intl.formatMessage({ id: 'categoryNotFound' }),
-          value,
+          value: Number(Number(value).toFixed(2)),
           color: categories.find(category => category.id === name)?.color || '#ff6b6b',
         })).sort((a, b) => b.value - a.value)
 
@@ -240,7 +240,7 @@ function Dashboard() {
                         :
                         {' '}
                         {currency}
-                        {item.value}
+                        {Number(item.value).toFixed(2)}
                       </Text>
                     </Group>
                   ))}

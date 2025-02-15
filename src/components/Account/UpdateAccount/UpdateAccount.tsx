@@ -40,13 +40,14 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
   const handleSubmit = async (values: AccountForm) => {
     try {
       const date = dayjs().valueOf()
+      const amount = Number(Number(values.amount).toFixed(2))
 
       if (isCreating) {
         const dataNew: Account = {
           id: uuidv4(),
           name: values.name.trim(),
           description: values.description?.trim(),
-          amount: Number(values.amount),
+          amount,
           createdTimestamp: date,
           updatedTimestamp: date,
         }
@@ -61,7 +62,7 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
           ...account,
           name: values.name.trim(),
           description: values.description?.trim(),
-          amount: Number(values.amount),
+          amount,
           updatedTimestamp: date,
         }
         await db.account.put(dataUpdate)

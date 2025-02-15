@@ -6,6 +6,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
     coverage: {
+      include: ['src/**'],
       provider: 'istanbul',
       reporter: ['text', 'json-summary', 'json'],
       reportOnFailure: true,

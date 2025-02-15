@@ -293,6 +293,22 @@ const Settings: FC = () => {
           {intl.formatMessage({ id: 'termsReadLink' })}
         </Anchor>
       </Paper>
+
+      <Paper shadow="xs" p="md" withBorder>
+        <Text mb="md">Version: 1.0.7</Text>
+        <Text>
+          Report a bug:
+          {' '}
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Github Issues (opens in a new tab)"
+            href="https://github.com/jcggraca/balance/issues"
+          >
+            Github Issues
+          </a>
+        </Text>
+      </Paper>
     </Stack>
   )
 }
