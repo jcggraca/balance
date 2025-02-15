@@ -12,6 +12,7 @@ const Layout: FC = () => {
   const [opened, { toggle }] = useDisclosure()
   const location = useLocation()
   const isMobile = useMediaQuery('(max-width: 48em)')
+  const currentYear = new Date().getFullYear()
 
   useEffect(() => {
     if (opened && isMobile) {
@@ -45,11 +46,11 @@ const Layout: FC = () => {
   return (
     <AppShell
       header={{ height: 60 }}
+      footer={{ height: 60 }}
       navbar={{ width: 80, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       transitionDuration={0}
       padding="md"
     >
-
       <AppShell.Header>
         <Group h="100%" px="md">
           {isMobile && <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />}
@@ -67,6 +68,19 @@ const Layout: FC = () => {
       <AppShell.Main>
         <Outlet />
       </AppShell.Main>
+
+      <AppShell.Footer p="md">
+        @
+        {currentYear}
+        {' '}
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://joaograca.dev"
+        >
+          João Graça
+        </a>
+      </AppShell.Footer>
     </AppShell>
   )
 }

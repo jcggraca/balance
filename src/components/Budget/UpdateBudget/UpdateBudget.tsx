@@ -40,13 +40,14 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
   const handleSubmit = async (values: BudgetForm) => {
     try {
       const date = dayjs().valueOf()
+      const amount = Number(Number(values.amount).toFixed(2))
 
       if (isCreating) {
         const dataNew: Budget = {
           id: uuidv4(),
           name: values.name.trim(),
           description: values.description?.trim(),
-          amount: Number(values.amount),
+          amount,
           createdTimestamp: date,
           updatedTimestamp: date,
         }
@@ -61,7 +62,7 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
           ...budget,
           name: values.name.trim(),
           description: values.description?.trim(),
-          amount: Number(values.amount),
+          amount,
           updatedTimestamp: date,
         }
         await db.budget.put(dataUpdate)
