@@ -295,7 +295,7 @@ const Settings: FC = () => {
       </Paper>
 
       <Paper shadow="xs" p="md" withBorder>
-        <Text mb="md">Version: 1.0.7</Text>
+        <Text>Version: 1.0.8</Text>
         <Text>
           Report a bug:
           {' '}

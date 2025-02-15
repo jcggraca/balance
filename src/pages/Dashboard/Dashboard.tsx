@@ -89,7 +89,7 @@ function Dashboard() {
         const categories = await db.categories.toArray()
         const expenseCategory = Array.from(categoryMap.entries()).map(([name, value]) => ({
           name: categories.find(category => category.id === name)?.name || intl.formatMessage({ id: 'categoryNotFound' }),
-          value: Number(Number(value).toFixed(2)),
+          value: Number.parseFloat(Number(value).toFixed(2)),
           color: categories.find(category => category.id === name)?.color || '#ff6b6b',
         })).sort((a, b) => b.value - a.value)
 
@@ -240,7 +240,7 @@ function Dashboard() {
                         :
                         {' '}
                         {currency}
-                        {Number(item.value).toFixed(2)}
+                        {item.value}
                       </Text>
                     </Group>
                   ))}
@@ -271,7 +271,7 @@ function Dashboard() {
                         <Table.Td>
                           <Text size="sm" fw={500} c="red">
                             {currency}
-                            {Number(expense.amount).toFixed(2)}
+                            {expense.amount}
                           </Text>
                         </Table.Td>
                         <Table.Td>{dayjs(expense.actionTimestamp).fromNow()}</Table.Td>
