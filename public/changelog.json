@@ -1,0 +1,91 @@
+[
+  {
+    "version": "1.0.9",
+    "date": "20-02-2025",
+    "changes": [
+      "Add Changelog",
+      "Clean CSS"
+    ]
+  },
+  {
+    "version": "1.0.8",
+    "date": "20-02-2025",
+    "changes": [
+      "Fix dashboard decimal numbers",
+      "Add auto focus in modals"
+    ]
+  },
+  {
+    "version": "1.0.7",
+    "date": "15-02-2025",
+    "changes": [
+      "Add footer",
+      "Add version and bug report link",
+      "Add GenericTable unit test"
+    ]
+  },
+  {
+    "version": "1.0.6",
+    "date": "11-02-2025",
+    "changes": [
+      "Fix update and offline PWA"
+    ]
+  },
+  {
+    "version": "1.0.5",
+    "date": "11-02-2025",
+    "changes": [
+      "Fix expense amount calculation",
+      "Add random color button in Update Category",
+      "Change export DB file name",
+      "Update error messages",
+      "Ensure the expense amount is displayed with two decimal places in the Dashboard",
+      "Update README",
+      "Adding Income/Expense the current day it'll be the default Action Date",
+      "Add utils unit test"
+    ]
+  },
+  {
+    "version": "1.0.4",
+    "date": "27-01-2025",
+    "changes": [
+      "Fix Vercel.json",
+      "Update deps"
+    ]
+  },
+  {
+    "version": "1.0.3",
+    "date": "27-01-2025",
+    "changes": [
+      "Fix Vercel 404 error",
+      "Add Richer Install UI",
+      "Config Vitest and add some unit test"
+    ]
+  },
+  {
+    "version": "1.0.2",
+    "date": "27-01-2025",
+    "changes": [
+      "This Version is lost some here"
+    ]
+  },
+  {
+    "version": "1.0.2",
+    "date": "27-01-2025",
+    "changes": [
+      "Fix Twitter/X OG",
+      "Update PT and EN localization",
+      "Fix update Expenses and Income",
+      "Add Backup waning",
+      "Add Category waning",
+      "Update Terms Page"
+    ]
+  },
+  {
+    "version": "1.0.0",
+    "date": "27-01-2025",
+    "changes": [
+      "Stable Version"
+    ]
+  }
+]

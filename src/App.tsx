@@ -2,6 +2,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 import dayjs from 'dayjs'
 import localeData from 'dayjs/plugin/localeData'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import Changelog from './components/Changelog'
 import WelcomeModal from './components/WelcomeModal'
 
 // Import the generated route tree
@@ -27,6 +28,7 @@ function App() {
   return (
     <>
       {newUser && <WelcomeModal />}
+      <Changelog />
       <RouterProvider router={router} />
     </>
   )
