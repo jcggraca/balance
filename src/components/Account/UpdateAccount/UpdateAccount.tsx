@@ -40,7 +40,7 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
   const handleSubmit = async (values: AccountForm) => {
     try {
       const date = dayjs().valueOf()
-      const amount = Number(Number(values.amount).toFixed(2))
+      const amount = Number.parseFloat((values.amount).toFixed(2))
 
       if (isCreating) {
         const dataNew: Account = {
@@ -89,6 +89,7 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
         placeholder={intl.formatMessage({ id: 'enterName' })}
         required
         mt="md"
+        data-autofocus
         {...form.getInputProps('name')}
       />
 

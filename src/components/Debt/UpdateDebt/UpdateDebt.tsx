@@ -40,7 +40,7 @@ const UpdateDebt: FC<UpdateDebtProps> = ({ onClose, debt, isCreating = false }) 
   const handleSubmit = async (values: DebtForm) => {
     try {
       const date = dayjs().valueOf()
-      const amount = Number(Number(values.amount).toFixed(2))
+      const amount = Number.parseFloat(values.amount.toFixed(2))
 
       if (isCreating) {
         const dataNew: Debt = {
@@ -88,6 +88,7 @@ const UpdateDebt: FC<UpdateDebtProps> = ({ onClose, debt, isCreating = false }) 
         placeholder={intl.formatMessage({ id: 'enterName' })}
         required
         mt="md"
+        data-autofocus
         {...form.getInputProps('name')}
       />
 
