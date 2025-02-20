@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import App from './App'
 import LanguageProvider from './lang/LanguageProvider'
-import './styles/global.css'
+import { useAlertsStore } from './stores/useAlertsStore'
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 import '@mantine/dates/styles.css'
@@ -15,6 +15,7 @@ import 'dayjs/locale/pt'
 
 const updateSW = registerSW({
   onNeedRefresh() {
+    useAlertsStore.getState().setShowChangelog(true)
     updateSW(true)
   },
 })

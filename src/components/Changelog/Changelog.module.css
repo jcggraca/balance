@@ -1,0 +1,13 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.listItem {
+  width: 23rem;
+}
+
