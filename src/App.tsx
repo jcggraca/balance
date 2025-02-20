@@ -4,6 +4,7 @@ import localeData from 'dayjs/plugin/localeData'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import Changelog from './components/Changelog'
 import WelcomeModal from './components/WelcomeModal'
+
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 import { useSettingsStore } from './stores/useSettingsStore'

@@ -12,6 +12,7 @@ import {
   IconSettings,
   IconTags,
 } from '@tabler/icons-react'
+import ChangeLogButton from '../ChangeLogButton'
 import ThemeToggle from '../ThemeToggle'
 import classes from './NavBar.module.css'
 import NavBarButtons from './NavBarButtons'
@@ -56,6 +57,7 @@ const Navbar: FC<NavbarProps> = ({ toggle, isMobile }) => {
         {linksData.map(link => (
           <NavBarButtons key={link.label} {...link} isMobile={isMobile} />
         ))}
+        <ChangeLogButton isMobile={isMobile ?? false} />
         <ThemeToggle isMobile={isMobile ?? false} />
       </div>
     </nav>
