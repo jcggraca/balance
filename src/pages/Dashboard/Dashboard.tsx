@@ -83,13 +83,13 @@ function Dashboard() {
         const categoryMap = new Map<string, number>()
         selectedMonthExpenses.forEach((expense) => {
           const current = categoryMap.get(expense.category) || 0
-          categoryMap.set(expense.category, current + Number(Number(expense.amount).toFixed(2)))
+          categoryMap.set(expense.category, current + Number.parseFloat(expense.amount.toFixed(2)))
         })
 
         const categories = await db.categories.toArray()
         const expenseCategory = Array.from(categoryMap.entries()).map(([name, value]) => ({
           name: categories.find(category => category.id === name)?.name || intl.formatMessage({ id: 'categoryNotFound' }),
-          value: Number(Number(value).toFixed(2)),
+          value: Number.parseFloat(value.toFixed(2)),
           color: categories.find(category => category.id === name)?.color || '#ff6b6b',
         })).sort((a, b) => b.value - a.value)
 
@@ -190,7 +190,7 @@ function Dashboard() {
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorIncome}>
                 {currency}
-                {Number(totals.income).toFixed(2)}
+                {Number.parseFloat(totals.income.toFixed(2))}
               </RenderErrorOrChildren>
             </Text>
           </div>
@@ -202,7 +202,7 @@ function Dashboard() {
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorExpenses}>
                 {currency}
-                {Number(totals.expense).toFixed(2)}
+                {Number.parseFloat(totals.expense.toFixed(2))}
               </RenderErrorOrChildren>
             </Text>
           </div>
@@ -214,7 +214,7 @@ function Dashboard() {
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorExpenses}>
                 {currency}
-                {Number(totals.income - totals.expense).toFixed(2)}
+                {Number.parseFloat((totals.income - totals.expense).toFixed(2))}
               </RenderErrorOrChildren>
             </Text>
           </div>
@@ -240,7 +240,7 @@ function Dashboard() {
                         :
                         {' '}
                         {currency}
-                        {Number(item.value).toFixed(2)}
+                        {item.value}
                       </Text>
                     </Group>
                   ))}
@@ -271,7 +271,7 @@ function Dashboard() {
                         <Table.Td>
                           <Text size="sm" fw={500} c="red">
                             {currency}
-                            {Number(expense.amount).toFixed(2)}
+                            {expense.amount}
                           </Text>
                         </Table.Td>
                         <Table.Td>{dayjs(expense.actionTimestamp).fromNow()}</Table.Td>

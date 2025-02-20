@@ -46,7 +46,7 @@ const Layout: FC = () => {
   return (
     <AppShell
       header={{ height: 60 }}
-      footer={{ height: 60 }}
+      footer={{ height: 40 }}
       navbar={{ width: 80, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       transitionDuration={0}
       padding="md"
@@ -69,7 +69,7 @@ const Layout: FC = () => {
         <Outlet />
       </AppShell.Main>
 
-      <AppShell.Footer p="md">
+      <AppShell.Footer p="8px">
         @
         {currentYear}
         {' '}

@@ -40,7 +40,7 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
   const handleSubmit = async (values: BudgetForm) => {
     try {
       const date = dayjs().valueOf()
-      const amount = Number(Number(values.amount).toFixed(2))
+      const amount = Number.parseFloat(values.amount.toFixed(2))
 
       if (isCreating) {
         const dataNew: Budget = {
@@ -88,6 +88,7 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
         placeholder={intl.formatMessage({ id: 'enterName' })}
         required
         mt="md"
+        data-autofocus
         {...form.getInputProps('name')}
       />
 

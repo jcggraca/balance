@@ -50,7 +50,7 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
         throw new Error('missingAccountID')
       }
 
-      const amount = Number(Number(values.amount).toFixed(2))
+      const amount = Number.parseFloat(values.amount.toFixed(2))
       const date = dayjs().valueOf()
 
       if (isCreating) {
@@ -126,6 +126,7 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
         placeholder={intl.formatMessage({ id: 'enterName' })}
         required
         mt="md"
+        data-autofocus
         {...form.getInputProps('name')}
       />
 

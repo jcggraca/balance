@@ -81,7 +81,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         throw new Error(intl.formatMessage({ id: 'missingAccountID' }))
       }
 
-      const amount = Number(Number(values.amount).toFixed(2))
+      const amount = Number.parseFloat(values.amount.toFixed(2))
       const date = dayjs().valueOf()
 
       if (isCreating) {
@@ -222,6 +222,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         placeholder={intl.formatMessage({ id: 'enterName' })}
         required
         mt="md"
+        data-autofocus
         {...form.getInputProps('name')}
       />
 
