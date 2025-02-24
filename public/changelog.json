@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.0.10",
+    "date": "20-02-2025",
+    "changes": [
+      "Fix changelog text",
+      "Update Terms Page"
+    ]
+  },
+  {
     "version": "1.0.9",
     "date": "20-02-2025",
     "changes": [
@@ -66,18 +74,18 @@
     "version": "1.0.2",
     "date": "27-01-2025",
     "changes": [
-      "This Version is lost some here"
+      "This version is lost somewhere"
     ]
   },
   {
-    "version": "1.0.2",
+    "version": "1.0.1",
     "date": "27-01-2025",
     "changes": [
       "Fix Twitter/X OG",
       "Update PT and EN localization",
       "Fix update Expenses and Income",
-      "Add Backup waning",
-      "Add Category waning",
+      "Add Backup warning modal",
+      "Add Category warning modal",
       "Update Terms Page"
     ]
   },
@@ -85,7 +93,7 @@
     "version": "1.0.0",
     "date": "27-01-2025",
     "changes": [
-      "Stable Version"
+      "First Stable Version"
     ]
   }
 ]

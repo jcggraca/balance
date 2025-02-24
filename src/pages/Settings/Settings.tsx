@@ -1,6 +1,5 @@
 import type { FC } from 'react'
 import {
-  Anchor,
   Button,
   Divider,
   FileInput,
@@ -14,6 +13,7 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
+import { Link } from '@tanstack/react-router'
 import dayjs from 'dayjs'
 import Dexie from 'dexie'
 import { exportDB } from 'dexie-export-import'
@@ -289,13 +289,13 @@ const Settings: FC = () => {
         <Text mb="md">{intl.formatMessage({ id: 'privacyPolicyText' })}</Text>
 
         <Title order={3}>{intl.formatMessage({ id: 'termsTitle' })}</Title>
-        <Anchor href="/terms" target="_blank" inherit>
+        <Link to="/terms">
           {intl.formatMessage({ id: 'termsReadLink' })}
-        </Anchor>
+        </Link>
       </Paper>
 
       <Paper shadow="xs" p="md" withBorder>
-        <Text>Version: 1.0.8</Text>
+        <Text>Version: 1.0.10</Text>
         <Text>
           Report a bug:
           {' '}
