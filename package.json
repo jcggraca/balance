@@ -54,8 +54,7 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@vite-pwa/assets-generator": "^1.0.2",
-    "@vitejs/plugin-react": "^5.2.0",
+    "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-istanbul": "^4.1.2",
     "@vitest/ui": "^4.1.2",
     "eslint": "^10.1.0",
@@ -65,10 +64,9 @@
     "postcss": "^8.5.8",
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
     "vite-plugin-pwa": "^1.2.0",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2"
   }
 }
