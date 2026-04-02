@@ -13,7 +13,6 @@
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "prepare": "husky",
-    "generate-pwa-assets": "pwa-assets-generator",
     "test": "vitest --run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest",
@@ -45,18 +44,22 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^8.0.0",
+    "@babel/core": "^7.29.0",
+    "@rolldown/plugin-babel": "^0.2.1",
     "@tanstack/router-devtools": "^1.166.11",
     "@tanstack/router-plugin": "^1.167.12",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/babel__core": "^7.20.5",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-istanbul": "^4.1.2",
     "@vitest/ui": "^4.1.2",
+    "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
     "husky": "^9.1.7",
@@ -67,6 +70,7 @@
     "typescript": "^6.0.2",
     "vite": "^8.0.3",
     "vite-plugin-pwa": "^1.2.0",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.2",
+    "workbox-window": "^7.4.0"
   }
 }
