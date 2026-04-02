@@ -1,5 +1,5 @@
 import { Flex, List, Modal, Text } from '@mantine/core'
-import React, { useEffect, useState } from 'react'
+import useSWR from 'swr'
 import { useAlertsStore } from '../../stores/useAlertsStore'
 import styles from './Changelog.module.css'
 
@@ -9,15 +9,12 @@ interface ChangelogEntry {
   changes: string[]
 }
 
-const Changelog: React.FC = () => {
-  const { showChangelog, setShowChangelog } = useAlertsStore()
-  const [changelog, setChangelog] = useState<ChangelogEntry[]>([])
+const fetcher = (url: string): Promise<ChangelogEntry[]> => fetch(url).then(res => res.json())
 
-  useEffect(() => {
-    fetch('/changelog.json')
-      .then(res => res.json())
-      .then(data => setChangelog(data))
-  }, [])
+export default function Changelog() {
+  const { showChangelog, setShowChangelog } = useAlertsStore()
+
+  const { data: changelog = [] } = useSWR('/changelog.json', fetcher)
 
   return (
     <Modal
@@ -26,8 +23,8 @@ const Changelog: React.FC = () => {
       centered
       title="Changelog"
     >
-      {changelog.map((entry, index) => (
-        <div key={index}>
+      {changelog.map(entry => (
+        <div key={entry.version}>
           <Flex className={styles.header}>
             <Text size="md">
               Version
@@ -40,8 +37,8 @@ const Changelog: React.FC = () => {
           </Flex>
 
           <List mb="md">
-            {entry.changes.map((change, idx) => (
-              <List.Item className={styles.listItem} key={idx}>
+            {entry.changes.map(change => (
+              <List.Item className={styles.listItem} key={change}>
                 {change}
               </List.Item>
             ))}
@@ -51,5 +48,3 @@ const Changelog: React.FC = () => {
     </Modal>
   )
 }
-
-export default Changelog

@@ -23,46 +23,44 @@ function GenericMobileList({
 
   return (
     <div className={classes.container}>
-      {data?.map((item, index) => {
+      {data?.map((item) => {
         return (
-          <span key={index}>
-            <Card
-              key={index}
-              role="button"
-              onClick={() => onClick(item)}
-              radius="lg"
-              mt="xs"
-              mb="xs"
-              w="100%"
-            >
-              <Grid>
-                <Grid.Col span="content">
-                  {'icon' in item
-                    ? (
-                        <Avatar color={item?.color ? item.color : 'green'} radius="xl">
-                          {item?.icon ? <IconRenderer icon={item.icon} /> : <IconMoneybag />}
-                        </Avatar>
-                      )
-                    : <IconMoneybag />}
-                </Grid.Col>
+          <Card
+            key={item.id}
+            role="button"
+            onClick={() => onClick(item)}
+            radius="lg"
+            mt="xs"
+            mb="xs"
+            w="100%"
+          >
+            <Grid>
+              <Grid.Col span="content">
+                {'icon' in item
+                  ? (
+                      <Avatar color={item?.color ? item.color : 'green'} radius="xl">
+                        {item?.icon ? <IconRenderer icon={item.icon} /> : <IconMoneybag />}
+                      </Avatar>
+                    )
+                  : <IconMoneybag />}
+              </Grid.Col>
 
-                <Grid.Col span="auto">
-                  <Text className={classes.name}>
-                    {item.name}
+              <Grid.Col span="auto">
+                <Text className={classes.name}>
+                  {item.name}
+                </Text>
+              </Grid.Col>
+
+              {'amount' in item && (
+                <Grid.Col span="content">
+                  <Text>
+                    {currency}
+                    {item.amount}
                   </Text>
                 </Grid.Col>
-
-                {'amount' in item && (
-                  <Grid.Col span="content">
-                    <Text>
-                      {currency}
-                      {item.amount}
-                    </Text>
-                  </Grid.Col>
-                )}
-              </Grid>
-            </Card>
-          </span>
+              )}
+            </Grid>
+          </Card>
         )
       })}
     </div>

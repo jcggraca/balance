@@ -2,8 +2,9 @@ import type { FC } from 'react'
 import type { Debt } from '../../../db'
 import type { DebtForm } from '../../../utils/interfaces'
 import { Button, Group, NumberInput, Textarea, TextInput } from '@mantine/core'
-import { useForm, zodResolver } from '@mantine/form'
+import { useForm } from '@mantine/form'
 import dayjs from 'dayjs'
+import { zod4Resolver } from 'mantine-form-zod-resolver'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
@@ -28,13 +29,15 @@ const UpdateDebt: FC<UpdateDebtProps> = ({ onClose, debt, isCreating = false }) 
     amount: amountSchema(intl),
   })
 
-  const form = useForm<DebtForm>({
+  type DebtFormValues = z.infer<typeof schema>
+
+  const form = useForm<DebtFormValues>({
     initialValues: {
       name: debt?.name || '',
       amount: debt?.amount || 0,
       description: debt?.description || '',
     },
-    validate: zodResolver(schema),
+    validate: zod4Resolver(schema),
   })
 
   const handleSubmit = async (values: DebtForm) => {
@@ -46,7 +49,7 @@ const UpdateDebt: FC<UpdateDebtProps> = ({ onClose, debt, isCreating = false }) 
         const dataNew: Debt = {
           id: uuidv4(),
           name: values.name.trim(),
-          description: values.description?.trim(),
+          description: values.description?.trim() || '',
           amount,
           createdTimestamp: date,
           updatedTimestamp: date,
@@ -61,7 +64,7 @@ const UpdateDebt: FC<UpdateDebtProps> = ({ onClose, debt, isCreating = false }) 
         const dataUpdate: Debt = {
           ...debt,
           name: values.name.trim(),
-          description: values.description?.trim(),
+          description: values.description?.trim() || '',
           amount,
           updatedTimestamp: date,
         }

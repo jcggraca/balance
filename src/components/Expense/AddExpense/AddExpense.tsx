@@ -1,14 +1,17 @@
-import type { FC } from 'react'
 import type { selectorState } from '../../../utils/interfaces'
-import { Button, Modal, Tooltip } from '@mantine/core'
+import { Modal } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { IconPlus } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { db } from '../../../db'
 import UpdateExpense from '../UpdateExpense'
+import { RenderAddButton } from './RenderAddButton'
 
-const AddExpense: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
+interface AddExpenseProps {
+  isMobile?: boolean
+}
+
+export default function AddExpense({ isMobile }: AddExpenseProps) {
   const intl = useIntl()
   const [opened, { open, close }] = useDisclosure(false)
 
@@ -52,41 +55,9 @@ const AddExpense: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
     }
   }, [])
 
-  const RenderAddButton = () => {
-    if (isMobile) {
-      if ((accountList.length === 0 || categoriesList.length === 0) && !isLoading) {
-        return (
-          <Tooltip
-            opened
-            label={intl.formatMessage({
-              id: accountList.length === 0 ? 'oneAccountAddExpense' : 'oneCategoryAddExpense',
-            })}
-          >
-            <Button disabled className="mobileAddButton"><IconPlus /></Button>
-          </Tooltip>
-        )
-      }
-      return <Button className="mobileAddButton" onClick={open}><IconPlus /></Button>
-    }
-    else {
-      if ((accountList.length === 0 || categoriesList.length === 0) && !isLoading) {
-        return (
-          <Tooltip
-            label={intl.formatMessage({
-              id: accountList.length === 0 ? 'oneAccountAddExpense' : 'oneCategoryAddExpense',
-            })}
-          >
-            <Button disabled>{intl.formatMessage({ id: 'addExpense' })}</Button>
-          </Tooltip>
-        )
-      }
-      return <Button onClick={open}>{intl.formatMessage({ id: 'addExpense' })}</Button>
-    }
-  }
-
   return (
     <>
-      <RenderAddButton />
+      <RenderAddButton isMobile={isMobile} accountList={accountList} categoriesList={categoriesList} isLoading={isLoading} open={open} />
 
       <Modal opened={opened} onClose={close} title={intl.formatMessage({ id: 'addExpense' })}>
         <UpdateExpense onClose={close} isCreating />
@@ -94,5 +65,3 @@ const AddExpense: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
     </>
   )
 }
-
-export default AddExpense

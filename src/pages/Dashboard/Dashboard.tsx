@@ -1,16 +1,35 @@
 import type { ReactNode } from 'react'
 import type { Expense } from '../../db'
 import { PieChart } from '@mantine/charts'
-import { ActionIcon, Alert, Box, Card, Grid, Group, SimpleGrid, Stack, Table, Tabs, Text } from '@mantine/core'
-import { IconAlertTriangle, IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import {
+  Alert,
+  Box,
+  Card,
+  Grid,
+  Group,
+  SimpleGrid,
+  Stack,
+  Table,
+  Text,
+} from '@mantine/core'
+import {
+  IconAlertTriangle,
+} from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { db } from '../../db'
 import { useSettingsStore } from '../../stores/useSettingsStore'
 import { displayNotification } from '../../utils/form'
+import DashboardHeader from './DashboardHeader'
 
-function RenderErrorOrChildren({ error, children }: { error: string | null, children: ReactNode }) {
+function RenderErrorOrChildren({
+  error,
+  children,
+}: {
+  error: string | null
+  children: ReactNode
+}) {
   const intl = useIntl()
 
   if (error) {
@@ -28,30 +47,65 @@ function RenderErrorOrChildren({ error, children }: { error: string | null, chil
   return children
 }
 
-function Dashboard() {
+interface State {
+  expenses: Expense[]
+  errorExpenses: string | null
+  errorIncome: string | null
+  totals: { income: number, expense: number }
+  lengthMonths: number
+  expensesByCategories: { name: string, value: number, color: string }[]
+}
+
+type Action
+  = | { type: 'SUCCESS', payload: Partial<State> }
+    | { type: 'ERROR', payload: string }
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'SUCCESS':
+      return {
+        ...state,
+        ...action.payload,
+        errorExpenses: null,
+        errorIncome: null,
+      }
+    case 'ERROR':
+      return {
+        ...state,
+        errorExpenses: action.payload,
+        errorIncome: action.payload,
+      }
+    default:
+      return state
+  }
+}
+
+export default function Dashboard() {
   const intl = useIntl()
   const { currency, lastBackup } = useSettingsStore()
 
   const [backupWarning, setBackupWarning] = useState(0)
-  const [expenses, setExpenses] = useState<Expense[]>([])
-  const [errorExpenses, setErrorExpenses] = useState<string | null>(null)
-  const [errorIncome, setErrorIncome] = useState<string | null>(null)
-  const [totals, setTotals] = useState({ income: 0, expense: 0 })
-  const [lengthMonths, setLengthMonths] = useState(1)
-  const [selectedMonth, setSelectedMonth] = useState(dayjs().format('YYYY-MM'))
-  const [expensesByCategories, setExpensesByCategories] = useState<{ name: string, value: number, color: string }[]>([])
+  const [selectedMonth, setSelectedMonth] = useState(
+    () => dayjs().format('YYYY-MM'),
+  )
 
-  const monthOptions = Array.from({ length: lengthMonths }, (_, i) => {
-    const date = dayjs().subtract((lengthMonths - 1) - i, 'month')
-    return {
-      value: date.format('YYYY-MM'),
-      label: date.format('MMMM'),
-      year: date.format('YYYY'),
-    }
+  const [state, dispatch] = useReducer(reducer, {
+    expenses: [],
+    errorExpenses: null,
+    errorIncome: null,
+    totals: { income: 0, expense: 0 },
+    lengthMonths: 1,
+    expensesByCategories: [],
   })
 
-  const [visibleStartIndex, setVisibleStartIndex] = useState(0)
-  const visibleMonths = monthOptions.slice(visibleStartIndex, visibleStartIndex + 6)
+  const {
+    expenses,
+    errorExpenses,
+    errorIncome,
+    totals,
+    lengthMonths,
+    expensesByCategories,
+  } = state
 
   useEffect(() => {
     const currentDay = dayjs().valueOf()
@@ -65,114 +119,119 @@ function Dashboard() {
       try {
         const allExpensesData = await db.expenses.toArray()
         const allIncomeData = await db.income.toArray()
-        const startOfMonth = dayjs(selectedMonth).startOf('month').valueOf()
-        const endOfMonth = dayjs(selectedMonth).endOf('month').valueOf()
 
-        const latestExpenses = allExpensesData
-          .filter(exp => exp.actionTimestamp >= startOfMonth && exp.actionTimestamp <= endOfMonth)
+        const startOfMonth = dayjs(selectedMonth)
+          .startOf('month')
+          .valueOf()
+        const endOfMonth = dayjs(selectedMonth)
+          .endOf('month')
+          .valueOf()
+
+        const selectedMonthExpenses = allExpensesData.filter(
+          exp =>
+            exp.actionTimestamp >= startOfMonth
+            && exp.actionTimestamp <= endOfMonth,
+        )
+
+        const selectedMonthIncome = allIncomeData.filter(
+          inc =>
+            inc.actionTimestamp >= startOfMonth
+            && inc.actionTimestamp <= endOfMonth,
+        )
+
+        const latestExpenses = selectedMonthExpenses
           .sort((a, b) => b.actionTimestamp - a.actionTimestamp)
           .slice(0, 10)
 
-        const selectedMonthExpenses = allExpensesData
-          .filter(exp => exp.actionTimestamp >= startOfMonth && exp.actionTimestamp <= endOfMonth)
-
-        const selectedMonthIncome = allIncomeData
-          .filter(inc => inc.actionTimestamp >= startOfMonth && inc.actionTimestamp <= endOfMonth)
-
-        // Calculate expenses by category
         const categoryMap = new Map<string, number>()
+
         selectedMonthExpenses.forEach((expense) => {
           const current = categoryMap.get(expense.category) || 0
-          categoryMap.set(expense.category, current + Number.parseFloat(expense.amount.toFixed(2)))
+          categoryMap.set(
+            expense.category,
+            current + Number.parseFloat(expense.amount.toFixed(2)),
+          )
         })
 
         const categories = await db.categories.toArray()
-        const expenseCategory = Array.from(categoryMap.entries()).map(([name, value]) => ({
-          name: categories.find(category => category.id === name)?.name || intl.formatMessage({ id: 'categoryNotFound' }),
-          value: Number.parseFloat(value.toFixed(2)),
-          color: categories.find(category => category.id === name)?.color || '#ff6b6b',
-        })).sort((a, b) => b.value - a.value)
+        const categoryById = new Map(categories.map(c => [c.id, c]))
 
-        setExpensesByCategories(expenseCategory)
+        const expenseCategory = Array.from(categoryMap.entries())
+          .map(([id, value]) => {
+            const category = categoryById.get(id)
 
-        setExpenses(latestExpenses)
-        setTotals({
-          expense: selectedMonthExpenses.reduce((acc, curr) => acc + curr.amount, 0),
-          income: selectedMonthIncome.reduce((acc, curr) => acc + curr.amount, 0),
+            return {
+              name:
+                category?.name
+                || intl.formatMessage({ id: 'categoryNotFound' }),
+              value: Number.parseFloat(value.toFixed(2)),
+              color: category?.color || '#ff6b6b',
+            }
+          })
+          .sort((a, b) => b.value - a.value)
+
+        const oldestExpense
+          = allExpensesData.length > 0
+            ? allExpensesData.reduce((min, curr) =>
+                curr.actionTimestamp < min.actionTimestamp ? curr : min,
+              )
+            : null
+
+        const oldestIncome
+          = allIncomeData.length > 0
+            ? allIncomeData.reduce((min, curr) =>
+                curr.actionTimestamp < min.actionTimestamp ? curr : min,
+              )
+            : null
+
+        const oldestTimestamp = Math.min(
+          oldestExpense?.actionTimestamp ?? Date.now(),
+          oldestIncome?.actionTimestamp ?? Date.now(),
+        )
+
+        const difference = dayjs().diff(
+          dayjs(oldestTimestamp).format('YYYY-MM'),
+          'month',
+        )
+
+        dispatch({
+          type: 'SUCCESS',
+          payload: {
+            expenses: latestExpenses,
+            totals: {
+              expense: selectedMonthExpenses.reduce(
+                (acc, curr) => acc + curr.amount,
+                0,
+              ),
+              income: selectedMonthIncome.reduce(
+                (acc, curr) => acc + curr.amount,
+                0,
+              ),
+            },
+            expensesByCategories: expenseCategory,
+            lengthMonths: Math.max(difference + 1, 1),
+          },
         })
-
-        const oldestExpense = allExpensesData.length > 0
-          ? allExpensesData.sort((a, b) => a.actionTimestamp - b.actionTimestamp)[0]
-          : { actionTimestamp: Date.now() }
-        const oldestIncome = allIncomeData.length > 0
-          ? allIncomeData.sort((a, b) => a.actionTimestamp - b.actionTimestamp)[0]
-          : { actionTimestamp: Date.now() }
-
-        const oldestMonth = dayjs(Math.min(oldestExpense.actionTimestamp, oldestIncome.actionTimestamp)).format('YYYY-MM')
-        const difference = dayjs().diff(oldestMonth, 'month')
-        setLengthMonths(Math.max(difference + 1, 1))
-
-        setErrorExpenses(null)
-        setErrorIncome(null)
       }
       catch (error) {
         const errorMessage = intl.formatMessage({ id: 'errorMessage' })
-        setErrorExpenses(errorMessage)
-        setErrorIncome(errorMessage)
-        displayNotification(intl, 'error', errorMessage, 'red')
 
+        dispatch({ type: 'ERROR', payload: errorMessage })
+
+        displayNotification(intl, 'error', errorMessage, 'red')
         console.error('Dashboard error:', error)
       }
     }
 
     fetchExpenses()
-  }, [selectedMonth])
+  }, [selectedMonth, intl])
 
   return (
     <>
-      <Group gap={0} mb="md" style={{ width: '100%' }}>
-        <ActionIcon
-          variant="subtle"
-          onClick={() => setVisibleStartIndex(prev => Math.max(0, prev - 1))}
-          disabled={visibleStartIndex === 0}
-        >
-          <IconChevronLeft size={16} />
-        </ActionIcon>
-
-        <Tabs
-          value={selectedMonth}
-          onChange={value => setSelectedMonth(value || dayjs().format('YYYY-MM'))}
-          style={{ flex: 1 }}
-        >
-          <Tabs.List style={{ width: '100%' }}>
-            {visibleMonths.map((month) => {
-              return (
-                <Tabs.Tab
-                  key={month.value}
-                  value={month.value}
-                  style={{ flex: 1 }}
-                >
-                  <Text tt="capitalize">{month.label}</Text>
-                  <Text size="xs" c="dimmed" style={{ marginLeft: 4 }}>
-                    {month.year}
-                  </Text>
-                </Tabs.Tab>
-              )
-            })}
-          </Tabs.List>
-        </Tabs>
-
-        <ActionIcon
-          variant="subtle"
-          onClick={() => setVisibleStartIndex(prev => Math.min(monthOptions.length - 6, prev + 1))}
-          disabled={visibleStartIndex >= monthOptions.length - 6}
-        >
-          <IconChevronRight size={16} />
-        </ActionIcon>
-      </Group>
+      <DashboardHeader lengthMonths={lengthMonths} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} />
 
       {backupWarning > 7 && (
-        <Alert variant="light" color="red" title="Account status" mb="md">
+        <Alert variant="light" color="red" mb="md">
           The last backup was
           {' '}
           {backupWarning}
@@ -181,7 +240,7 @@ function Dashboard() {
         </Alert>
       )}
 
-      <Card style={{ overflow: 'hidden', maxWidth: '100%' }} withBorder padding="lg" radius="md" mb="md">
+      <Card withBorder padding="lg" radius="md" mb="md">
         <SimpleGrid cols={{ base: 3 }}>
           <div>
             <Text size="lg" fw={500} c="green">
@@ -190,7 +249,7 @@ function Dashboard() {
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorIncome}>
                 {currency}
-                {Number.parseFloat(totals.income.toFixed(2))}
+                {totals.income.toFixed(2)}
               </RenderErrorOrChildren>
             </Text>
           </div>
@@ -202,19 +261,25 @@ function Dashboard() {
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorExpenses}>
                 {currency}
-                {Number.parseFloat(totals.expense.toFixed(2))}
+                {totals.expense.toFixed(2)}
               </RenderErrorOrChildren>
             </Text>
           </div>
 
           <div>
-            <Text size="lg" fw={500} c={totals.income - totals.expense < 0 ? 'red' : 'green'}>
+            <Text
+              size="lg"
+              fw={500}
+              c={
+                totals.income - totals.expense < 0 ? 'red' : 'green'
+              }
+            >
               {intl.formatMessage({ id: 'balance' })}
             </Text>
             <Text size="xl" fw={700}>
               <RenderErrorOrChildren error={errorExpenses}>
                 {currency}
-                {Number.parseFloat((totals.income - totals.expense).toFixed(2))}
+                {(totals.income - totals.expense).toFixed(2)}
               </RenderErrorOrChildren>
             </Text>
           </div>
@@ -225,20 +290,27 @@ function Dashboard() {
         <Grid.Col span={{ base: 12, sm: 6 }}>
           {expensesByCategories.length > 0 && (
             <Card withBorder padding="lg" radius="md" mb="md">
-              <Text size="lg" fw={500} mb="md">{intl.formatMessage({ id: 'expensesByCategories' })}</Text>
+              <Text size="lg" fw={500} mb="md">
+                {intl.formatMessage({ id: 'expensesByCategories' })}
+              </Text>
+
               <Group align="center">
-                <PieChart
-                  data={expensesByCategories}
-                  size={300}
-                />
+                <PieChart data={expensesByCategories} size={300} />
+
                 <Stack>
                   {expensesByCategories.map(item => (
                     <Group key={item.name} gap="xs">
-                      <Box w={16} h={16} style={{ backgroundColor: item.color, borderRadius: 4 }} />
+                      <Box
+                        w={16}
+                        h={16}
+                        style={{
+                          backgroundColor: item.color,
+                          borderRadius: 4,
+                        }}
+                      />
                       <Text size="sm">
-                        {item?.name || 'error'}
+                        {item.name}
                         :
-                        {' '}
                         {currency}
                         {item.value}
                       </Text>
@@ -253,17 +325,26 @@ function Dashboard() {
         <Grid.Col span={{ base: 12, sm: 6 }}>
           {expenses.length > 0 && (
             <Card withBorder padding="lg" radius="md">
-              <Text size="lg" fw={500} c="red">{intl.formatMessage({ id: 'last10Expenses' })}</Text>
+              <Text size="lg" fw={500} c="red">
+                {intl.formatMessage({ id: 'last10Expenses' })}
+              </Text>
 
               <RenderErrorOrChildren error={errorExpenses}>
                 <Table>
                   <Table.Thead>
                     <Table.Tr>
-                      <Table.Th>{intl.formatMessage({ id: 'name' })}</Table.Th>
-                      <Table.Th>{intl.formatMessage({ id: 'amount' })}</Table.Th>
-                      <Table.Th>{intl.formatMessage({ id: 'date' })}</Table.Th>
+                      <Table.Th>
+                        {intl.formatMessage({ id: 'name' })}
+                      </Table.Th>
+                      <Table.Th>
+                        {intl.formatMessage({ id: 'amount' })}
+                      </Table.Th>
+                      <Table.Th>
+                        {intl.formatMessage({ id: 'date' })}
+                      </Table.Th>
                     </Table.Tr>
                   </Table.Thead>
+
                   <Table.Tbody>
                     {expenses.map(expense => (
                       <Table.Tr key={expense.id}>
@@ -274,7 +355,9 @@ function Dashboard() {
                             {expense.amount}
                           </Text>
                         </Table.Td>
-                        <Table.Td>{dayjs(expense.actionTimestamp).fromNow()}</Table.Td>
+                        <Table.Td>
+                          {dayjs(expense.actionTimestamp).fromNow()}
+                        </Table.Td>
                       </Table.Tr>
                     ))}
                   </Table.Tbody>
@@ -287,5 +370,3 @@ function Dashboard() {
     </>
   )
 }
-
-export default Dashboard

@@ -3,8 +3,9 @@ import type { Income } from '../../../db'
 import type { IncomeForm, selectorState } from '../../../utils/interfaces'
 import { Button, Group, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
-import { useForm, zodResolver } from '@mantine/form'
+import { useForm } from '@mantine/form'
 import dayjs from 'dayjs'
+import { zod4Resolver } from 'mantine-form-zod-resolver'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
@@ -32,15 +33,19 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
     account: accountSchema(intl),
   })
 
-  const form = useForm<IncomeForm>({
+  type IncomeFormValues = z.infer<typeof schema>
+
+  const form = useForm<IncomeFormValues>({
     initialValues: {
       name: income?.name || '',
       amount: income?.amount || 0,
       description: income?.description || '',
       account: income?.accountId || '',
-      actionDate: income?.actionTimestamp ? new Date(income.actionTimestamp) : new Date(),
+      actionDate: income?.actionTimestamp
+        ? new Date(income.actionTimestamp)
+        : new Date(),
     },
-    validate: zodResolver(schema),
+    validate: zod4Resolver(schema),
   })
 
   const handleSubmit = async (values: IncomeForm) => {
@@ -58,8 +63,8 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
           id: uuidv4(),
           name: values.name.trim(),
           amount,
-          accountId: values.account,
-          description: values.description?.trim(),
+          accountId: values.account || '',
+          description: values.description?.trim() || '',
           actionTimestamp: dayjs(values.actionDate).valueOf(),
           createdTimestamp: date,
           updatedTimestamp: date,
@@ -78,8 +83,8 @@ const UpdateIncome: FC<UpdateIncomeProps> = ({ onClose, accountList, income, isC
         const dataUpdate: Income = {
           ...income,
           name: values.name.trim(),
-          accountId: values.account,
-          description: values.description.trim(),
+          accountId: values.account || '',
+          description: values.description?.trim() || '',
           amount,
           actionTimestamp: dayjs(values.actionDate).valueOf(),
           updatedTimestamp: date,

@@ -1,9 +1,8 @@
-import type { FC } from 'react'
 import type { Expense } from '../../../db'
 import type { selectorState } from '../../../utils/interfaces'
 import { Button, Group, Modal, Table } from '@mantine/core'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import { useIntl } from 'react-intl'
 import { db } from '../../../db'
 import { useSettingsStore } from '../../../stores/useSettingsStore'
@@ -17,41 +16,72 @@ interface ViewExpenseProps {
   onClose: () => void
 }
 
-const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
+interface State {
+  editMode: boolean
+  categoriesList: selectorState[]
+  accountList: selectorState[]
+  budgetList: selectorState[]
+}
+
+type Action
+  = | { type: 'SET_DATA', payload: Partial<Omit<State, 'editMode'>> }
+    | { type: 'SET_EDIT', payload: boolean }
+    | { type: 'RESET_EDIT' }
+
+const initialState: State = {
+  editMode: false,
+  categoriesList: [],
+  accountList: [],
+  budgetList: [],
+}
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'SET_DATA':
+      return { ...state, ...action.payload }
+    case 'SET_EDIT':
+      return { ...state, editMode: action.payload }
+    case 'RESET_EDIT':
+      return { ...state, editMode: false }
+    default:
+      return state
+  }
+}
+
+export default function ViewExpense({ expense, onClose }: ViewExpenseProps) {
   const intl = useIntl()
   const { currency } = useSettingsStore()
 
-  const [editMode, setEditMode] = useState(false)
-  const [categoriesList, setCategoriesList] = useState<selectorState[]>([])
-  const [accountList, setAccountList] = useState<selectorState[]>([])
-  const [budgetList, setBudgetList] = useState<selectorState[]>([])
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const { editMode, categoriesList, accountList, budgetList } = state
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedCategories = await db.categories.toArray()
-        setCategoriesList(fetchedCategories.map((item) => {
-          return {
-            value: item.id?.toString() || '',
-            label: item.name,
-          }
-        }))
+        const [fetchedCategories, fetchedAccounts, fetchedBudget]
+          = await Promise.all([
+            db.categories.toArray(),
+            db.account.toArray(),
+            db.budget.toArray(),
+          ])
 
-        const fetchedAccounts = await db.account.toArray()
-        setAccountList(fetchedAccounts.map((item) => {
-          return {
-            value: item.id?.toString() || '',
-            label: item.name,
-          }
-        }))
-
-        const fetchedBudget = await db.budget.toArray()
-        setBudgetList(fetchedBudget.map((item) => {
-          return {
-            value: item.id?.toString() || '',
-            label: item.name,
-          }
-        }))
+        dispatch({
+          type: 'SET_DATA',
+          payload: {
+            categoriesList: fetchedCategories.map(item => ({
+              value: item.id?.toString() || '',
+              label: item.name,
+            })),
+            accountList: fetchedAccounts.map(item => ({
+              value: item.id?.toString() || '',
+              label: item.name,
+            })),
+            budgetList: fetchedBudget.map(item => ({
+              value: item.id?.toString() || '',
+              label: item.name,
+            })),
+          },
+        })
       }
       catch (error) {
         console.error('ViewExpense Error fetching:', error)
@@ -61,22 +91,31 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
     fetchData()
 
     return () => {
-      setEditMode(false)
+      dispatch({ type: 'RESET_EDIT' })
     }
   }, [])
 
   const getRatingName = (value: string) => {
     const findRating = RATING.find(o => o.value === value)
-    if (findRating)
-      return <span style={{ color: findRating.color }}>{intl.formatMessage({ id: findRating.label })}</span>
-    return <WarningNotFound>{intl.formatMessage({ id: 'rating' })}</WarningNotFound>
+    if (findRating) {
+      return (
+        <span style={{ color: findRating.color }}>
+          {intl.formatMessage({ id: findRating.label })}
+        </span>
+      )
+    }
+    return (
+      <WarningNotFound>{intl.formatMessage({ id: 'rating' })}</WarningNotFound>
+    )
   }
 
   const getCategoryName = (id: string) => {
     const findCategory = categoriesList?.find(o => o.value === id)
     if (findCategory)
       return findCategory.label
-    return <WarningNotFound>{intl.formatMessage({ id: 'category' })}</WarningNotFound>
+    return (
+      <WarningNotFound>{intl.formatMessage({ id: 'category' })}</WarningNotFound>
+    )
   }
 
   const getBudgetName = (id: string) => {
@@ -85,18 +124,27 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
     const findBudget = budgetList?.find(o => o.value === id)
     if (findBudget)
       return findBudget.label
-    return <WarningNotFound>{intl.formatMessage({ id: 'budget' })}</WarningNotFound>
+    return (
+      <WarningNotFound>{intl.formatMessage({ id: 'budget' })}</WarningNotFound>
+    )
   }
 
   const getAccountName = (id: string) => {
     const findAccount = accountList?.find(o => o.value === id)
     if (findAccount)
       return findAccount.label
-    return <WarningNotFound>{intl.formatMessage({ id: 'account' })}</WarningNotFound>
+    return (
+      <WarningNotFound>{intl.formatMessage({ id: 'account' })}</WarningNotFound>
+    )
   }
 
   return (
-    <Modal centered opened onClose={onClose} title={intl.formatMessage({ id: 'expenseDetails' })}>
+    <Modal
+      centered
+      opened
+      onClose={onClose}
+      title={intl.formatMessage({ id: 'expenseDetails' })}
+    >
       {editMode
         ? (
             <UpdateExpense onClose={onClose} expense={expense} />
@@ -127,45 +175,35 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
                       {intl.formatMessage({ id: 'account' })}
                       :
                     </Table.Th>
-                    <Table.Td>
-                      {getAccountName(expense.accountId)}
-                    </Table.Td>
+                    <Table.Td>{getAccountName(expense.accountId)}</Table.Td>
                   </Table.Tr>
                   <Table.Tr>
                     <Table.Th w={100}>
                       {intl.formatMessage({ id: 'category' })}
                       :
                     </Table.Th>
-                    <Table.Td>
-                      {getCategoryName(expense.category)}
-                    </Table.Td>
+                    <Table.Td>{getCategoryName(expense.category)}</Table.Td>
                   </Table.Tr>
                   <Table.Tr>
                     <Table.Th w={100}>
                       {intl.formatMessage({ id: 'rating' })}
                       :
                     </Table.Th>
-                    <Table.Td>
-                      {getRatingName(expense.rating)}
-                    </Table.Td>
+                    <Table.Td>{getRatingName(expense.rating)}</Table.Td>
                   </Table.Tr>
                   <Table.Tr>
                     <Table.Th w={100}>
                       {intl.formatMessage({ id: 'budget' })}
                       :
                     </Table.Th>
-                    <Table.Td>
-                      {getBudgetName(expense.budget)}
-                    </Table.Td>
+                    <Table.Td>{getBudgetName(expense.budget)}</Table.Td>
                   </Table.Tr>
                   <Table.Tr>
                     <Table.Th w={100}>
                       {intl.formatMessage({ id: 'actionDate' })}
                       :
                     </Table.Th>
-                    <Table.Td>
-                      {dayjs(expense.actionTimestamp).format('DD/MM/YYYY')}
-                    </Table.Td>
+                    <Table.Td>{dayjs(expense.actionTimestamp).format('DD/MM/YYYY')}</Table.Td>
                   </Table.Tr>
                   <Table.Tr>
                     <Table.Th w={100}>
@@ -200,14 +238,16 @@ const ViewExpense: FC<ViewExpenseProps> = ({ expense, onClose }) => {
               </Table>
 
               <Group mt="xl">
-                <Button onClick={() => setEditMode(true)}>{intl.formatMessage({ id: 'edit' })}</Button>
+                <Button onClick={() => dispatch({ type: 'SET_EDIT', payload: true })}>
+                  {intl.formatMessage({ id: 'edit' })}
+                </Button>
                 <DeleteExpense expense={expense} onClose={onClose} />
-                <Button variant="outline" onClick={onClose}>{intl.formatMessage({ id: 'close' })}</Button>
+                <Button variant="outline" onClick={onClose}>
+                  {intl.formatMessage({ id: 'close' })}
+                </Button>
               </Group>
             </>
           )}
     </Modal>
   )
 }
-
-export default ViewExpense

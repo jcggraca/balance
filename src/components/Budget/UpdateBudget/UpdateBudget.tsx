@@ -2,8 +2,9 @@ import type { FC } from 'react'
 import type { Budget } from '../../../db'
 import type { BudgetForm } from '../../../utils/interfaces'
 import { Button, Group, NumberInput, Textarea, TextInput } from '@mantine/core'
-import { useForm, zodResolver } from '@mantine/form'
+import { useForm } from '@mantine/form'
 import dayjs from 'dayjs'
+import { zod4Resolver } from 'mantine-form-zod-resolver'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
@@ -28,13 +29,15 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
     amount: amountSchema(intl),
   })
 
-  const form = useForm<BudgetForm>({
+  type BudgetFormValues = z.infer<typeof schema>
+
+  const form = useForm<BudgetFormValues>({
     initialValues: {
       name: budget?.name || '',
       amount: budget?.amount || 0,
       description: budget?.description || '',
     },
-    validate: zodResolver(schema),
+    validate: zod4Resolver(schema),
   })
 
   const handleSubmit = async (values: BudgetForm) => {
@@ -46,7 +49,7 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
         const dataNew: Budget = {
           id: uuidv4(),
           name: values.name.trim(),
-          description: values.description?.trim(),
+          description: values.description?.trim() || '',
           amount,
           createdTimestamp: date,
           updatedTimestamp: date,
@@ -61,7 +64,7 @@ const UpdateBudget: FC<UpdateBudgetProps> = ({ onClose, budget, isCreating = fal
         const dataUpdate: Budget = {
           ...budget,
           name: values.name.trim(),
-          description: values.description?.trim(),
+          description: values.description?.trim() || '',
           amount,
           updatedTimestamp: date,
         }

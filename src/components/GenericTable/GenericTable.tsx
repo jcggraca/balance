@@ -7,14 +7,14 @@ interface Column<T> {
   render: (item: T) => React.ReactNode
 }
 
-interface GenericTableProps<T> {
+interface GenericTableProps<T extends { id: string }> {
   data: T[] | undefined
   columns: Column<T>[]
   onClick?: (item: T) => void
   emptyMessage: string
 }
 
-function GenericTable<T,>({
+function GenericTable<T extends { id: string }>({
   data,
   columns,
   onClick,
@@ -44,9 +44,9 @@ function GenericTable<T,>({
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {data?.map((item, index) => (
+          {data?.map(item => (
             <Table.Tr
-              key={index}
+              key={item.id}
               className={classes.table}
               onClick={() => onClick?.(item)}
             >

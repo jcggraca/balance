@@ -2,9 +2,10 @@ import type { FC } from 'react'
 import type { Category } from '../../../db'
 import type { CategoryForm } from '../../../utils/interfaces'
 import { Avatar, Button, ColorInput, Flex, Group, Paper, Text, Textarea, TextInput, UnstyledButton } from '@mantine/core'
-import { useForm, zodResolver } from '@mantine/form'
+import { useForm } from '@mantine/form'
 import { IconDice } from '@tabler/icons-react'
 import dayjs from 'dayjs'
+import { zod4Resolver } from 'mantine-form-zod-resolver'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
@@ -31,14 +32,16 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
     icon: iconSchema(intl),
   })
 
-  const form = useForm<CategoryForm>({
+  type CategoryFormValues = z.infer<typeof schema>
+
+  const form = useForm<CategoryFormValues>({
     initialValues: {
       name: category?.name || '',
       description: category?.description || '',
       color: category?.color || '#0055ff',
       icon: category?.icon as keyof typeof iconsMap || 'IconShoppingCart',
     },
-    validate: zodResolver(schema),
+    validate: zod4Resolver(schema),
   })
 
   const handleSubmit = async (values: CategoryForm) => {
@@ -50,7 +53,7 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
           ...values,
           id: uuidv4(),
           name: values.name.trim(),
-          description: values.description?.trim(),
+          description: values.description?.trim() || '',
           icon: values.icon as keyof typeof iconsMap,
           createdTimestamp: date,
           updatedTimestamp: date,
@@ -67,7 +70,7 @@ const UpdateCategory: FC<UpdateCategoryProps> = ({ onClose, category, isCreating
           ...values,
           icon: values.icon as keyof typeof iconsMap,
           name: values.name.trim(),
-          description: values.description?.trim(),
+          description: values.description?.trim() || '',
           updatedTimestamp: date,
         }
         await db.categories.put(dataUpdate)

@@ -1,14 +1,17 @@
-import type { FC } from 'react'
 import type { selectorState } from '../../../utils/interfaces'
-import { Button, Modal, Tooltip } from '@mantine/core'
+import { Modal } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { IconPlus } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import { db } from '../../../db'
 import UpdateIncome from '../UpdateIncome'
+import RenderAddButton from './RenderAddButton'
 
-const AddIncome: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
+interface AddIncomeProps {
+  isMobile?: boolean
+}
+
+export default function AddIncome({ isMobile }: AddIncomeProps) {
   const intl = useIntl()
   const [opened, { open, close }] = useDisclosure(false)
 
@@ -42,32 +45,9 @@ const AddIncome: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
     }
   }, [])
 
-  const RenderAddButton = () => {
-    if (isMobile) {
-      if (accountList.length === 0 && !isLoading) {
-        return (
-          <Tooltip opened label={intl.formatMessage({ id: 'oneAccountAddExpense' })}>
-            <Button disabled className="mobileAddButton"><IconPlus /></Button>
-          </Tooltip>
-        )
-      }
-      return <Button className="mobileAddButton" onClick={open}><IconPlus /></Button>
-    }
-    else {
-      if (accountList.length === 0 && !isLoading) {
-        return (
-          <Tooltip label={intl.formatMessage({ id: 'oneAccountAddExpense' })}>
-            <Button disabled>{intl.formatMessage({ id: 'addIncome' })}</Button>
-          </Tooltip>
-        )
-      }
-      return <Button onClick={open}>{intl.formatMessage({ id: 'addIncome' })}</Button>
-    }
-  }
-
   return (
     <>
-      <RenderAddButton />
+      <RenderAddButton isMobile={isMobile} accountList={accountList} isLoading={isLoading} open={open} />
 
       <Modal centered opened={opened} onClose={close} title={intl.formatMessage({ id: 'addIncome' })}>
         <UpdateIncome accountList={accountList} onClose={close} isCreating />
@@ -75,5 +55,3 @@ const AddIncome: FC<{ isMobile?: boolean }> = ({ isMobile }) => {
     </>
   )
 }
-
-export default AddIncome

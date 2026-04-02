@@ -58,7 +58,7 @@ function TransactionMobileList({
 
   return (
     <div className={classes.container}>
-      {data?.map((item, index) => {
+      {data?.map((item) => {
         let showDate = false
 
         if (lastDay.current !== item.actionTimestamp) {
@@ -69,12 +69,11 @@ function TransactionMobileList({
         const displayError = !getAccount(item.accountId)
 
         return (
-          <span key={index}>
+          <span key={item.id}>
             {showDate && (
               <Text>{dayjs(item.actionTimestamp).format('DD MMM YYYY')}</Text>
             )}
             <Card
-              key={index}
               role="button"
               onClick={() => onClick(item)}
               radius="lg"

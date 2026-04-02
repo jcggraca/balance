@@ -1,11 +1,11 @@
-import type { FC } from 'react'
 import type { Expense } from '../../../db'
 import type { ExpenseForm, selectorState } from '../../../utils/interfaces'
 import { Button, Group, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
-import { useForm, zodResolver } from '@mantine/form'
+import { useForm } from '@mantine/form'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { zod4Resolver } from 'mantine-form-zod-resolver'
+import { useEffect, useReducer } from 'react'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
@@ -21,13 +21,36 @@ interface UpdateExpenseProps {
   expense?: Expense
 }
 
-const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = false }) => {
+interface State {
+  categoriesList: selectorState[]
+  accountList: selectorState[]
+  budgetList: selectorState[]
+}
+
+type Action
+  = | { type: 'SET_DATA', payload: Partial<State> }
+
+const initialState: State = {
+  categoriesList: [],
+  accountList: [],
+  budgetList: [],
+}
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'SET_DATA':
+      return { ...state, ...action.payload }
+    default:
+      return state
+  }
+}
+
+export default function UpdateExpense({ onClose, expense, isCreating = false }: UpdateExpenseProps) {
   const intl = useIntl()
   const { currency } = useSettingsStore()
 
-  const [categoriesList, setCategoriesList] = useState<selectorState[]>([])
-  const [accountList, setAccountList] = useState<selectorState[]>([])
-  const [budgetList, setBudgetList] = useState<selectorState[]>([])
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const { categoriesList, accountList, budgetList } = state
 
   const schema = z.object({
     name: nameSchema(intl),
@@ -37,9 +60,12 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
     account: accountSchema(intl),
     rating: ratingSchema(intl),
     category: categorySchema(intl),
+    budget: z.string().optional(),
   })
 
-  const form = useForm<ExpenseForm>({
+  type ExpenseFormValues = z.infer<typeof schema>
+
+  const form = useForm<ExpenseFormValues>({
     initialValues: {
       name: expense?.name || '',
       amount: expense?.amount || 0,
@@ -47,10 +73,12 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
       rating: expense?.rating || 'necessary',
       category: expense?.category || '',
       budget: expense?.budget || '',
-      actionDate: expense?.actionTimestamp ? new Date(expense.actionTimestamp) : new Date(),
+      actionDate: expense?.actionTimestamp
+        ? new Date(expense.actionTimestamp)
+        : new Date(),
       description: expense?.description || '',
     },
-    validate: zodResolver(schema),
+    validate: zod4Resolver(schema),
   })
 
   useEffect(() => {
@@ -62,9 +90,14 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
           db.budget.toArray(),
         ])
 
-        setCategoriesList(categories.map(item => ({ value: item.id?.toString() || '', label: item.name })))
-        setAccountList(accounts.map(item => ({ value: item.id?.toString() || '', label: item.name })))
-        setBudgetList(budgets.map(item => ({ value: item.id?.toString() || '', label: item.name })))
+        dispatch({
+          type: 'SET_DATA',
+          payload: {
+            categoriesList: categories.map(item => ({ value: item.id?.toString() || '', label: item.name })),
+            accountList: accounts.map(item => ({ value: item.id?.toString() || '', label: item.name })),
+            budgetList: budgets.map(item => ({ value: item.id?.toString() || '', label: item.name })),
+          },
+        })
       }
       catch (error) {
         console.error('UpdateExpense Error fetching data:', error)
@@ -77,9 +110,8 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
   const handleSubmit = async (values: ExpenseForm) => {
     try {
       const account = await db.account.get({ id: values.account })
-      if (!account) {
+      if (!account)
         throw new Error(intl.formatMessage({ id: 'missingAccountID' }))
-      }
 
       const amount = Number.parseFloat(values.amount.toFixed(2))
       const date = dayjs().valueOf()
@@ -96,7 +128,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
           amount,
           accountId: values.account,
           rating: values.rating,
-          description: values.description.trim(),
+          description: values.description?.trim() || '',
           category: values.category,
           budget: values.budget || '',
           actionTimestamp: dayjs(values.actionDate).valueOf(),
@@ -114,7 +146,6 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
           if (budgetAccount) {
             budgetAccount.amount -= amount
             budgetAccount.updatedTimestamp = date
-
             await db.budget.put(budgetAccount)
           }
           else {
@@ -123,9 +154,8 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         }
       }
       else {
-        if (!expense?.id) {
+        if (!expense?.id)
           throw new Error('missingExpenseID')
-        }
 
         if ((account.amount + expense.amount) < amount) {
           form.setErrors({ account: intl.formatMessage({ id: 'insufficientAccountBalance' }) })
@@ -138,7 +168,7 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
           amount: values.amount,
           accountId: values.account,
           rating: values.rating,
-          description: values.description.trim(),
+          description: values.description?.trim() || '',
           category: values.category,
           budget: values.budget || '',
           actionTimestamp: dayjs(values.actionDate).valueOf(),
@@ -147,9 +177,9 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         }
         await db.expenses.put(dataUpdate)
 
+        // Update accounts and budgets
         if (expense.accountId === values.account && expense.amount !== amount) {
-          const amountDiff = amount - expense.amount
-          account.amount -= +amountDiff
+          account.amount -= (amount - expense.amount)
           account.updatedTimestamp = date
           await db.account.put(account)
         }
@@ -167,10 +197,9 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         }
 
         if (expense.budget === values.budget && expense.amount !== amount) {
-          const amountDiff = amount - expense.amount
           const budgetAccount = await db.budget.get({ id: values.budget })
           if (budgetAccount) {
-            budgetAccount.amount -= +amountDiff
+            budgetAccount.amount -= (amount - expense.amount)
             budgetAccount.updatedTimestamp = date
             await db.budget.put(budgetAccount)
           }
@@ -194,17 +223,13 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
         }
       }
 
-      const message = isCreating ? 'expenseAddedSuccessfully' : 'expenseUpdatedSuccessfully'
-      displayNotification(intl, 'success', message, 'green')
-
+      displayNotification(intl, 'success', isCreating ? 'expenseAddedSuccessfully' : 'expenseUpdatedSuccessfully', 'green')
       form.reset()
       onClose()
     }
     catch (error) {
-      const message = isCreating ? 'failedCreatingExpense' : 'failedUpdatingExpense'
-      console.error(message, error)
-      displayNotification(intl, 'error', message, 'red')
-
+      console.error(isCreating ? 'failedCreatingExpense' : 'failedUpdatingExpense', error)
+      displayNotification(intl, 'error', isCreating ? 'failedCreatingExpense' : 'failedUpdatingExpense', 'red')
       form.reset()
       onClose()
     }
@@ -299,5 +324,3 @@ const UpdateExpense: FC<UpdateExpenseProps> = ({ onClose, expense, isCreating = 
     </form>
   )
 }
-
-export default UpdateExpense

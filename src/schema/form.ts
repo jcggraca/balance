@@ -52,11 +52,17 @@ export function accountSchema(intl: IntlShape) {
     .min(1, { message: intl.formatMessage({ id: 'accountIsRequired' }) })
 }
 
-// TODO: Validating from a List
+export const ALLOWED_RATINGS = [
+  'necessary',
+  'avoidable',
+  'not-necessary',
+] as const
+
 export function ratingSchema(intl: IntlShape) {
   return z
-    .string()
-    .min(1, { message: intl.formatMessage({ id: 'ratingIsRequired' }) })
+    .enum(ALLOWED_RATINGS, {
+      error: intl.formatMessage({ id: 'ratingIsRequired' }),
+    })
 }
 
 // TODO: Validating from a List Dynamically
@@ -66,12 +72,12 @@ export function categorySchema(intl: IntlShape) {
     .min(1, { message: intl.formatMessage({ id: 'categoryIsRequired' }) })
 }
 
-export function colorSchema(intl: IntlShape) {
-  const hexRegex = /^#(?:[0-9A-F]{3}){1,2}$/i
+const HEX_REGEX = /^#(?:[0-9A-F]{3}){1,2}$/i
 
+export function colorSchema(intl: IntlShape) {
   return z
     .string()
-    .refine(value => hexRegex.test(value), {
+    .refine(value => HEX_REGEX.test(value), {
       message: intl.formatMessage({ id: 'colorInvalid' }),
     })
 }

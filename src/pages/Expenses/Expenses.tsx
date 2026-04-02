@@ -88,17 +88,27 @@ const Expenses: FC = () => {
     return filterExpenses(allExpenses, filters)
   }, [filters])
 
+  const accountIds = useMemo(
+    () => new Set(accountsList?.map(a => a.id)),
+    [accountsList],
+  )
+
+  const categoryIds = useMemo(
+    () => new Set(categories?.map(c => c.id)),
+    [categories],
+  )
+
   const accountNotFound = useMemo(() => {
-    if (!expenses || !accountsList)
+    if (!expenses || !accountIds)
       return 0
-    return expenses.filter(e => !accountsList.find(a => a.id === e.accountId)).length
-  }, [expenses, accountsList])
+    return expenses.filter(e => !accountIds.has(e.accountId)).length
+  }, [expenses, accountIds])
 
   const categoryNotFound = useMemo(() => {
-    if (!expenses || !categories)
+    if (!expenses || !categoryIds)
       return 0
-    return expenses.filter(e => !categories.find(a => a.id === e.category)).length
-  }, [expenses, categories])
+    return expenses.filter(e => !categoryIds.has(e.category)).length
+  }, [expenses, categoryIds])
 
   const columns = useMemo(
     () => [

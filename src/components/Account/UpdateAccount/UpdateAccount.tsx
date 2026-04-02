@@ -2,8 +2,9 @@ import type { FC } from 'react'
 import type { Account } from '../../../db'
 import type { AccountForm } from '../../../utils/interfaces'
 import { Button, Group, NumberInput, Textarea, TextInput } from '@mantine/core'
-import { useForm, zodResolver } from '@mantine/form'
+import { useForm } from '@mantine/form'
 import dayjs from 'dayjs'
+import { zod4Resolver } from 'mantine-form-zod-resolver'
 import { useIntl } from 'react-intl'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
@@ -28,13 +29,15 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
     amount: amountAccountSchema(intl),
   })
 
-  const form = useForm<AccountForm>({
+  type AccountFormValues = z.infer<typeof schema>
+
+  const form = useForm<AccountFormValues>({
     initialValues: {
       name: account?.name || '',
       amount: account?.amount || 0,
       description: account?.description || '',
     },
-    validate: zodResolver(schema),
+    validate: zod4Resolver(schema),
   })
 
   const handleSubmit = async (values: AccountForm) => {
@@ -46,7 +49,7 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
         const dataNew: Account = {
           id: uuidv4(),
           name: values.name.trim(),
-          description: values.description?.trim(),
+          description: values.description?.trim() || '',
           amount,
           createdTimestamp: date,
           updatedTimestamp: date,
@@ -61,7 +64,7 @@ const UpdateAccount: FC<UpdateAccountProps> = ({ onClose, account, isCreating = 
         const dataUpdate: Account = {
           ...account,
           name: values.name.trim(),
-          description: values.description?.trim(),
+          description: values.description?.trim() || '',
           amount,
           updatedTimestamp: date,
         }

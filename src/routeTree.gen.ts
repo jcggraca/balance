@@ -10,149 +10,63 @@
 
 import { createFileRoute } from '@tanstack/react-router'
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as TermsImport } from './routes/terms'
+const SettingsLazyRouteImport = createFileRoute('/settings')()
+const IncomeLazyRouteImport = createFileRoute('/income')()
+const ExpensesLazyRouteImport = createFileRoute('/expenses')()
+const DebtsLazyRouteImport = createFileRoute('/debts')()
+const CategoriesLazyRouteImport = createFileRoute('/categories')()
+const BudgetLazyRouteImport = createFileRoute('/budget')()
+const AccountsLazyRouteImport = createFileRoute('/accounts')()
+const IndexLazyRouteImport = createFileRoute('/')()
 
-// Create Virtual Routes
-
-const SettingsLazyImport = createFileRoute('/settings')()
-const IncomeLazyImport = createFileRoute('/income')()
-const ExpensesLazyImport = createFileRoute('/expenses')()
-const DebtsLazyImport = createFileRoute('/debts')()
-const CategoriesLazyImport = createFileRoute('/categories')()
-const BudgetLazyImport = createFileRoute('/budget')()
-const AccountsLazyImport = createFileRoute('/accounts')()
-const IndexLazyImport = createFileRoute('/')()
-
-// Create/Update Routes
-
-const SettingsLazyRoute = SettingsLazyImport.update({
+const SettingsLazyRoute = SettingsLazyRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/settings.lazy').then((d) => d.Route))
-
-const IncomeLazyRoute = IncomeLazyImport.update({
+const IncomeLazyRoute = IncomeLazyRouteImport.update({
   id: '/income',
   path: '/income',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/income.lazy').then((d) => d.Route))
-
-const ExpensesLazyRoute = ExpensesLazyImport.update({
+const ExpensesLazyRoute = ExpensesLazyRouteImport.update({
   id: '/expenses',
   path: '/expenses',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/expenses.lazy').then((d) => d.Route))
-
-const DebtsLazyRoute = DebtsLazyImport.update({
+const DebtsLazyRoute = DebtsLazyRouteImport.update({
   id: '/debts',
   path: '/debts',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/debts.lazy').then((d) => d.Route))
-
-const CategoriesLazyRoute = CategoriesLazyImport.update({
+const CategoriesLazyRoute = CategoriesLazyRouteImport.update({
   id: '/categories',
   path: '/categories',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/categories.lazy').then((d) => d.Route))
-
-const BudgetLazyRoute = BudgetLazyImport.update({
+const BudgetLazyRoute = BudgetLazyRouteImport.update({
   id: '/budget',
   path: '/budget',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/budget.lazy').then((d) => d.Route))
-
-const AccountsLazyRoute = AccountsLazyImport.update({
+const AccountsLazyRoute = AccountsLazyRouteImport.update({
   id: '/accounts',
   path: '/accounts',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/accounts.lazy').then((d) => d.Route))
-
-const TermsRoute = TermsImport.update({
+const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexLazyRoute = IndexLazyImport.update({
+const IndexLazyRoute = IndexLazyRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsImport
-      parentRoute: typeof rootRoute
-    }
-    '/accounts': {
-      id: '/accounts'
-      path: '/accounts'
-      fullPath: '/accounts'
-      preLoaderRoute: typeof AccountsLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/budget': {
-      id: '/budget'
-      path: '/budget'
-      fullPath: '/budget'
-      preLoaderRoute: typeof BudgetLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/categories': {
-      id: '/categories'
-      path: '/categories'
-      fullPath: '/categories'
-      preLoaderRoute: typeof CategoriesLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/debts': {
-      id: '/debts'
-      path: '/debts'
-      fullPath: '/debts'
-      preLoaderRoute: typeof DebtsLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/expenses': {
-      id: '/expenses'
-      path: '/expenses'
-      fullPath: '/expenses'
-      preLoaderRoute: typeof ExpensesLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/income': {
-      id: '/income'
-      path: '/income'
-      fullPath: '/income'
-      preLoaderRoute: typeof IncomeLazyImport
-      parentRoute: typeof rootRoute
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsLazyImport
-      parentRoute: typeof rootRoute
-    }
-  }
-}
-
-// Create and export the route tree
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
@@ -165,7 +79,6 @@ export interface FileRoutesByFullPath {
   '/income': typeof IncomeLazyRoute
   '/settings': typeof SettingsLazyRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/terms': typeof TermsRoute
@@ -177,9 +90,8 @@ export interface FileRoutesByTo {
   '/income': typeof IncomeLazyRoute
   '/settings': typeof SettingsLazyRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
   '/terms': typeof TermsRoute
   '/accounts': typeof AccountsLazyRoute
@@ -190,7 +102,6 @@ export interface FileRoutesById {
   '/income': typeof IncomeLazyRoute
   '/settings': typeof SettingsLazyRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -227,7 +138,6 @@ export interface FileRouteTypes {
     | '/settings'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   TermsRoute: typeof TermsRoute
@@ -238,6 +148,74 @@ export interface RootRouteChildren {
   ExpensesLazyRoute: typeof ExpensesLazyRoute
   IncomeLazyRoute: typeof IncomeLazyRoute
   SettingsLazyRoute: typeof SettingsLazyRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/income': {
+      id: '/income'
+      path: '/income'
+      fullPath: '/income'
+      preLoaderRoute: typeof IncomeLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expenses': {
+      id: '/expenses'
+      path: '/expenses'
+      fullPath: '/expenses'
+      preLoaderRoute: typeof ExpensesLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/debts': {
+      id: '/debts'
+      path: '/debts'
+      fullPath: '/debts'
+      preLoaderRoute: typeof DebtsLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categories': {
+      id: '/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof CategoriesLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/budget': {
+      id: '/budget'
+      path: '/budget'
+      fullPath: '/budget'
+      preLoaderRoute: typeof BudgetLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accounts': {
+      id: '/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AccountsLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -251,55 +229,6 @@ const rootRouteChildren: RootRouteChildren = {
   IncomeLazyRoute: IncomeLazyRoute,
   SettingsLazyRoute: SettingsLazyRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/terms",
-        "/accounts",
-        "/budget",
-        "/categories",
-        "/debts",
-        "/expenses",
-        "/income",
-        "/settings"
-      ]
-    },
-    "/": {
-      "filePath": "index.lazy.tsx"
-    },
-    "/terms": {
-      "filePath": "terms.tsx"
-    },
-    "/accounts": {
-      "filePath": "accounts.lazy.tsx"
-    },
-    "/budget": {
-      "filePath": "budget.lazy.tsx"
-    },
-    "/categories": {
-      "filePath": "categories.lazy.tsx"
-    },
-    "/debts": {
-      "filePath": "debts.lazy.tsx"
-    },
-    "/expenses": {
-      "filePath": "expenses.lazy.tsx"
-    },
-    "/income": {
-      "filePath": "income.lazy.tsx"
-    },
-    "/settings": {
-      "filePath": "settings.lazy.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

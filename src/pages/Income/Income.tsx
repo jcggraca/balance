@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import type { Account, Income as IncomeType } from '../../db'
 import { Card } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
@@ -47,7 +47,7 @@ function filterExpenses(expenses: IncomeType[], filters: Filters): IncomeType[] 
   })
 }
 
-const Income: FC = () => {
+export default function Income() {
   const intl = useIntl()
   const { currency } = useSettingsStore()
   const isMobile = useMediaQuery('(max-width: 48em)')
@@ -69,7 +69,10 @@ const Income: FC = () => {
   const accountNotFound = useMemo(() => {
     if (!incomeList || !accountsList)
       return 0
-    return incomeList.filter(e => !accountsList.find(a => a.id === e.accountId)).length
+
+    return incomeList.filter(
+      e => !accountsList.some(a => a.id === e.accountId),
+    ).length
   }, [incomeList, accountsList])
 
   const columns = useMemo(
@@ -172,5 +175,3 @@ const Income: FC = () => {
     </>
   )
 }
-
-export default Income
